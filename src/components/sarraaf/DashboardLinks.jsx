@@ -1,153 +1,82 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import React, { useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
+import {
+  ArrowLeftRight, Coins, Users, Send, Vault, BookOpen,
+  ChartNoAxesCombined, Building2, ShoppingBag, Settings2, ChevronDown
+} from 'lucide-react';
 import DesktopDashboardLinks from '@/components/sarraaf/DesktopDashboardLinks';
 
-const STORAGE_KEY = 'dashboard_layout_v2';
+// One tile per work area. Existing routes remain available as compact text links.
+const GROUPS = [
+  { id: 'operations', label: 'عملیات صرافی', icon: ArrowLeftRight, paths: ['/trade', '/dadogereft', '/convert'] },
+  { id: 'rates', label: 'ارز و نرخ‌ها', icon: Coins, paths: ['/currencies', '/sarraaf-market'] },
+  { id: 'customers', label: 'مشتریان و مطالبات', icon: Users, paths: ['/customers', '/debtors'] },
+  { id: 'transfers', label: 'حواله و تسویه', icon: Send, paths: ['/transfer-book'] },
+  { id: 'treasury', label: 'صندوق و خزانه‌داری', icon: Vault, paths: ['/cash', '/bank', '/receipt'] },
+  { id: 'accounting', label: 'حسابداری و دفاتر', icon: BookOpen, paths: ['/journal', '/general-ledger', '/balance-sheet', '/reconciliation'] },
+  { id: 'reports', label: 'گزارش و تحلیل', icon: ChartNoAxesCombined, paths: ['/reports', '/profit-loss'] },
+  { id: 'organization', label: 'شعب و نمایندگی‌ها', icon: Building2, paths: ['/agents', '/agency-network'] },
+  { id: 'digital', label: 'خدمات دیجیتال', icon: ShoppingBag, paths: ['/online-products'] },
+  { id: 'system', label: 'ارتباطات و تنظیمات', icon: Settings2, paths: ['/sarraaf-chat', '/settings'] },
+];
 
-export default function DashboardLinks({
-  allLinks,
-  renderLink,
-  primaryCount = 9,
-}) {
-  const [layout, setLayout] = useState(null);
-  const [moreOpen, setMoreOpen] = useState(false);
-
-  const linkMap = useMemo(() => {
-    const m = {};
-    for (const l of allLinks) m[l.path] = l;
-    return m;
-  }, [allLinks]);
-
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        setLayout(parsed.items || null);
-      }
-    } catch (e) {}
-  }, []);
-
-  const fullLayout = useMemo(() => {
-    if (!layout) return allLinks.map(l => ({ type: 'link', path: l.path }));
-    const used = new Set();
-    for (const item of layout) {
-      if (item.type === 'link') used.add(item.path);
-      else if (item.type === 'folder') for (const p of item.paths || []) used.add(p);
-    }
-    const newLinks = allLinks.filter(l => !used.has(l.path)).map(l => ({ type: 'link', path: l.path }));
-    return [...layout, ...newLinks];
-  }, [layout, allLinks]);
-
-  const save = useCallback((newLayout) => {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({ columns: 3, items: newLayout }));
-    } catch (e) {}
-  }, []);
-
-  const onDragEnd = (result) => {
-    const { source, destination } = result;
-    if (!destination) return;
-    if (source.droppableId === destination.droppableId && source.index === destination.index) return;
-
-    const newLayout = [...fullLayout];
-
-    if (source.droppableId === 'main' && destination.droppableId === 'main') {
-      const [moved] = newLayout.splice(source.index, 1);
-      newLayout.splice(destination.index, 0, moved);
-    } else if (source.droppableId === 'main' && destination.droppableId === 'main-secondary') {
-      const [moved] = newLayout.splice(source.index, 1);
-      newLayout.splice(destination.index + primaryCount, 0, moved);
-    } else if (source.droppableId === 'main-secondary' && destination.droppableId === 'main-secondary') {
-      const [moved] = newLayout.splice(source.index + primaryCount, 1);
-      newLayout.splice(destination.index + primaryCount, 0, moved);
-    } else if (source.droppableId === 'main-secondary' && destination.droppableId === 'main') {
-      const [moved] = newLayout.splice(source.index + primaryCount, 1);
-      newLayout.splice(destination.index, 0, moved);
-    }
-
-    setLayout(newLayout);
-    save(newLayout);
-  };
-
-  const renderItem = (item, index) => {
-    if (item.type !== 'link') return null;
-    const link = linkMap[item.path];
-    if (!link) return null;
-    return (
-      <Draggable key={`link-${item.path}`} draggableId={`link-${item.path}`} index={index}>
-        {(provided, snapshot) => (
-          <div
-            ref={provided.innerRef}
-            {...provided.draggableProps}
-            {...provided.dragHandleProps}
-            className={`w-full ${snapshot.isDragging ? 'opacity-80 z-50' : ''}`}
-            style={provided.draggableProps.style}
-          >
-            {renderLink(link, false)}
-          </div>
-        )}
-      </Draggable>
-    );
-  };
-
-  const primaryItems = fullLayout.slice(0, primaryCount);
-  const secondaryItems = fullLayout.slice(primaryCount);
+export default function DashboardLinks({ allLinks, renderLink }) {
+  const [openGroup, setOpenGroup] = useState(null);
+  const linkMap = useMemo(() => new Map(allLinks.map(link => [link.path, link])), [allLinks]);
+  const groups = useMemo(() => GROUPS.map(group => ({
+    ...group,
+    links: group.paths.map(path => linkMap.get(path)).filter(Boolean),
+  })).filter(group => group.links.length), [linkMap]);
 
   return (
     <>
-    <DesktopDashboardLinks allLinks={allLinks} renderLink={renderLink} />
-    <div className="md:hidden">
-    <DragDropContext onDragEnd={onDragEnd}>
-      {/* Primary Grid — 3 columns mobile, 6 columns desktop */}
-      <Droppable droppableId="main">
-        {(provided) => (
-          <div ref={provided.innerRef} {...provided.droppableProps} className="grid grid-cols-3 lg:grid-cols-6 xl:grid-cols-8 2xl:grid-cols-10 gap-2 lg:gap-3 xl:gap-4 mb-3">
-            {primaryItems.map((item, index) => renderItem(item, index))}
-            {provided.placeholder}
-          </div>
-        )}
-      </Droppable>
-
-      {/* More Sections Button */}
-      {secondaryItems.length > 0 && (
-        <button
-          onClick={() => setMoreOpen(!moreOpen)}
-          className="w-full flex items-center justify-between p-2 rounded-lg bg-gradient-to-l from-primary/10 to-primary/5 border border-primary/20 hover:border-primary/40 transition-all mb-3"
-        >
-          <div className="flex items-center gap-2">
-            <div className="flex -space-x-1.5">
-              {secondaryItems.slice(0, 3).map((item, i) => {
-                const link = item.type === 'link' ? linkMap[item.path] : null;
-                const Icon = link?.icon;
-                const gradient = link?.gradient || 'from-primary/30 to-primary/20';
-                return (
-                  <div key={i} className={`w-6 h-6 rounded-md bg-gradient-to-br ${gradient} flex items-center justify-center ring-2 ring-background`} style={{ zIndex: 3 - i }}>
-                    {Icon && <Icon className="w-3 h-3 text-white" strokeWidth={2.2} />}
+      <DesktopDashboardLinks allLinks={allLinks} renderLink={renderLink} />
+      <section className="md:hidden mb-4" aria-label="مرکزهای اصلی برنامه">
+        <div className="flex items-center justify-between mb-2 px-1">
+          <h2 className="text-sm font-bold text-foreground">مرکزهای اصلی</h2>
+          <span className="text-[11px] text-muted-foreground">امکانات درون هر بخش</span>
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+          {groups.map(group => {
+            const Icon = group.icon;
+            const expanded = openGroup === group.id;
+            return (
+              <section key={group.id} className={`min-w-0 rounded-xl border bg-card overflow-hidden transition-colors ${expanded ? 'border-primary/50 ring-1 ring-primary/10' : 'border-border'}`}>
+                <button
+                  type="button"
+                  aria-expanded={expanded}
+                  aria-controls={`group-links-${group.id}`}
+                  onClick={() => setOpenGroup(expanded ? null : group.id)}
+                  className="w-full min-h-[76px] flex items-center gap-3 p-3 text-right hover:bg-muted/50 transition-colors"
+                >
+                  <span className="w-10 h-10 shrink-0 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+                    <Icon className="w-5 h-5" strokeWidth={1.9} />
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-xs font-semibold text-foreground leading-5">{group.label}</span>
+                    <span className="block text-[10px] text-muted-foreground">{group.links.length.toLocaleString('fa-IR')} قابلیت</span>
+                  </span>
+                  <ChevronDown className={`w-4 h-4 shrink-0 text-muted-foreground transition-transform ${expanded ? 'rotate-180' : ''}`} />
+                </button>
+                {expanded && (
+                  <div id={`group-links-${group.id}`} className="border-t border-border bg-muted/20 px-3 py-2 space-y-1">
+                    {group.links.map(link => (
+                      <Link
+                        key={link.path}
+                        to={link.path}
+                        className="flex items-center min-h-9 rounded-md px-2 text-xs text-foreground hover:bg-primary/10 hover:text-primary transition-colors"
+                      >
+                        <span className="w-1.5 h-1.5 rounded-full bg-primary/60 ml-2 shrink-0" />
+                        <span className="truncate">{link.label}</span>
+                      </Link>
+                    ))}
                   </div>
-                );
-              })}
-            </div>
-            <span className="text-[11px] font-medium text-foreground">بخش‌های بیشتر</span>
-          </div>
-          {moreOpen ? <ChevronUp className="w-4 h-4 text-primary shrink-0" /> : <ChevronDown className="w-4 h-4 text-primary shrink-0" />}
-        </button>
-      )}
-
-      {/* Secondary Section */}
-      {moreOpen && secondaryItems.length > 0 && (
-        <Droppable droppableId="main-secondary">
-          {(provided) => (
-            <div ref={provided.innerRef} {...provided.droppableProps} className="grid grid-cols-3 lg:grid-cols-6 xl:grid-cols-8 2xl:grid-cols-10 gap-2 lg:gap-3 xl:gap-4 mb-3">
-              {secondaryItems.map((item, index) => renderItem(item, index))}
-              {provided.placeholder}
-            </div>
-          )}
-        </Droppable>
-      )}
-    </DragDropContext>
-    </div>
+                )}
+              </section>
+            );
+          })}
+        </div>
+      </section>
     </>
   );
 }
