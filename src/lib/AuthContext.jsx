@@ -33,6 +33,14 @@ export const AuthProvider = ({ children }) => {
 
   const checkAppState = async () => {
     try {
+      // Isolated preview must stop here before reading or verifying any server token.
+      if (isLocalTestMode()) {
+        setIsLoadingAuth(false);
+        setAuthChecked(true);
+        setAuthError(null);
+        return;
+      }
+
       // ── Custom auth (HMAC token from supabase backend) ──
       if (typeof localStorage !== 'undefined') {
         const customToken = localStorage.getItem('auth_token');
@@ -113,14 +121,6 @@ export const AuthProvider = ({ children }) => {
         }
       }
 
-      // ── Local test mode: no API calls, show login page immediately ──
-      if (isLocalTestMode()) {
-        setIsLoadingAuth(false);
-        setAuthChecked(true);
-        setAuthError(null);
-        return;
-      }
-
       // ── No HMAC token: show login page ──
       setIsLoadingAuth(false);
       setAuthChecked(true);
@@ -139,7 +139,7 @@ export const AuthProvider = ({ children }) => {
     // Record logout audit via secured backend
     try {
       const token = localStorage.getItem('auth_token');
-      if (token && !token.startsWith('local_token_')) {
+      if (!isLocalTestMode() && token && !token.startsWith('local_token_')) {
         await callSupabase('logout').catch(() => {});
       }
     } catch { /* ignore */ }
