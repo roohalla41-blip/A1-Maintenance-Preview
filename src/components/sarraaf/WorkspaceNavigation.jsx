@@ -6,13 +6,16 @@ import { cn } from '@/lib/utils';
 // Group only routes that already exist. New accounting functions are added
 // to this map after their page and permission contract are implemented.
 const GROUPS = [
-  ['نمای کلی', ['dashboard']],
-  ['عملیات صرافی', ['customers', 'dadogereft', 'trade']],
-  ['صندوق و تسویه', ['cash', 'bank', 'receipt']],
-  ['حواله و انتقالات', ['transfer_send', 'transfer_receive', 'transfer_book']],
-  ['حسابداری و دفاتر مالی', ['journal_entry', 'journal', 'general_ledger', 'balance_sheet', 'reconciliation', 'profit_loss', 'debtors', 'reports']],
-  ['ارز و بازار', ['currencies', 'convert', 'sarraaf_market']],
-  ['شبکه و خدمات', ['agents', 'agency_network', 'online_products', 'payment_gateway', 'sarraaf_chat', 'chat_groups']],
+  ['نمای کلی و داشبورد', ['dashboard']],
+  ['مشتریان و طرف‌های حساب', ['customers', 'debtors', 'accounts_receivable', 'accounts_payable']],
+  ['عملیات صرافی و معاملات', ['dadogereft', 'trade', 'convert', 'currencies']],
+  ['صندوق، بانک و خزانه‌داری', ['cash', 'bank', 'treasury', 'receipt']],
+  ['حواله‌ها و تسویه بین‌صرافی', ['transfer_send', 'transfer_receive', 'transfer_book', 'intercompany']],
+  ['حسابداری و دفاتر مالی', ['chart_of_accounts', 'journal_entry', 'journal', 'general_ledger', 'subsidiary_ledger', 'trial_balance', 'balance_sheet', 'reconciliation', 'period_close', 'fiscal_periods']],
+  ['گزارش‌ها، بودجه و تحلیل مالی', ['reports', 'profit_loss', 'cash_flow', 'budgets', 'cost_centers', 'fx_exposure']],
+  ['سازمان، شعب و دارایی‌ها', ['agents', 'agency_network', 'multi_company', 'fixed_assets']],
+  ['ریسک، انطباق و اسناد', ['kyc', 'compliance', 'audit_log', 'document_center', 'approvals', 'tax']],
+  ['بازار و خدمات دیجیتال', ['sarraaf_market', 'online_products', 'payment_gateway', 'sarraaf_chat', 'chat_groups']],
   ['مدیریت و پشتیبانی', ['settings', 'backup', 'support', 'assistant']],
 ];
 
