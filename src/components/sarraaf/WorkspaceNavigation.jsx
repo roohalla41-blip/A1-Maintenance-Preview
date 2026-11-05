@@ -16,7 +16,7 @@ const GROUPS = [
   ['مدیریت و پشتیبانی', ['settings', 'backup', 'support', 'assistant']],
 ];
 
-export default function WorkspaceNavigation({ items }) {
+export default function WorkspaceNavigation({ items, onNavigate }) {
   const { pathname } = useLocation();
   const activePath = items
     .filter(item => pathname === item.path || pathname.startsWith(item.path + '/'))
@@ -46,6 +46,7 @@ export default function WorkspaceNavigation({ items }) {
                   <Link
                     key={item.featureKey}
                     to={item.path}
+                    onClick={onNavigate}
                     aria-current={active ? 'page' : undefined}
                     className={cn(
                       'flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-[13px] transition-colors',
