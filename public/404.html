@@ -9,10 +9,14 @@
   <body>
     <p>در حال بازگشت به حساب صراف…</p>
     <script>
-      // GitHub Pages does not natively serve React Router history paths.
-      // Send the requested path back to index.html for client-side routing.
+      // GitHub Pages project sites live under /A1-Maintenance-Preview/.
+      // Preserve that base path so React Router can restore nested routes.
+      var basePath = '/A1-Maintenance-Preview/';
       var requestedPath = window.location.pathname + window.location.search + window.location.hash;
-      window.location.replace('/?__spa_path=' + encodeURIComponent(requestedPath));
+      var appPath = requestedPath.indexOf(basePath) === 0
+        ? requestedPath.slice(basePath.length)
+        : requestedPath.replace(/^\\/+/, '');
+      window.location.replace(basePath + '?__spa_path=' + encodeURIComponent('/A1-Maintenance-Preview/' + appPath));
     </script>
   </body>
 </html>
