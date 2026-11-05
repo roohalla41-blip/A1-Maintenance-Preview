@@ -1,8 +1,6 @@
-name: Deploy isolated maintenance preview
+name: Deploy isolated A1 maintenance preview
 
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -11,26 +9,42 @@ permissions:
   id-token: write
 
 concurrency:
-  group: maintenance-preview-pages
+  group: isolated-a1-maintenance-preview
   cancel-in-progress: true
 
 jobs:
-  deploy:
+  build-and-deploy:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout preview repository
+      - name: Checkout isolated A1 copy only
         uses: actions/checkout@v4
+        with:
+          ref: a1-structure-copy
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm install --package-lock=false --no-audit --no-fund
+
+      - name: Build isolated preview
+        run: npm run build
+
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
         with:
           enablement: true
-      - name: Upload static preview
+
+      - name: Upload built site only
         uses: actions/upload-pages-artifact@v3
         with:
-          path: .
-      - name: Deploy preview only
+          path: dist/
+
+      - name: Deploy isolated preview
         id: deployment
         uses: actions/deploy-pages@v4
