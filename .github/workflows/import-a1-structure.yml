@@ -1,0 +1,82 @@
+name: Import isolated A1 application structure
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: import-a1-structure
+  cancel-in-progress: false
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout isolated destination branch
+        uses: actions/checkout@v4
+        with:
+          ref: a1-structure-copy
+          path: destination
+          fetch-depth: 0
+
+      - name: Checkout A1 application source (read-only)
+        uses: actions/checkout@v4
+        with:
+          repository: roohalla41-blip/-1
+          ref: release/restore-build
+          path: source
+          persist-credentials: false
+
+      - name: Copy application files without production infrastructure or data
+        shell: bash
+        run: |
+          rsync -a --delete-excluded \
+            --exclude='.git/' \
+            --exclude='.github/' \
+            --exclude='CNAME' \
+            --exclude='runtime-config.js' \
+            --exclude='public/runtime-config.js' \
+            --exclude='.env' --exclude='.env.*' \
+            --exclude='*.sql' --exclude='*.dump' --exclude='*.bak' \
+            --exclude='*backup*.pdf' --exclude='*backup*.zip' \
+            --exclude='supabase/' \
+            --exclude='node_modules/' \
+            source/ destination/
+
+          cat > destination/public/runtime-config.js <<'EOF'
+          // Isolated preview configuration. No production credentials or database endpoint.
+          window.__SUPABASE_CONFIG__ = { url: null, key: null, previewOnly: true };
+          EOF
+
+          python3 - <<'PY'
+          from pathlib import Path
+          vite = Path("destination/vite.config.js")
+          if vite.exists():
+              s = vite.read_text()
+              if "base:'/'" in s:
+                  s = s.replace("base:'/'", "base:'/A1-Maintenance-Preview/'")
+              elif 'base:"/"' in s:
+                  s = s.replace('base:"/"', 'base:"/A1-Maintenance-Preview/"')
+              vite.write_text(s)
+          index = Path("destination/index.html")
+          if index.exists():
+              s = index.read_text()
+              s = s.replace('src="/runtime-config.js"', 'src="./runtime-config.js"')
+              index.write_text(s)
+          PY
+
+      - name: Commit isolated structure to its review branch
+        shell: bash
+        run: |
+          cd destination
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No changes to import."
+            exit 0
+          fi
+          git commit -m "Import A1 application structure into isolated preview"
+          git push origin HEAD:a1-structure-copy
