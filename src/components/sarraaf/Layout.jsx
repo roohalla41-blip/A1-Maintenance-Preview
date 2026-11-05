@@ -311,7 +311,7 @@ export default function Layout() {
 
             {/* All nav items */}
             <div className="bg-slate-950 text-slate-100">
-              <WorkspaceNavigation items={moreItems} />
+              <WorkspaceNavigation items={moreItems} onNavigate={() => setMoreOpen(false)} />
             </div>
 
             {/* Management actions */}
