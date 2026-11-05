@@ -66,9 +66,8 @@ const NAV_ITEMS = [
 const BOTTOM_NAV = [
   { featureKey: 'dashboard', label: 'خانه', path: '/dashboard', icon: LayoutDashboard },
   { featureKey: 'customers', label: 'مشتریان', path: '/customers', icon: Users },
-  { featureKey: 'trade', label: 'خرید/فروش', path: '/trade', icon: Repeat },
-  { featureKey: 'transfer_book', label: 'حواله', path: '/transfer-book', icon: BookOpen },
-  { featureKey: 'settings', label: 'تنظیمات', path: '/settings', icon: Settings },
+  { featureKey: 'trade', label: 'معامله', path: '/trade', icon: Repeat },
+  { featureKey: 'cash', label: 'صندوق', path: '/cash', icon: Banknote },
 ];
 
 export default function Layout() {
@@ -115,9 +114,11 @@ export default function Layout() {
     { featureKey: 'balance_sheet', label: 'ترازنامه', path: '/balance-sheet', icon: Scale },
     { featureKey: 'reconciliation', label: 'مغایرت‌گیری', path: '/reconciliation', icon: FileSearch },
   ], profile || user, paidSystemEnabled))];
-  const bottomItems = items.filter(i => BOTTOM_NAV.some(b => b.featureKey === i.featureKey));
+  const bottomItems = BOTTOM_NAV
+    .map(tab => desktopItems.find(item => item.featureKey === tab.featureKey) || tab)
+    .filter(item => desktopItems.some(candidate => candidate.featureKey === item.featureKey));
   const bottomPaths = new Set(BOTTOM_NAV.map(b => b.featureKey));
-  const moreItems = items.filter(i => !bottomPaths.has(i.featureKey));
+  const moreItems = desktopItems.filter(i => !bottomPaths.has(i.featureKey));
 
   // Auto-expire paid plan if end date has passed (skip when paid system is disabled)
   useEffect(() => {
@@ -143,16 +144,16 @@ export default function Layout() {
     <TermsGate role={userRole}>
     <ForceUpdateGate>
     <div className="min-h-screen bg-background flex">
-      {/* Structured workspace navigation; mobile navigation below is unchanged. */}
-      <aside className="hidden md:flex w-56 lg:w-60 xl:w-64 sticky top-0 h-screen flex-col bg-slate-800 text-slate-100 shrink-0 print:hidden">
+      {/* Enterprise workspace navigation for desktop and tablet. */}
+      <aside className="hidden md:flex w-64 lg:w-72 sticky top-0 h-screen flex-col bg-slate-950 text-slate-100 border-r border-slate-800 shadow-xl shrink-0 print:hidden">
         {/* Brand header */}
-        <div className="px-4 py-4 border-b border-white/10 flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center shrink-0 shadow-md">
+        <div className="px-4 py-5 border-b border-white/10 flex items-center gap-3 bg-gradient-to-br from-slate-900 to-slate-950">
+          <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shrink-0 shadow-lg ring-1 ring-white/15">
             <ArrowLeftRight className="w-5 h-5 text-white" strokeWidth={2.2} />
           </div>
           <div className="min-w-0">
-            <p className="text-sm font-bold text-white truncate">حساب صراف</p>
-            <p className="text-[11px] text-slate-400 truncate">{profile?.exchange_name || 'مدیریت صرافی'}</p>
+            <p className="text-[15px] font-extrabold text-white truncate">حساب صراف</p>
+            <p className="text-[11px] text-slate-400 truncate">{profile?.exchange_name || 'سامانه مدیریت مالی صرافی'}</p>
           </div>
         </div>
         {/* Navigation */}
@@ -245,9 +246,10 @@ export default function Layout() {
         </footer>
       </div>
 
-      {/* Mobile Bottom Nav — 5 tabs */}
+      {/* Mobile primary navigation: four daily actions plus the full module drawer. */}
       <nav
-        className="md:hidden fixed bottom-0 inset-x-0 z-30 bg-card border-t flex items-center justify-around px-1 pt-1 pb-0 safe-bottom"
+        aria-label="دسترسی سریع"
+        className="md:hidden fixed bottom-0 inset-x-0 z-30 bg-card/95 backdrop-blur-lg border-t shadow-[0_-8px_24px_rgba(15,23,42,0.08)] grid grid-cols-5 items-center px-1 pt-1 pb-0 safe-bottom print:hidden"
         style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
       >
         {bottomItems.map(item => {
@@ -257,24 +259,38 @@ export default function Layout() {
             <button
               key={item.featureKey}
               onClick={() => handleTabClick(item)}
+              aria-current={active ? 'page' : undefined}
               className={cn(
-                'flex flex-col items-center gap-0.5 px-2 pt-1 pb-1 rounded-lg flex-1 min-h-[44px] transition-colors',
-                active ? 'text-primary bg-primary/10' : 'text-muted-foreground'
+                'flex flex-col items-center justify-center gap-1 px-1 py-2 rounded-xl min-h-[54px] transition-all',
+                active ? 'text-primary bg-primary/10' : 'text-muted-foreground hover:bg-muted/70'
               )}
             >
-              <Icon className="w-5 h-5" />
-              <span className="text-xs font-medium">{item.label}</span>
+              <Icon className={cn('w-5 h-5', active && 'stroke-[2.4]')} />
+              <span className="text-[10px] font-semibold">{item.label}</span>
             </button>
           );
         })}
+        <button
+          type="button"
+          onClick={() => setMoreOpen(true)}
+          aria-label="نمایش همه بخش‌ها"
+          aria-expanded={moreOpen}
+          className={cn(
+            'flex flex-col items-center justify-center gap-1 px-1 py-2 rounded-xl min-h-[54px] transition-all',
+            moreOpen ? 'text-primary bg-primary/10' : 'text-muted-foreground hover:bg-muted/70'
+          )}
+        >
+          <MoreVertical className="w-5 h-5" />
+          <span className="text-[10px] font-semibold">همه بخش‌ها</span>
+        </button>
       </nav>
 
       {/* Hamburger Menu Drawer */}
       {moreOpen && (
         <div className="md:hidden fixed inset-0 z-50 bg-black/50" onClick={() => setMoreOpen(false)}>
-          <div className="absolute top-0 left-0 bottom-0 w-72 bg-card shadow-xl overflow-y-auto scrollbar-thin" onClick={e => e.stopPropagation()}>
+          <div className="absolute top-0 left-0 bottom-0 w-[min(88vw,380px)] bg-slate-950 text-slate-100 shadow-2xl overflow-y-auto scrollbar-thin border-r border-slate-700" onClick={e => e.stopPropagation()}>
             {/* Drawer header with identity */}
-            <div className="p-4 border-b bg-gradient-to-l from-primary to-primary/80">
+            <div className="p-4 border-b border-white/10 bg-gradient-to-l from-indigo-700 via-indigo-800 to-slate-950">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 min-w-0">
                   <div className="shrink-0">
@@ -294,29 +310,9 @@ export default function Layout() {
             </div>
 
             {/* All nav items */}
-            <nav className="p-2">
-              {moreItems.map(item => {
-                const Icon = item.icon;
-                const active = location.pathname === item.path || location.pathname.startsWith(item.path + '/');
-                return (
-                  <Link
-                    key={item.featureKey}
-                    to={item.path}
-                    onClick={() => setMoreOpen(false)}
-                    className={cn(
-                      'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors',
-                      active ? 'bg-primary/10 text-primary font-medium' : 'text-foreground hover:bg-muted'
-                    )}
-                  >
-                    <Icon className="w-4 h-4 shrink-0" />
-                    <span className="truncate">{item.label}</span>
-                    {item.featureStatus === 'updating' && (
-                      <span title={item.featureMessage || 'این بخش در حال به‌روزرسانی است'} className="mr-auto shrink-0 rounded bg-amber-100 px-1.5 py-0.5 text-[9px] text-amber-700">به‌روزرسانی</span>
-                    )}
-                  </Link>
-                );
-              })}
-            </nav>
+            <div className="bg-slate-950 text-slate-100">
+              <WorkspaceNavigation items={moreItems} />
+            </div>
 
             {/* Management actions */}
             <div className="p-2 border-t mt-2 space-y-1">
