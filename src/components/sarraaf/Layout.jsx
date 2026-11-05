@@ -178,8 +178,8 @@ export default function Layout() {
             <ArrowLeftRight className="w-5 h-5 text-white" strokeWidth={2.2} />
           </div>
           <div className="min-w-0">
-            <p className="text-[15px] font-extrabold text-white truncate">حساب صراف</p>
-            <p className="text-[11px] text-slate-400 truncate">{profile?.exchange_name || 'سامانه مدیریت مالی صرافی'}</p>
+            <p className="text-[15px] font-extrabold text-white truncate">{profile?.exchange_name || profile?.name || 'حساب صراف'}</p>
+            <p className="text-[11px] text-slate-400 truncate">سامانه مدیریت مالی صرافی</p>
           </div>
         </div>
         {/* Navigation */}
