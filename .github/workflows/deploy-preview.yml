@@ -1,6 +1,9 @@
 name: Deploy isolated A1 maintenance preview
 
 on:
+  push:
+    branches:
+      - a1-structure-copy
   workflow_dispatch:
 
 permissions:
@@ -32,7 +35,7 @@ jobs:
       - name: Install dependencies
         run: npm install --package-lock=false --no-audit --no-fund
 
-      - name: Build isolated preview
+      - name: Build isolated application
         run: npm run build
 
       - name: Configure GitHub Pages
@@ -40,11 +43,11 @@ jobs:
         with:
           enablement: true
 
-      - name: Upload built site only
+      - name: Upload built application
         uses: actions/upload-pages-artifact@v3
         with:
           path: dist/
 
-      - name: Deploy isolated preview
+      - name: Publish live preview
         id: deployment
         uses: actions/deploy-pages@v4
