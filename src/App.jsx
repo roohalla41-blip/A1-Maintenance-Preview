@@ -231,6 +231,7 @@ function App() {
           <LanguageProvider>
             <QueryClientProvider client={queryClientInstance}>
               <UpgradeProvider>
+                {/* GitHub Pages project-site prefix is configured through Vite's base path. */}
                 <Router basename={import.meta.env.BASE_URL}>
                   <ScrollToTop />
                   <ErrorBoundary>
