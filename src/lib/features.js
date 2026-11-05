@@ -20,6 +20,8 @@ export const FEATURE_CATALOG = [
   { feature_key: 'agency_network', name: 'شبکه نمایندگی', icon: 'Share2', location: 'nav', display_order: 15, critical: false },
   { feature_key: 'transfer_book', name: 'دفتر حواله', icon: 'BookOpen', location: 'nav', display_order: 16, critical: false },
   { feature_key: 'journal', name: 'دفتر روزنامه', icon: 'BookCopy', location: 'nav', display_order: 17, critical: false },
+  { feature_key: 'journal_entry', name: 'ثبت سند حسابداری', icon: 'FilePlus2', location: 'nav', display_order: 16.5, critical: false },
+  { feature_key: 'receipt', name: 'رسید و اسناد', icon: 'Receipt', location: 'nav', display_order: 20.5, critical: false },
   { feature_key: 'general_ledger', name: 'دفتر کل', icon: 'ScrollText', location: 'nav', display_order: 18, critical: false },
   { feature_key: 'balance_sheet', name: 'ترازنامه', icon: 'Scale', location: 'nav', display_order: 19, critical: false, default_status: 'updating', default_message: 'بخش بدهی‌ها و سرمایه هنوز نیازمند تکمیل و تطبیق حسابداری است.' },
   { feature_key: 'reconciliation', name: 'مغایرت‌گیری', icon: 'FileSearch', location: 'nav', display_order: 20, critical: false },
