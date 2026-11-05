@@ -12,9 +12,9 @@ const GROUPS = [
   ['صندوق، بانک و خزانه‌داری', ['cash', 'bank', 'treasury', 'receipt']],
   ['حواله‌ها و تسویه بین‌صرافی', ['transfer_send', 'transfer_receive', 'transfer_book', 'intercompany']],
   ['حسابداری و دفاتر مالی', ['chart_of_accounts', 'journal_entry', 'journal', 'general_ledger', 'subsidiary_ledger', 'trial_balance', 'balance_sheet', 'reconciliation', 'period_close', 'fiscal_periods']],
-  ['گزارش‌ها، بودجه و تحلیل مالی', ['reports', 'profit_loss', 'cash_flow', 'budgets', 'cost_centers', 'fx_exposure']],
+  ['گزارش‌ها، بودجه و تحلیل مالی', ['reports', 'profit_loss', 'cash_flow', 'budgets', 'cost_centers', 'fx_exposure', 'fx_revaluation', 'standards', 'consolidation']],
   ['سازمان، شعب و دارایی‌ها', ['agents', 'agency_network', 'multi_company', 'fixed_assets']],
-  ['ریسک، انطباق و اسناد', ['kyc', 'compliance', 'audit_log', 'document_center', 'approvals', 'tax']],
+  ['ریسک، انطباق و اسناد', ['kyc', 'compliance', 'aml_screening', 'internal_controls', 'data_governance', 'audit_log', 'document_center', 'approvals', 'tax']],
   ['بازار و خدمات دیجیتال', ['sarraaf_market', 'online_products', 'payment_gateway', 'sarraaf_chat', 'chat_groups']],
   ['مدیریت و پشتیبانی', ['settings', 'backup', 'support', 'assistant']],
 ];
