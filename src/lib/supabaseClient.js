@@ -46,6 +46,9 @@ export const supabase = new Proxy(
   {},
   {
     get(_target, prop) {
+      if (typeof window !== 'undefined' && window.__SUPABASE_CONFIG__?.previewOnly === true) {
+        throw new Error('Supabase is disabled in the isolated preview.');
+      }
       if (!_client) {
         const cfg = resolveConfig();
         if (!cfg) {
