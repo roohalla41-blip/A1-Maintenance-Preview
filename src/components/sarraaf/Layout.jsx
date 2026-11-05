@@ -16,7 +16,7 @@ import {
   Network, Share2, BookOpen, BookCopy, ScrollText, ArrowRightLeft,
   ShoppingBag, Search, MoreVertical, X, MessageSquare, Wallet, Bell,
   Store, MessageSquareMore, DatabaseBackup, Copy, Headphones, CreditCard,
-  Bot
+  Bot, FilePlus2, Receipt, Scale, FileSearch
 } from 'lucide-react';
 import { getAllowedNavItems, isManagementRole } from '@/lib/rbac';
 import { isReadOnlyMode, getTrialDaysRemaining, getPlanDisplay } from '@/lib/permissions';
@@ -28,7 +28,6 @@ import PullToRefresh from '@/components/PullToRefresh';
 import WorkspaceNavigation from '@/components/sarraaf/WorkspaceNavigation';
 import WorkspaceHeader from '@/components/sarraaf/WorkspaceHeader';
 import PwaInstallPrompt from '@/components/PwaInstallPrompt';
-import { Receipt, Scale, FileSearch } from 'lucide-react';
 
 const NAV_ITEMS = [
   { featureKey: 'dashboard', label: 'داشبورد', path: '/dashboard', icon: LayoutDashboard, order: 0 },
@@ -46,8 +45,12 @@ const NAV_ITEMS = [
   { featureKey: 'agents', label: 'نمایندگی‌ها', path: '/agents', icon: Network, order: 13 },
   { featureKey: 'agency_network', label: 'شبکه نمایندگی', path: '/agency-network', icon: Share2, order: 14 },
   { featureKey: 'transfer_book', label: 'دفتر حواله', path: '/transfer-book', icon: BookOpen, order: 15 },
-  { featureKey: 'journal', label: 'دفتر روزنامه', path: '/journal', icon: BookCopy, order: 16 },
-  { featureKey: 'general_ledger', label: 'دفتر کل', path: '/general-ledger', icon: ScrollText, order: 17 },
+  { featureKey: 'journal_entry', label: 'ثبت سند حسابداری', path: '/journal-entry', icon: FilePlus2, order: 16 },
+  { featureKey: 'journal', label: 'دفتر روزنامه', path: '/journal', icon: BookCopy, order: 17 },
+  { featureKey: 'general_ledger', label: 'دفتر کل', path: '/general-ledger', icon: ScrollText, order: 18 },
+  { featureKey: 'balance_sheet', label: 'ترازنامه', path: '/balance-sheet', icon: Scale, order: 19 },
+  { featureKey: 'reconciliation', label: 'مغایرت‌گیری', path: '/reconciliation', icon: FileSearch, order: 20 },
+  { featureKey: 'receipt', label: 'رسید و اسناد', path: '/receipt', icon: Receipt, order: 21 },
   { featureKey: 'convert', label: 'تبدیل ارز', path: '/convert', icon: ArrowRightLeft, order: 18 },
   { featureKey: 'online_products', label: 'محصولات آنلاین', path: '/online-products', icon: ShoppingBag, order: 19 },
   { featureKey: 'payment_gateway', label: 'درگاه پرداخت', path: '/payment-gateway', icon: CreditCard, order: 19.5 },
