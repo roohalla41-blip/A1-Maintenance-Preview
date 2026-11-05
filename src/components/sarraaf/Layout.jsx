@@ -16,7 +16,9 @@ import {
   Network, Share2, BookOpen, BookCopy, ScrollText, ArrowRightLeft,
   ShoppingBag, Search, MoreVertical, X, MessageSquare, Wallet, Bell,
   Store, MessageSquareMore, DatabaseBackup, Copy, Headphones, CreditCard,
-  Bot, FilePlus2, Receipt, Scale, FileSearch
+  Bot, FilePlus2, Receipt, Scale, FileSearch, ListTree, BookOpenCheck,
+  CalendarDays, CalendarCheck, Building2, HandCoins, ChartNoAxesCombined,
+  BadgeCheck, ShieldCheck, FileClock, FolderOpen, ClipboardCheck, FileSpreadsheet
 } from 'lucide-react';
 import { getAllowedNavItems, isManagementRole } from '@/lib/rbac';
 import { isReadOnlyMode, getTrialDaysRemaining, getPlanDisplay } from '@/lib/permissions';
@@ -51,6 +53,27 @@ const NAV_ITEMS = [
   { featureKey: 'balance_sheet', label: 'ترازنامه', path: '/balance-sheet', icon: Scale, order: 19 },
   { featureKey: 'reconciliation', label: 'مغایرت‌گیری', path: '/reconciliation', icon: FileSearch, order: 20 },
   { featureKey: 'receipt', label: 'رسید و اسناد', path: '/receipt', icon: Receipt, order: 21 },
+  { featureKey: 'chart_of_accounts', label: 'کدینگ حساب‌ها', path: '/enterprise/chart-of-accounts', icon: ListTree, order: 22 },
+  { featureKey: 'subsidiary_ledger', label: 'دفاتر معین و تفصیلی', path: '/enterprise/subsidiary-ledger', icon: BookOpenCheck, order: 23 },
+  { featureKey: 'trial_balance', label: 'تراز آزمایشی', path: '/enterprise/trial-balance', icon: Scale, order: 24 },
+  { featureKey: 'cash_flow', label: 'جریان وجوه نقد', path: '/enterprise/cash-flow', icon: TrendingUp, order: 25 },
+  { featureKey: 'cost_centers', label: 'مراکز هزینه و سود', path: '/enterprise/cost-centers', icon: GitBranch, order: 26 },
+  { featureKey: 'fiscal_periods', label: 'دوره‌های مالی', path: '/enterprise/fiscal-periods', icon: CalendarDays, order: 27 },
+  { featureKey: 'period_close', label: 'بستن دوره مالی', path: '/enterprise/period-close', icon: CalendarCheck, order: 28 },
+  { featureKey: 'fixed_assets', label: 'دارایی‌های ثابت', path: '/enterprise/fixed-assets', icon: Building2, order: 29 },
+  { featureKey: 'accounts_receivable', label: 'حساب‌های دریافتنی', path: '/enterprise/accounts-receivable', icon: HandCoins, order: 30 },
+  { featureKey: 'accounts_payable', label: 'حساب‌های پرداختنی', path: '/enterprise/accounts-payable', icon: Wallet, order: 31 },
+  { featureKey: 'budgets', label: 'بودجه و پیش‌بینی', path: '/enterprise/budgets', icon: ChartNoAxesCombined, order: 32 },
+  { featureKey: 'treasury', label: 'خزانه‌داری و نقدینگی', path: '/enterprise/treasury', icon: Landmark, order: 33 },
+  { featureKey: 'intercompany', label: 'حساب‌های بین‌صرافی', path: '/enterprise/intercompany', icon: ArrowLeftRight, order: 34 },
+  { featureKey: 'multi_company', label: 'مدیریت چندشرکتی', path: '/enterprise/multi-company', icon: Building2, order: 35 },
+  { featureKey: 'kyc', label: 'احراز هویت مشتری', path: '/enterprise/kyc', icon: BadgeCheck, order: 36 },
+  { featureKey: 'compliance', label: 'انطباق و مقررات', path: '/enterprise/compliance', icon: ShieldCheck, order: 37 },
+  { featureKey: 'audit_log', label: 'ردپای حسابرسی', path: '/enterprise/audit-log', icon: FileClock, order: 38 },
+  { featureKey: 'document_center', label: 'مرکز اسناد', path: '/enterprise/document-center', icon: FolderOpen, order: 39 },
+  { featureKey: 'approvals', label: 'گردش تأییدها', path: '/enterprise/approvals', icon: ClipboardCheck, order: 40 },
+  { featureKey: 'fx_exposure', label: 'موقعیت و ریسک ارزی', path: '/enterprise/fx-exposure', icon: ChartNoAxesCombined, order: 41 },
+  { featureKey: 'tax', label: 'مالیات و گزارش قانونی', path: '/enterprise/tax', icon: FileSpreadsheet, order: 42 },
   { featureKey: 'convert', label: 'تبدیل ارز', path: '/convert', icon: ArrowRightLeft, order: 18 },
   { featureKey: 'online_products', label: 'محصولات آنلاین', path: '/online-products', icon: ShoppingBag, order: 19 },
   { featureKey: 'payment_gateway', label: 'درگاه پرداخت', path: '/payment-gateway', icon: CreditCard, order: 19.5 },
