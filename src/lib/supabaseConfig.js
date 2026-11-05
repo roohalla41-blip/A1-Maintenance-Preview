@@ -28,6 +28,10 @@ function normalizeUrl(url) {
 }
 
 export function getSupabaseConfig() {
+  // Hard isolation: preview builds must never resolve production Supabase credentials.
+  if (typeof window !== 'undefined' && window.__SUPABASE_CONFIG__?.previewOnly === true) {
+    throw new Error('Database access is disabled in the isolated A1 preview.');
+  }
   // Try window config first (runtime-injected), then env vars (build-time)
   let { url, key } = readWindowConfig();
   if (!url || !key) {
