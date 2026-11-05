@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2, CheckCircle2, XCircle, Database, UserPlus, AlertCircle, ExternalLink } from 'lucide-react';
 import { callSupabase } from '@/lib/supabaseApi';
+import { isLocalTestMode } from '@/lib/localTestMode';
 
 const IDLE = 'idle';
 const LOADING = 'loading';
@@ -16,6 +17,11 @@ export default function SetupDatabase() {
   const [adminMsg, setAdminMsg] = useState('');
 
   const testConnection = async () => {
+    if (isLocalTestMode()) {
+      setConnStatus(ERROR);
+      setConnMsg('در محیط آزمایشی مستقل، اتصال به دیتابیس غیرفعال است.');
+      return;
+    }
     setConnStatus(LOADING);
     setConnMsg('');
     try {
@@ -34,6 +40,11 @@ export default function SetupDatabase() {
   };
 
   const bootstrapAdmin = async () => {
+    if (isLocalTestMode()) {
+      setAdminStatus(ERROR);
+      setAdminMsg('ایجاد حساب مدیریتی از طریق دیتابیس در محیط آزمایشی غیرفعال است.');
+      return;
+    }
     setAdminStatus(LOADING);
     setAdminMsg('');
     try {
@@ -57,6 +68,29 @@ export default function SetupDatabase() {
     if (status === ERROR) return <XCircle className="w-4 h-4 text-destructive" />;
     return null;
   };
+
+  if (isLocalTestMode()) {
+    return (
+      <div className="min-h-screen bg-background p-4" dir="rtl">
+        <div className="max-w-2xl mx-auto space-y-4">
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-3">
+                <div className="rounded-lg bg-amber-500/10 p-2"><Database className="h-6 w-6 text-amber-600" /></div>
+                <div>
+                  <CardTitle className="text-lg">راه‌اندازی دیتابیس در پیش‌نمایش غیرفعال است</CardTitle>
+                  <p className="text-sm text-muted-foreground mt-1">این نسخه مستقل است و به هیچ پایگاه داده یا سرویس تولید متصل نمی‌شود.</p>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="text-sm text-muted-foreground">
+              برای حفظ جداسازی، اجرای SQL، آزمایش اتصال و ایجاد حساب مدیریتی در این محیط مسدود شده است.
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background p-4" dir="rtl">
