@@ -17,14 +17,13 @@
 const FLAG_KEY = 'local_test_mode';
 
 export function isLocalTestMode() {
+  // Preview mode is immutable: never allow a browser setting to re-enable server sync.
   try {
+    if (typeof window !== 'undefined' && window.__SUPABASE_CONFIG__?.previewOnly === true) return true;
     const v = localStorage.getItem(FLAG_KEY);
     if (v === 'true') return true;
-    // پیش‌فرض: غیرفعال — برنامه به Supabase متصل می‌شود
-    // در صورت قطع اینترنت، داده‌ها در حافظه محلی ذخیره و پس از اتصال همگام می‌شوند
-    if (v === null) {
-      localStorage.setItem(FLAG_KEY, 'false');
-    }
+    // Outside the isolated preview, retain the original production default.
+    if (v === null) localStorage.setItem(FLAG_KEY, 'false');
     return false;
   } catch {
     return false;
