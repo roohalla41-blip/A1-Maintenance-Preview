@@ -40,8 +40,9 @@ jobs:
             --exclude='runtime-config.js' \
             --exclude='public/runtime-config.js' \
             --exclude='.env' --exclude='.env.*' \
-            --exclude='*.sql' --exclude='*.dump' --exclude='*.bak' \
-            --exclude='*backup*.pdf' --exclude='*backup*.zip' \
+            --exclude='*.sql' --exclude='*.dump' --exclude='*.bak' --exclude='*.sqlite' --exclude='*.db' \
+            --exclude='*.jks' --exclude='*.keystore' --exclude='*.p12' --exclude='*.pem' --exclude='*.key' \
+            --exclude='*.pdf' --exclude='*.zip' --exclude='*.7z' --exclude='*manifest*' \
             --exclude='supabase/' \
             --exclude='node_modules/' \
             source/ destination/
