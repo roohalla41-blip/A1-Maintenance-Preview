@@ -225,6 +225,10 @@ export default function Login() {
 
   // Legacy exchanges: once the typed username is recognised, show the update notice
   useEffect(() => {
+    if (isLocalTestMode()) {
+      setLegacyInfo(null);
+      return;
+    }
     const id = identifier.trim();
     if (id.length < 3) {
       setLegacyInfo(null);
@@ -434,6 +438,10 @@ export default function Login() {
   };
 
   const handleGoogle = async () => {
+    if (isLocalTestMode()) {
+      setGoogleError('ورود با گوگل در پیش‌نمایش مستقل غیرفعال است؛ از نام کاربری و رمز آزمایشی استفاده کنید.');
+      return;
+    }
     setGoogleLoading(true);
     setGoogleError('');
     // Cooldown: prevent rapid retries (e.g. in WebView)
@@ -460,6 +468,7 @@ export default function Login() {
   };
 
   useEffect(() => {
+    if (isLocalTestMode()) return;
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('google_cb') !== '1') return;
     // Clear any stale OAuth error params from URL
