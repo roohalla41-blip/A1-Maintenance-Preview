@@ -122,7 +122,7 @@ export const SARRAAF_NAV_BY_ROLE = {
     'chart_of_accounts', 'subsidiary_ledger', 'trial_balance', 'cash_flow', 'cost_centers',
     'fiscal_periods', 'period_close', 'fixed_assets', 'accounts_receivable', 'accounts_payable',
     'budgets', 'treasury', 'intercompany', 'multi_company', 'kyc', 'compliance', 'audit_log',
-    'document_center', 'approvals', 'fx_exposure', 'tax',
+    'document_center', 'approvals', 'fx_exposure', 'tax', 'standards', 'aml_screening', 'fx_revaluation', 'consolidation', 'internal_controls', 'data_governance',
     'chat_groups', 'backup', 'support', 'assistant', 'notifications',
   ],
   admin: [
@@ -134,7 +134,7 @@ export const SARRAAF_NAV_BY_ROLE = {
     'chart_of_accounts', 'subsidiary_ledger', 'trial_balance', 'cash_flow', 'cost_centers',
     'fiscal_periods', 'period_close', 'fixed_assets', 'accounts_receivable', 'accounts_payable',
     'budgets', 'treasury', 'intercompany', 'multi_company', 'kyc', 'compliance', 'audit_log',
-    'document_center', 'approvals', 'fx_exposure', 'tax',
+    'document_center', 'approvals', 'fx_exposure', 'tax', 'standards', 'aml_screening', 'fx_revaluation', 'consolidation', 'internal_controls', 'data_governance',
     'chat_groups', 'backup', 'support', 'assistant', 'notifications',
   ],
   sarraaf: [
@@ -146,7 +146,7 @@ export const SARRAAF_NAV_BY_ROLE = {
     'chart_of_accounts', 'subsidiary_ledger', 'trial_balance', 'cash_flow', 'cost_centers',
     'fiscal_periods', 'period_close', 'fixed_assets', 'accounts_receivable', 'accounts_payable',
     'budgets', 'treasury', 'intercompany', 'multi_company', 'kyc', 'compliance', 'audit_log',
-    'document_center', 'approvals', 'fx_exposure', 'tax',
+    'document_center', 'approvals', 'fx_exposure', 'tax', 'standards', 'aml_screening', 'fx_revaluation', 'consolidation', 'internal_controls', 'data_governance',
     'chat_groups', 'backup', 'support', 'assistant', 'notifications',
   ],
   employee: [
