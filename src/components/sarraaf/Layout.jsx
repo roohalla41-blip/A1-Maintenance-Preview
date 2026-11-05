@@ -18,7 +18,7 @@ import {
   Store, MessageSquareMore, DatabaseBackup, Copy, Headphones, CreditCard,
   Bot, FilePlus2, Receipt, Scale, FileSearch, ListTree, BookOpenCheck,
   CalendarDays, CalendarCheck, Building2, HandCoins, ChartNoAxesCombined,
-  BadgeCheck, ShieldCheck, FileClock, FolderOpen, ClipboardCheck, FileSpreadsheet
+  BadgeCheck, ShieldCheck, FileClock, FolderOpen, ClipboardCheck, FileSpreadsheet, GitBranch
 } from 'lucide-react';
 import { getAllowedNavItems, isManagementRole } from '@/lib/rbac';
 import { isReadOnlyMode, getTrialDaysRemaining, getPlanDisplay } from '@/lib/permissions';
@@ -138,11 +138,8 @@ export default function Layout() {
   const userRole = user?.role || 'user';
   const featureFiltered = visibleNavItems(features || [], NAV_ITEMS, profile || user, paidSystemEnabled);
   const items = getAllowedNavItems(userRole, featureFiltered);
-  const desktopItems = [...items, ...getAllowedNavItems(userRole, visibleNavItems(features || [], [
-    { featureKey: 'receipt', label: 'دریافت', path: '/receipt', icon: Receipt },
-    { featureKey: 'balance_sheet', label: 'ترازنامه', path: '/balance-sheet', icon: Scale },
-    { featureKey: 'reconciliation', label: 'مغایرت‌گیری', path: '/reconciliation', icon: FileSearch },
-  ], profile || user, paidSystemEnabled))];
+  // NAV_ITEMS is the single source of truth; do not append duplicate routes here.
+  const desktopItems = items;
   const bottomItems = BOTTOM_NAV
     .map(tab => desktopItems.find(item => item.featureKey === tab.featureKey) || tab)
     .filter(item => desktopItems.some(candidate => candidate.featureKey === item.featureKey));
