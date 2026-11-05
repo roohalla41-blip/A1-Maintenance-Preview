@@ -1,4 +1,5 @@
 name: Deploy isolated A1 maintenance preview
+# Rebuild the preview from the latest validated a1-structure-copy commit.
 
 on:
   push:
