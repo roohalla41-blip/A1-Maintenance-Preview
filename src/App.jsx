@@ -109,6 +109,7 @@ const CustomerMessages = lazyWithRetry(() => import('@/pages/customer/CustomerMe
 const CustomerNotifications = lazyWithRetry(() => import('@/pages/customer/CustomerNotifications'));
 const CustomerProfile = lazyWithRetry(() => import('@/pages/customer/CustomerProfile'));
 const Receipt = lazyWithRetry(() => import('@/pages/Receipt'));
+const EnterpriseModulePage = lazyWithRetry(() => import('@/pages/EnterpriseModulePage'));
 const PageNotFound = lazyWithRetry(() => import('@/lib/PageNotFound'));
 const SetupDatabase = lazyWithRetry(() => import('@/pages/SetupDatabase'));
 // Layout
@@ -159,6 +160,7 @@ const AppRoutes = () => {
             <Route path="/journal-entry" element={<JournalEntry />} />
             <Route path="/balance-sheet" element={<FeatureGate featureKey="balance_sheet"><BalanceSheet /></FeatureGate>} />
             <Route path="/reconciliation" element={<Reconciliation />} />
+            <Route path="/enterprise/:moduleKey" element={<EnterpriseModulePage />} />
             <Route path="/convert" element={<CurrencyConvert />} />
             <Route path="/online-products" element={<OnlineProducts />} />
             <Route path="/payment-gateway" element={<FeatureGate featureKey="payment_gateway"><PaymentGateway /></FeatureGate>} />
