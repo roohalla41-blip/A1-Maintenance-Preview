@@ -7,6 +7,8 @@ import { Label } from '@/components/ui/label';
 import SarraafLogo from '@/components/SarraafLogo';
 import EmailVerificationStep from '@/components/EmailVerificationStep';
 import { directRegisterExchange, directRegisterCustomer } from '@/lib/directAuth';
+import { registerExchange as registerLocalExchange, registerCustomer as registerLocalCustomer } from '@/lib/localAuth';
+import { isLocalTestMode } from '@/lib/localTestMode';
 import { isValidEmailFormat, isRealEmailProvider, signUpSarraaf, getVerificationErrorMessage, markCodeSent } from '@/lib/emailVerification';
 import { supabase } from '@/lib/supabaseClient';
 import { useAuth } from '@/lib/AuthContext';
@@ -120,6 +122,21 @@ export default function Register() {
   const completeSarraafRegistration = async (skipEmailVerification = false) => {
     setLoading(true);
     try {
+      if (isLocalTestMode()) {
+        const localRes = registerLocalExchange({
+          exchange_name: exchangeName.trim(),
+          full_name: fullName.trim(),
+          mobile: mobile.trim(),
+          username: username.trim(),
+          password,
+          email: email.trim(),
+          country: country.trim(),
+          city: city.trim(),
+        });
+        if (!localRes.success) { setError(errorMsg(localRes.error)); return; }
+        window.location.href = '/dashboard';
+        return;
+      }
       const res = await directRegisterExchange({
         exchange_name: exchangeName.trim(),
         full_name: fullName.trim(),
@@ -149,6 +166,18 @@ export default function Register() {
     setError('');
     setLoading(true);
     try {
+      if (isLocalTestMode()) {
+        const localRes = registerLocalCustomer({
+          full_name: fullName.trim(),
+          mobile: mobile.trim(),
+          username: username.trim(),
+          password,
+          email: email.trim() || undefined,
+        });
+        if (!localRes.success) { setError(errorMsg(localRes.error)); return; }
+        window.location.href = '/customer';
+        return;
+      }
       const res = await directRegisterCustomer({
         full_name: fullName.trim(),
         mobile: mobile.trim(),
