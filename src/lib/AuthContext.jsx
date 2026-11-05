@@ -35,6 +35,23 @@ export const AuthProvider = ({ children }) => {
     try {
       // Isolated preview must stop here before reading or verifying any server token.
       if (isLocalTestMode()) {
+        // Preview sessions are local-only. Restore the cached local user without
+        // attempting token verification or any network request.
+        let localUser = null;
+        try {
+          const token = localStorage.getItem('auth_token');
+          const rawUser = localStorage.getItem('auth_user');
+          if (token && rawUser) localUser = JSON.parse(rawUser);
+        } catch { localUser = null; }
+        if (localUser) {
+          const previewUser = applyCreatorRole(localUser);
+          setCacheTenant(previewUser);
+          setUser(previewUser);
+          setIsAuthenticated(true);
+        } else {
+          setUser(null);
+          setIsAuthenticated(false);
+        }
         setIsLoadingAuth(false);
         setAuthChecked(true);
         setAuthError(null);
