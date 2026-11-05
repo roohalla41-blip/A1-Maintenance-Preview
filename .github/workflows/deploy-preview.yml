@@ -1,5 +1,6 @@
 name: Deploy isolated A1 maintenance preview
 # Rebuild the preview from the latest validated a1-structure-copy commit.
+# Mobile and desktop navigation now share the same grouped accounting modules.
 
 on:
   push:
