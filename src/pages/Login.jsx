@@ -11,6 +11,7 @@ import { useAuth } from '@/lib/AuthContext';
 import { HOME_BY_ROLE } from '@/lib/rbac';
 import { directLogin, checkLegacyUser } from '@/lib/directAuth';
 import { login as localLogin } from '@/lib/localAuth';
+import { isLocalTestMode } from '@/lib/localTestMode';
 import { tryMigrateLocalUser } from '@/lib/legacyMigration';
 import LegacyUserNotice from '@/components/LegacyUserNotice';
 import ContactInfo from '@/components/sarraaf/ContactInfo';
@@ -256,6 +257,33 @@ export default function Login() {
     }
     setLoading(true);
     try {
+      if (isLocalTestMode()) {
+        const localResult = localLogin(identifier.trim(), password);
+        if (!localResult.success) {
+          setError(localResult.error === 'user_not_found'
+            ? 'کاربر آزمایشی پیدا نشد. ابتدا از بخش ثبت‌نام یک حساب آزمایشی بسازید.'
+            : localResult.error === 'wrong_password'
+              ? 'رمز عبور نادرست است.'
+              : 'ورود آزمایشی انجام نشد.');
+          return;
+        }
+        const previewRole = localResult.user?.role;
+        if (tab === 'customer' && previewRole !== 'customer') {
+          localStorage.removeItem('auth_token');
+          localStorage.removeItem('auth_user');
+          setError('این حساب صرافی است. لطفاً از تب صراف وارد شوید.');
+          return;
+        }
+        if (tab === 'sarraaf' && !['creator', 'admin', 'sarraaf', 'employee', 'exchange'].includes(previewRole)) {
+          localStorage.removeItem('auth_token');
+          localStorage.removeItem('auth_user');
+          setError('این حساب مشتری است. لطفاً از تب مشتری وارد شوید.');
+          return;
+        }
+        window.location.replace(HOME_BY_ROLE[previewRole] || '/');
+        return;
+      }
+
       let result = await waitForLoginResult(
         directLogin(identifier, password),
         LOGIN_TIMEOUT,
