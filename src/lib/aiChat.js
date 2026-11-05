@@ -6,6 +6,7 @@
 // خطاها تفکیک می‌شوند و هیچ توکن یا کلیدی ثبت نمی‌شود.
 
 import { getSupabaseConfig } from './supabaseConfig';
+import { isLocalTestMode } from './localTestMode';
 
 const STORAGE_KEY = 'ai_assistant_history_v1';
 const MAX_HISTORY = 100;
@@ -51,6 +52,14 @@ function resolveAnonKey() {
 export async function sendAssistantMessage(userMessage, { signal, context = [] } = {}) {
   if (!userMessage || !userMessage.trim()) {
     return { status: MODEL_STATUS.ERROR, error: 'پیام خالی است.', kind: ERROR_KIND.UNKNOWN };
+  }
+
+  if (isLocalTestMode()) {
+    return {
+      status: MODEL_STATUS.NOT_CONFIGURED,
+      reply: 'دستیار هوشمند در پیش‌نمایش آزمایشی به سرور متصل نیست. این بخش پس از راه‌اندازی امن سرویس در محیط مستقل فعال می‌شود.',
+      kind: ERROR_KIND.UNKNOWN,
+    };
   }
 
   const token = readAuthToken();
