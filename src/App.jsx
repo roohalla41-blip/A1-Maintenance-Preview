@@ -231,7 +231,7 @@ function App() {
           <LanguageProvider>
             <QueryClientProvider client={queryClientInstance}>
               <UpgradeProvider>
-                <Router>
+                <Router basename={import.meta.env.BASE_URL}>
                   <ScrollToTop />
                   <ErrorBoundary>
                     <AppGate>
