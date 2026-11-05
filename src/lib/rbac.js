@@ -117,6 +117,7 @@ export const SARRAAF_NAV_BY_ROLE = {
     'cash', 'bank', 'currencies', 'reports', 'profit_loss', 'debtors', 'agents',
     'agency_network', 'transfer_book', 'journal', 'general_ledger', 'convert',
     'online_products', 'payment_gateway', 'settings', 'sarraaf_market', 'sarraaf_chat',
+    'journal_entry', 'balance_sheet', 'reconciliation', 'receipt',
     'chat_groups', 'backup', 'support', 'assistant', 'notifications',
   ],
   admin: [
@@ -124,6 +125,7 @@ export const SARRAAF_NAV_BY_ROLE = {
     'cash', 'bank', 'currencies', 'reports', 'profit_loss', 'debtors', 'agents',
     'agency_network', 'transfer_book', 'journal', 'general_ledger', 'convert',
     'online_products', 'payment_gateway', 'settings', 'sarraaf_market', 'sarraaf_chat',
+    'journal_entry', 'balance_sheet', 'reconciliation', 'receipt',
     'chat_groups', 'backup', 'support', 'assistant', 'notifications',
   ],
   sarraaf: [
@@ -131,11 +133,12 @@ export const SARRAAF_NAV_BY_ROLE = {
     'cash', 'bank', 'currencies', 'reports', 'profit_loss', 'debtors', 'agents',
     'agency_network', 'transfer_book', 'journal', 'general_ledger', 'convert',
     'online_products', 'payment_gateway', 'settings', 'sarraaf_market', 'sarraaf_chat',
+    'journal_entry', 'balance_sheet', 'reconciliation', 'receipt',
     'chat_groups', 'backup', 'support', 'assistant', 'notifications',
   ],
   employee: [
     'dashboard', 'customers', 'dadogereft', 'trade', 'transfer_send', 'transfer_receive',
-    'cash', 'reports', 'transfer_book', 'convert', 'support', 'assistant', 'notifications',
+    'cash', 'reports', 'transfer_book', 'convert', 'receipt', 'support', 'assistant', 'notifications',
   ],
 };
 
