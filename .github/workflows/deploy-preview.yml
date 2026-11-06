@@ -6,10 +6,6 @@ name: Deploy isolated A1 maintenance preview
 # Refresh requested after standardizing enterprise module workspaces and the cash subsystem skeleton.
 
 on:
-  push:
-    branches:
-      - main
-      - a1-structure-copy
   workflow_dispatch:
 
 permissions:
