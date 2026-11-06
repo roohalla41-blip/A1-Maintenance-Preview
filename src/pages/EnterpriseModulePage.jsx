@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import {
   ListTree, BookOpenCheck, Scale, TrendingUp, GitBranch, CalendarDays,
   CalendarCheck, Building2, HandCoins, FileClock, ShieldCheck, FolderOpen,
   ClipboardCheck, FileSpreadsheet, BadgeCheck, Landmark, Wallet, ArrowLeftRight,
-  ChartNoAxesCombined, Users, FileCheck2, LockKeyhole
+  ChartNoAxesCombined, Users, FileCheck2, LockKeyhole, LayoutDashboard, Workflow,
+  Database, ShieldCheck as ShieldCheckIcon, FileBarChart, Settings2, History, CheckCircle2
 } from 'lucide-react';
 
 const MODULES = {
@@ -213,6 +214,7 @@ function ModuleList({ title, items }) {
 
 export default function EnterpriseModulePage() {
   const { moduleKey } = useParams();
+  const [activeTab, setActiveTab] = useState('overview');
   const module = MODULES[moduleKey];
   if (!module) {
     return <div className="rounded-xl border bg-card p-6"><h1 className="text-lg font-bold">بخش موردنظر یافت نشد</h1><Link className="text-primary underline mt-3 inline-block" to="/dashboard">بازگشت به داشبورد</Link></div>;
@@ -229,14 +231,101 @@ export default function EnterpriseModulePage() {
         </div>
         <span className="rounded-full border border-amber-300 bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-800 dark:border-amber-700 dark:bg-amber-950/30 dark:text-amber-300">اسکلت تعریف شده · هنوز عملیاتی نیست</span>
       </div>
-      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-        <ModuleList title="قابلیت‌های برنامه‌ریزی‌شده" items={module.functions} />
-        <ModuleList title="کنترل‌ها و الزامات" items={module.controls} />
-        <ModuleList title="گزارش‌ها و خروجی‌ها" items={module.outputs} />
-      </div>
+      <nav className="grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-6" aria-label={`بخش‌های ماژول ${module.title}`}>
+        {[
+          ['overview','نمای کلی',LayoutDashboard],
+          ['operations','گردش‌کارها',Workflow],
+          ['registers','دفاتر و فهرست‌ها',Database],
+          ['controls','کنترل و تأیید',ShieldCheckIcon],
+          ['reports','گزارش‌ها',FileBarChart],
+          ['settings','پیکربندی',Settings2],
+        ].map(([key,label,TabIcon]) => (
+          <button key={key} type="button" onClick={() => setActiveTab(key)} aria-pressed={activeTab === key}
+            className={`flex min-h-11 items-center justify-center gap-2 rounded-xl border px-3 py-2 text-xs font-semibold transition-colors ${activeTab === key ? 'border-primary bg-primary text-primary-foreground shadow-sm' : 'border-border bg-card text-muted-foreground hover:bg-muted'}`}>
+            <TabIcon className="h-4 w-4"/>{label}
+          </button>
+        ))}
+      </nav>
+
+      {activeTab === 'overview' && (
+        <div className="space-y-4">
+          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            {[
+              ['قابلیت‌های تعریف‌شده',module.functions.length,'قابلیت در نقشه ماژول'],
+              ['کنترل‌های تخصصی',module.controls.length,'الزام در طراحی'],
+              ['گزارش‌ها و خروجی‌ها',module.outputs.length,'خروجی پیش‌بینی‌شده'],
+              ['وضعیت اتصال','در حال طراحی','هنوز به عملیات واقعی متصل نیست'],
+            ].map(([label,value,caption]) => <div key={label} className="rounded-xl border bg-card p-4"><p className="text-xs text-muted-foreground">{label}</p><p className="mt-2 text-xl font-extrabold tabular-nums">{value}</p><p className="mt-1 text-[11px] text-muted-foreground">{caption}</p></div>)}
+          </div>
+          <div className="grid gap-3 xl:grid-cols-2">
+            <ModuleList title="قابلیت‌های اصلی این ماژول" items={module.functions}/>
+            <section className="rounded-xl border bg-card p-4">
+              <h3 className="mb-3 text-sm font-bold">چرخه کاری استاندارد</h3>
+              <ol className="grid gap-2 sm:grid-cols-2">
+                {['تعریف و پیکربندی','ثبت پیش‌نویس','اعتبارسنجی اطلاعات','بررسی و تأیید مجاز','ثبت نهایی و ایجاد آثار حسابداری','تطبیق، گزارش و بایگانی'].map((step,index)=><li key={step} className="flex items-center gap-2 rounded-lg bg-muted/50 p-2.5 text-xs"><span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10 font-bold text-primary">{index+1}</span>{step}</li>)}
+              </ol>
+            </section>
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'operations' && (
+        <div className="grid gap-3 md:grid-cols-2">
+          <ModuleList title="عملیات و گردش‌کارهای این ماژول" items={module.functions}/>
+          <section className="rounded-xl border bg-card p-4">
+            <h3 className="mb-3 text-sm font-bold">وضعیت‌های چرخه سند یا درخواست</h3>
+            <div className="flex flex-wrap gap-2">{['پیش‌نویس','در انتظار بررسی','در انتظار تأیید','ثبت نهایی','رد شده','ابطال با سند معکوس'].map(x=><span key={x} className="rounded-full border px-3 py-1.5 text-xs">{x}</span>)}</div>
+            <p className="mt-4 text-xs leading-6 text-muted-foreground">گردش واقعی هر وضعیت، شماره‌گذاری، کنترل تکرار و اتصال به موتور حسابداری باید برای همین ماژول پیاده‌سازی و آزمون شود.</p>
+          </section>
+        </div>
+      )}
+
+      {activeTab === 'registers' && (
+        <div className="grid gap-3 md:grid-cols-2">
+          <ModuleList title="فهرست‌ها و پرونده‌های اصلی" items={module.functions}/>
+          <section className="rounded-xl border bg-card p-4">
+            <h3 className="mb-3 text-sm font-bold">الزامات دفتر اطلاعات</h3>
+            <ul className="space-y-2 text-sm text-muted-foreground">{['شناسه یکتا و شماره مرجع','جست‌وجو، فیلتر و مرتب‌سازی','وضعیت فعال، غیرفعال و بایگانی','تاریخچه تغییرات و پیوست‌ها','دسترسی مبتنی بر نقش و شعبه'].map(x=><li key={x} className="flex gap-2"><CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-primary"/>{x}</li>)}</ul>
+          </section>
+        </div>
+      )}
+
+      {activeTab === 'controls' && (
+        <div className="grid gap-3 md:grid-cols-2">
+          <ModuleList title="کنترل‌ها و الزامات تخصصی" items={module.controls}/>
+          <section className="rounded-xl border bg-card p-4">
+            <h3 className="mb-3 text-sm font-bold">کنترل‌های مشترک اجباری</h3>
+            <ul className="space-y-2 text-sm text-muted-foreground">{['مجوز مستقل در مسیر و سرویس','ثبت کاربر، زمان و شعبه','تفکیک وظایف و جلوگیری از خودتأییدی','ثبت رویدادهای حساس و دلیل تغییر','مدیریت خطا و جلوگیری از ثبت تکراری','حفظ سوابق و اصلاح با سند مرتبط'].map(x=><li key={x} className="flex gap-2"><ShieldCheckIcon className="mt-0.5 h-4 w-4 shrink-0 text-primary"/>{x}</li>)}</ul>
+          </section>
+        </div>
+      )}
+
+      {activeTab === 'reports' && (
+        <div className="grid gap-3 md:grid-cols-2">
+          <ModuleList title="گزارش‌ها و خروجی‌های تخصصی" items={module.outputs}/>
+          <section className="rounded-xl border bg-card p-4">
+            <h3 className="mb-3 text-sm font-bold">فیلترها و قابلیت‌های گزارش</h3>
+            <ul className="space-y-2 text-sm text-muted-foreground">{['بازه تاریخ و دوره مالی','شرکت، شعبه و واحد عملیاتی','ارز عملیاتی و ارز گزارشگری','وضعیت، مسئول و طرف حساب','مقایسه دوره‌ای و ریزگردش','خروجی چاپی و فایل قابل دریافت'].map(x=><li key={x} className="flex gap-2"><FileBarChart className="mt-0.5 h-4 w-4 shrink-0 text-primary"/>{x}</li>)}</ul>
+          </section>
+        </div>
+      )}
+
+      {activeTab === 'settings' && (
+        <div className="grid gap-3 md:grid-cols-2">
+          <section className="rounded-xl border bg-card p-4">
+            <h3 className="mb-3 text-sm font-bold">پیکربندی اختصاصی ماژول</h3>
+            <ul className="space-y-2 text-sm text-muted-foreground">{['فعال‌سازی و سطح استفاده در فضای کاری','شماره‌گذاری و قالب اسناد','پیش‌فرض‌های ارز، تاریخ و شعبه','نگاشت حساب‌ها و قواعد ثبت','حدود، آستانه‌ها و مسیر تأیید','اعلان‌ها و گزارش‌های زمان‌بندی‌شده'].map(x=><li key={x} className="flex gap-2"><Settings2 className="mt-0.5 h-4 w-4 shrink-0 text-primary"/>{x}</li>)}</ul>
+          </section>
+          <section className="rounded-xl border bg-card p-4">
+            <h3 className="mb-3 text-sm font-bold">وابستگی‌ها و آماده‌سازی</h3>
+            <p className="text-sm leading-7 text-muted-foreground">پیش از فعال‌سازی عملیاتی، وابستگی‌های این ماژول به هویت و دسترسی، شرکت و شعبه، ارز و نرخ، شماره‌گذاری اسناد، موتور ثبت حسابداری، اسناد پیوست و ردپای حسابرسی باید تعیین و آزمون شوند.</p>
+          </section>
+        </div>
+      )}
+
       <div className="rounded-xl border border-dashed bg-muted/20 p-4">
-        <div className="flex items-center gap-2 font-semibold text-sm"><LockKeyhole className="h-4 w-4 text-muted-foreground" />وضعیت این مرحله</div>
-        <p className="mt-2 text-sm leading-7 text-muted-foreground">این صفحه برای تکمیل معماری و اسکلت محصول ایجاد شده است. هیچ عملیات مالی، ثبت سند یا تغییر اطلاعاتی از این صفحه انجام نمی‌شود. گردش‌کار، مجوزها، کنترل‌های حسابداری و اتصال امن داده باید در مرحله پیاده‌سازی جداگانه طراحی و آزمون شوند.</p>
+        <div className="flex items-center gap-2 font-semibold text-sm"><History className="h-4 w-4 text-muted-foreground" />وضعیت پیاده‌سازی</div>
+        <p className="mt-2 text-sm leading-7 text-muted-foreground">این ماژول اکنون دارای اسکلت ناوبری و نقشه ساختار تخصصی است؛ این به معنی اتصال عملیاتی نیست. عملیات مالی، داده، مجوزها، کنترل‌های حسابداری و ثبت حسابرسی باید جداگانه پیاده‌سازی و آزمون شوند.</p>
       </div>
       <div className="flex justify-between border-t pt-3 text-xs text-muted-foreground"><span>نسخه آزمایشی مستقل</span><Link to="/dashboard" className="text-primary hover:underline">بازگشت به داشبورد</Link></div>
     </div>
