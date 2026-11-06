@@ -43,16 +43,14 @@ export default function useWorkspaceModules(userId) {
   }, [userId]);
 
   const setModuleEnabled = useCallback((moduleId, value) => {
-    setEnabled(previous => {
-      const next = { ...previous, [moduleId]: Boolean(value) };
-      try {
-        window.localStorage.setItem(STORAGE_PREFIX + (userId || 'guest'), JSON.stringify(next));
-        window.dispatchEvent(new CustomEvent(EVENT_NAME, { detail: { userId: userId || 'guest' } }));
-      } catch {
-        // Keep the in-memory setting active when browser storage is unavailable.
-      }
-      return next;
-    });
+    const next = { ...readState(userId), [moduleId]: Boolean(value) };
+    setEnabled(next);
+    try {
+      window.localStorage.setItem(STORAGE_PREFIX + (userId || 'guest'), JSON.stringify(next));
+      window.dispatchEvent(new CustomEvent(EVENT_NAME, { detail: { userId: userId || 'guest' } }));
+    } catch {
+      // Keep the in-memory setting active when browser storage is unavailable.
+    }
   }, [userId]);
 
   return { enabledModules: enabled, setModuleEnabled };
