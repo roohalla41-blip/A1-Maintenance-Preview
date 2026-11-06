@@ -19,7 +19,7 @@
     --accent-foreground: 222 47% 11%;
 
     /* ── Brand: Professional Indigo ── */
-    --primary: 235 70% 56%;
+    --primary: 207 88% 43%;
     --primary-foreground: 0 0% 100%;
     --secondary: 220 18% 90%;
     --secondary-foreground: 222 47% 11%;
@@ -37,7 +37,7 @@
     /* ── Borders & Inputs ── */
     --border: 220 18% 88%;
     --input: 220 18% 88%;
-    --ring: 235 70% 56%;
+    --ring: 207 88% 43%;
 
     /* ── Charts ── */
     --chart-1: 235 70% 56%;
@@ -57,7 +57,7 @@
     /* ── Sidebar ── */
     --sidebar-background: 0 0% 100%;
     --sidebar-foreground: 222 47% 11%;
-    --sidebar-primary: 235 70% 56%;
+    --sidebar-primary: 207 88% 43%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 220 20% 94%;
     --sidebar-accent-foreground: 222 47% 11%;
@@ -79,7 +79,7 @@
     --accent-foreground: 210 30% 96%;
 
     /* ── Brand ── */
-    --primary: 235 70% 62%;
+    --primary: 207 88% 49%;
     --primary-foreground: 0 0% 100%;
     --secondary: 220 18% 18%;
     --secondary-foreground: 210 30% 96%;
@@ -97,7 +97,7 @@
     /* ── Borders & Inputs ── */
     --border: 220 18% 20%;
     --input: 220 18% 20%;
-    --ring: 235 70% 62%;
+    --ring: 207 88% 49%;
 
     /* ── Charts ── */
     --chart-1: 235 70% 62%;
@@ -109,7 +109,7 @@
     /* ── Sidebar ── */
     --sidebar-background: 222 28% 12%;
     --sidebar-foreground: 210 30% 96%;
-    --sidebar-primary: 235 70% 62%;
+    --sidebar-primary: 207 88% 49%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 220 20% 16%;
     --sidebar-accent-foreground: 210 30% 96%;
@@ -208,4 +208,37 @@
   .dark .shadow-card-hover {
     box-shadow: 0 4px 12px 0 rgb(0 0 0 / 0.4), 0 2px 4px 0 rgb(0 0 0 / 0.3);
   }
+}
+
+/* ── Unified financial workspace visual language ── */
+:root {
+  --workspace-brand: 19 59 112;
+  --workspace-blue: 8 117 209;
+  --workspace-surface: 244 247 251;
+}
+.dark {
+  --workspace-brand: 25 68 118;
+  --workspace-blue: 42 145 230;
+}
+html { scroll-behavior: smooth; }
+body { font-feature-settings: "ss01" on; }
+:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+}
+.financial-page-heading {
+  display:flex; align-items:center; justify-content:space-between; gap:1rem;
+  margin-bottom:1.25rem; flex-wrap:wrap;
+}
+.financial-quick-action {
+  display:inline-flex; align-items:center; justify-content:center; gap:.5rem;
+  min-height:2.75rem; padding:.65rem 1rem; border-radius:.75rem;
+  font-size:.8125rem; font-weight:650; transition:all .18s ease;
+  border:1px solid hsl(var(--border)); background:hsl(var(--card));
+}
+.financial-quick-action:hover { border-color:hsl(var(--primary)/.45); box-shadow:0 4px 14px rgb(15 45 80 / .08); transform:translateY(-1px); }
+.financial-section-title { font-size:.9rem; font-weight:750; letter-spacing:-.015em; }
+@media (max-width: 767px) {
+  .financial-page-heading { align-items:flex-start; margin-bottom:.875rem; }
+  .financial-quick-action { min-height:2.75rem; }
 }
