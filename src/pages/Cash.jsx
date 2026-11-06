@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import CashControlWorkspace from '@/components/sarraaf/CashControlWorkspace';
 import { useTransactions, useBankAccounts, useSafes, useCreateSafe, useUpdateSafe, useCurrencies, usePostDocument } from '@/lib/useSarraaf';
 import { PageHeader, BalanceCard, TransactionRow, EmptyState, LoadingState } from '@/components/sarraaf/Pieces';
 import { Button } from '@/components/ui/button';
@@ -256,21 +257,7 @@ export default function Cash() {
       )}
 
       {['cashiers','reconciliation','reports','controls'].includes(activeSection) && (
-        <section className="mb-5 space-y-4">
-          <div className="rounded-2xl border bg-card p-4">
-            <div className="flex items-start gap-3">
-              <div className="rounded-xl bg-muted p-2"><ShieldCheck className="h-5 w-5 text-primary"/></div>
-              <div className="min-w-0">
-                <h3 className="font-bold">{({cashiers:'مدیریت صندوقداران و شیفت‌ها',reconciliation:'مغایرت‌گیری و بستن صندوق',reports:'گزارش‌ها و تحلیل نقدینگی',controls:'کنترل‌های داخلی و تنظیمات'})[activeSection]}</h3>
-                <p className="mt-1 text-sm leading-6 text-muted-foreground">{({cashiers:'ساختار موردنیاز: تعریف صندوقدار، تخصیص صندوق و ارز، شروع و پایان شیفت، تحویل‌وتحول، حدود اختیار و ثبت مسئول هر عملیات.',reconciliation:'ساختار موردنیاز: شمارش واقعی، مانده دفتری، اختلاف، علت اختلاف، سند تعدیل با مجوز، تأیید سرپرست و بستن دوره صندوق.',reports:'ساختار موردنیاز: گردش روزانه، مانده به تفکیک صندوق و ارز، دریافت و پرداخت، انتقالات، عملکرد صندوقدار، مغایرت‌ها و خروجی قابل چاپ.',controls:'ساختار موردنیاز: سقف دریافت و پرداخت، حد موجودی، الزام تأیید، تفکیک ثبت‌کننده و تأییدکننده، دوره کاری و تاریخچه تغییرات.'})[activeSection]}</p>
-              </div>
-            </div>
-            <div className="mt-4 grid gap-2 sm:grid-cols-2">
-              {({cashiers:['پرونده و وضعیت صندوقدار','تخصیص صندوق و ارز','شیفت و تحویل‌وتحول','حدود دسترسی و سقف عملیات'],reconciliation:['شمارش و صورت‌جلسه صندوق','مقایسه مانده واقعی و دفتری','ثبت اختلاف و علت آن','تأیید و سند تعدیل'],reports:['گزارش گردش و مانده','گزارش دریافت و پرداخت','عملکرد صندوق و صندوقدار','خروجی PDF و Excel'],controls:['سقف و محدودیت عملیات','گردش تأیید چندمرحله‌ای','قفل دوره و بستن روز','تاریخچه و ردپای حسابرسی']})[activeSection].map(item => <div key={item} className="rounded-lg border bg-background px-3 py-2 text-xs">{item}</div>)}
-            </div>
-            <p className="mt-4 rounded-lg bg-amber-50 px-3 py-2 text-xs leading-5 text-amber-800">این قسمت در این مرحله نقشه ساختار و نیازمندی‌ها را نشان می‌دهد؛ عملیات مدیریتی آن هنوز به گردش‌کار و داده‌های اختصاصی متصل نشده است.</p>
-          </div>
-        </section>
+        <CashControlWorkspace section={activeSection} />
       )}
 
       {/* دیالوگ انتقال داخلی */}
