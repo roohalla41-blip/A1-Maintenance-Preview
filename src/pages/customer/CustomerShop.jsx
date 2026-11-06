@@ -30,7 +30,8 @@ export default function CustomerShop() {
   const [submitting, setSubmitting] = useState(false);
   const [orders, setOrders] = useState([]);
   const [pricing, setPricing] = useState(null);
-  const [loading, setLoading] = useState(true);\n  const [activeTab, setActiveTab] = useState('catalog');
+  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('catalog');
 
   const loadData = useCallback(async () => {
     if (!user?.id) return;
