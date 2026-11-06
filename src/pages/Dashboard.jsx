@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import DashboardLinks from '@/components/sarraaf/DashboardLinks';
 import DesktopDashboard from '@/components/sarraaf/DesktopDashboard';
+import MobileDashboard from '@/components/sarraaf/MobileDashboard';
 import TreasuryBalanceCards from '@/components/sarraaf/dashboard/TreasuryBalanceCards';
 import TodayTxSummary from '@/components/sarraaf/dashboard/TodayTxSummary';
 import PendingTransfersList from '@/components/sarraaf/dashboard/PendingTransfersList';
@@ -173,56 +174,23 @@ export default function Dashboard() {
         />
       </div>
 
-      {/* Mobile: Professional dashboard summary */}
-      <div className="md:hidden space-y-3 mb-3">
-        {isV2 ? (
-          <>
-            <TreasuryBalanceV2 treasuryBalances={treasuryBalances} isLoading={treasuryLoading} />
-            <TodayTxSummaryV2 txs={txs} isLoading={txLoading} />
-            <PendingTransfersV2 transfers={transfers} isLoading={transfersLoading} />
-          </>
-        ) : (
-          <>
-            <TreasuryBalanceCards treasuryBalances={treasuryBalances} isLoading={treasuryLoading} />
-            <TodayTxSummary txs={txs} isLoading={txLoading} />
-            <PendingTransfersList transfers={transfers} isLoading={transfersLoading} />
-          </>
-        )}
-      </div>
-
-      {/* Mobile: Quick links */}
+      {/* Mobile: responsive financial workspace aligned with the desktop reference */}
       <div className="md:hidden">
-        <div className="flex items-center justify-between mb-2">
-          <h3 className="text-xs font-bold text-foreground">دسترسی سریع</h3>
-        </div>
-        <DashboardLinks
-          allLinks={[...visiblePrimaryLinks, ...visibleSecondaryLinks]}
-          renderLink={renderLink}
+        <MobileDashboard
+          profile={profile}
+          currencies={currencies}
+          curLoading={curLoading}
+          txs={txs}
+          txLoading={txLoading}
+          customers={customers}
+          custLoading={custLoading}
+          treasuryBalances={treasuryBalances}
+          treasuryLoading={treasuryLoading}
+          bankBalances={bankBalances}
+          bankLoading={bankLoading}
+          debtorCount={debtorStats.debtors}
         />
       </div>
-
-      {/* Mobile: Recent transactions */}
-      <div className="md:hidden flex items-center justify-between mb-2.5 mt-4">
-        <h3 className="text-sm font-bold text-foreground">تراکنش‌های اخیر</h3>
-        <Link to="/reports" className="flex items-center gap-0.5 text-xs text-muted-foreground hover:text-primary transition-colors">
-          مشاهده همه <ChevronLeft className="w-3.5 h-3.5" />
-        </Link>
-      </div>
-      <Card className="md:hidden shadow-card">
-        <CardContent className="p-2">
-          {txLoading ? (
-            <LoadingState />
-          ) : (txs || []).length === 0 ? (
-            <EmptyState icon={FileText} title="تراکنشی ثبت نشده" description="اولین عملیات خود را انجام دهید" />
-          ) : (
-            <div className="grid grid-cols-1 gap-1">
-              {(txs || []).slice(0, 10).map(tx => (
-                <TransactionRow key={tx.id} tx={tx} labels={TX_TYPE_LABELS} onClick={() => navigate(`/receipt?type=tx&id=${tx.id}`)} />
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
 
     </FeatureGate>
     );
