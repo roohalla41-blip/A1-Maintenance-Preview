@@ -30,6 +30,7 @@ import PullToRefresh from '@/components/PullToRefresh';
 import WorkspaceNavigation from '@/components/sarraaf/WorkspaceNavigation';
 import WorkspaceHeader from '@/components/sarraaf/WorkspaceHeader';
 import PwaInstallPrompt from '@/components/PwaInstallPrompt';
+import useWorkspaceModules, { isWorkspaceFeatureEnabled } from '@/lib/useWorkspaceModules';
 
 const NAV_ITEMS = [
   { featureKey: 'dashboard', label: 'داشبورد', path: '/dashboard', icon: LayoutDashboard, order: 0 },
@@ -105,6 +106,7 @@ export default function Layout() {
   const navigate = useNavigate();
   const { data: features } = useFeatures();
   const { data: profile } = useSarraafProfile(user?.id);
+  const { enabledModules } = useWorkspaceModules(user?.id);
   const { data: paidSystemEnabled } = usePaidSystemEnabled();
   const [moreOpen, setMoreOpen] = useState(false);
   const { openUpgrade } = useUpgrade();
@@ -139,7 +141,7 @@ export default function Layout() {
   const featureFiltered = visibleNavItems(features || [], NAV_ITEMS, profile || user, paidSystemEnabled);
   const items = getAllowedNavItems(userRole, featureFiltered);
   // NAV_ITEMS is the single source of truth; do not append duplicate routes here.
-  const desktopItems = items;
+  const desktopItems = items.filter(item => item.featureKey === 'settings' || isWorkspaceFeatureEnabled(item.featureKey, enabledModules));
   const bottomItems = BOTTOM_NAV
     .map(tab => desktopItems.find(item => item.featureKey === tab.featureKey) || tab)
     .filter(item => desktopItems.some(candidate => candidate.featureKey === item.featureKey));
