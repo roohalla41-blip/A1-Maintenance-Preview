@@ -26,6 +26,7 @@ import TreasuryBalanceV2 from '@/components/sarraaf/dashboard/v2/TreasuryBalance
 import TodayTxSummaryV2 from '@/components/sarraaf/dashboard/v2/TodayTxSummaryV2';
 import PendingTransfersV2 from '@/components/sarraaf/dashboard/v2/PendingTransfersV2';
 import { useLayoutVersion } from '@/lib/LayoutVersionContext';
+import useWorkspaceModules, { isWorkspaceFeatureEnabled } from '@/lib/useWorkspaceModules';
 
 
 const PRIMARY_LINKS = [
@@ -59,6 +60,7 @@ const SECONDARY_LINKS = [
 export default function Dashboard() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { enabledModules } = useWorkspaceModules(user?.id);
   const { data: profile } = useSarraafProfile(user?.id);
   const { data: txs, isLoading: txLoading } = useTransactions();
   const { data: customers, isLoading: custLoading } = useCustomers();
@@ -83,6 +85,8 @@ export default function Dashboard() {
   const secondaryLinks = userRole === 'sarraaf'
     ? SECONDARY_LINKS
     : getAllowedDashboardLinks(userRole, SECONDARY_LINKS);
+  const visiblePrimaryLinks = primaryLinks.filter(link => isWorkspaceFeatureEnabled(link.path.slice(1).replace(/-/g, '_'), enabledModules));
+  const visibleSecondaryLinks = secondaryLinks.filter(link => isWorkspaceFeatureEnabled(link.path.slice(1).replace(/-/g, '_'), enabledModules));
   const trialDaysRemaining = isTrial ? getTrialDaysRemaining(profile) : 0;
 
   const today = new Date().toISOString().split('T')[0];
@@ -192,7 +196,7 @@ export default function Dashboard() {
           <h3 className="text-xs font-bold text-foreground">دسترسی سریع</h3>
         </div>
         <DashboardLinks
-          allLinks={[...primaryLinks, ...secondaryLinks]}
+          allLinks={[...visiblePrimaryLinks, ...visibleSecondaryLinks]}
           renderLink={renderLink}
         />
       </div>
