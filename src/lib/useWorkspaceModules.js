@@ -13,7 +13,7 @@ export const WORKSPACE_MODULES = [
   { id: 'governance', label: 'امنیت، کنترل و ارتباطات', description: 'امنیت، حسابرسی، انطباق، پشتیبانی و ارتباطات', keys: ['kyc', 'compliance', 'aml_screening', 'internal_controls', 'data_governance', 'audit_log', 'document_center', 'approvals', 'sarraaf_chat', 'chat_groups', 'backup', 'support', 'assistant'] },
 ];
 
-const STORAGE_PREFIX = 'sarraaf-workspace-modules-v1:';
+// These destinations are system controls and must never be hidden by workspace module toggles.\nexport const ALWAYS_AVAILABLE_FEATURE_KEYS = Object.freeze(['dashboard', 'settings']);\n\nconst STORAGE_PREFIX = 'sarraaf-workspace-modules-v1:';
 const EVENT_NAME = 'sarraaf-workspace-modules-changed';
 
 function readState(userId) {
