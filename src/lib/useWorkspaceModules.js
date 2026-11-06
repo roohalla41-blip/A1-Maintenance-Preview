@@ -13,7 +13,10 @@ export const WORKSPACE_MODULES = [
   { id: 'governance', label: 'امنیت، کنترل و ارتباطات', description: 'امنیت، حسابرسی، انطباق، پشتیبانی و ارتباطات', keys: ['kyc', 'compliance', 'aml_screening', 'internal_controls', 'data_governance', 'audit_log', 'document_center', 'approvals', 'sarraaf_chat', 'chat_groups', 'backup', 'support', 'assistant'] },
 ];
 
-// These destinations are system controls and must never be hidden by workspace module toggles.\nexport const ALWAYS_AVAILABLE_FEATURE_KEYS = Object.freeze(['dashboard', 'settings']);\n\nconst STORAGE_PREFIX = 'sarraaf-workspace-modules-v1:';
+// Settings and the dashboard are system controls, not optional business modules.
+export const ALWAYS_AVAILABLE_FEATURE_KEYS = Object.freeze(['dashboard', 'settings']);
+
+const STORAGE_PREFIX = 'sarraaf-workspace-modules-v1:';
 const EVENT_NAME = 'sarraaf-workspace-modules-changed';
 
 function readState(userId) {
@@ -26,6 +29,7 @@ function readState(userId) {
 }
 
 export function isWorkspaceFeatureEnabled(featureKey, state = {}) {
+  if (ALWAYS_AVAILABLE_FEATURE_KEYS.includes(featureKey)) return true;
   const module = WORKSPACE_MODULES.find(item => item.keys.includes(featureKey));
   return !module || state[module.id] !== false;
 }
@@ -43,6 +47,7 @@ export default function useWorkspaceModules(userId) {
   }, [userId]);
 
   const setModuleEnabled = useCallback((moduleId, value) => {
+    if (!WORKSPACE_MODULES.some(module => module.id === moduleId)) return;
     const next = { ...readState(userId), [moduleId]: Boolean(value) };
     setEnabled(next);
     try {
