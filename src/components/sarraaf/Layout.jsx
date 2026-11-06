@@ -28,6 +28,7 @@ import ForceUpdateGate from '@/components/ForceUpdateGate';
 import { useHardwareBack } from '@/hooks/useHardwareBack';
 import PullToRefresh from '@/components/PullToRefresh';
 import WorkspaceNavigation from '@/components/sarraaf/WorkspaceNavigation';
+import WorkspaceModuleRouteGuard from '@/components/sarraaf/WorkspaceModuleRouteGuard';
 import WorkspaceHeader from '@/components/sarraaf/WorkspaceHeader';
 import PwaInstallPrompt from '@/components/PwaInstallPrompt';
 import useWorkspaceModules, { isWorkspaceFeatureEnabled } from '@/lib/useWorkspaceModules';
@@ -259,7 +260,7 @@ export default function Layout() {
               </div>
             )}
             <PullToRefresh>
-              <Outlet />
+              <WorkspaceModuleRouteGuard><Outlet /></WorkspaceModuleRouteGuard>
             </PullToRefresh>
           </div>
         </main>
