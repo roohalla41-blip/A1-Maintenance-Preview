@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { MODULE_WORKSPACE_SCHEMAS } from '@/lib/moduleWorkspaceSchemas';
 import { useParams, Link } from 'react-router-dom';
 import {
   ListTree, BookOpenCheck, Scale, TrendingUp, GitBranch, CalendarDays,
@@ -220,6 +221,7 @@ export default function EnterpriseModulePage() {
     return <div className="rounded-xl border bg-card p-6"><h1 className="text-lg font-bold">بخش موردنظر یافت نشد</h1><Link className="text-primary underline mt-3 inline-block" to="/dashboard">بازگشت به داشبورد</Link></div>;
   }
   const Icon = module.icon;
+  const schema = MODULE_WORKSPACE_SCHEMAS[moduleKey];
   return (
     <div className="space-y-5" dir="rtl">
       <div className="flex flex-wrap items-center gap-3 rounded-2xl border bg-card p-4 md:p-6">
@@ -236,6 +238,7 @@ export default function EnterpriseModulePage() {
           ['overview','نمای کلی',LayoutDashboard],
           ['operations','گردش‌کارها',Workflow],
           ['registers','دفاتر و فهرست‌ها',Database],
+          ['forms','ساختار فرم‌ها',FileCheck2],
           ['controls','کنترل و تأیید',ShieldCheckIcon],
           ['reports','گزارش‌ها',FileBarChart],
           ['settings','پیکربندی',Settings2],
@@ -262,7 +265,7 @@ export default function EnterpriseModulePage() {
             <section className="rounded-xl border bg-card p-4">
               <h3 className="mb-3 text-sm font-bold">چرخه کاری استاندارد</h3>
               <ol className="grid gap-2 sm:grid-cols-2">
-                {['تعریف و پیکربندی','ثبت پیش‌نویس','اعتبارسنجی اطلاعات','بررسی و تأیید مجاز','ثبت نهایی و ایجاد آثار حسابداری','تطبیق، گزارش و بایگانی'].map((step,index)=><li key={step} className="flex items-center gap-2 rounded-lg bg-muted/50 p-2.5 text-xs"><span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10 font-bold text-primary">{index+1}</span>{step}</li>)}
+                {(schema?.workflow || ['تعریف و پیکربندی','ثبت پیش‌نویس','اعتبارسنجی اطلاعات','بررسی و تأیید مجاز','ثبت نهایی در فاز عملیاتی','تطبیق، گزارش و بایگانی']).map((step,index)=><li key={step} className="flex items-center gap-2 rounded-lg bg-muted/50 p-2.5 text-xs"><span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10 font-bold text-primary">{index+1}</span>{step}</li>)}
               </ol>
             </section>
           </div>
@@ -282,10 +285,22 @@ export default function EnterpriseModulePage() {
 
       {activeTab === 'registers' && (
         <div className="grid gap-3 md:grid-cols-2">
-          <ModuleList title="فهرست‌ها و پرونده‌های اصلی" items={module.functions}/>
+          <ModuleList title="دفاتر و پرونده‌های اختصاصی این حوزه" items={schema?.registers || module.functions}/>
           <section className="rounded-xl border bg-card p-4">
             <h3 className="mb-3 text-sm font-bold">الزامات دفتر اطلاعات</h3>
             <ul className="space-y-2 text-sm text-muted-foreground">{['شناسه یکتا و شماره مرجع','جست‌وجو، فیلتر و مرتب‌سازی','وضعیت فعال، غیرفعال و بایگانی','تاریخچه تغییرات و پیوست‌ها','دسترسی مبتنی بر نقش و شعبه'].map(x=><li key={x} className="flex gap-2"><CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-primary"/>{x}</li>)}</ul>
+          </section>
+        </div>
+      )}
+
+      {activeTab === 'forms' && (
+        <div className="grid gap-3 md:grid-cols-2">
+          <ModuleList title="بخش‌های فرم‌های اختصاصی" items={schema?.forms || []}/>
+          <section className="rounded-xl border bg-card p-4">
+            <h3 className="mb-3 text-sm font-bold">الگوی رفتار فرم</h3>
+            <ul className="space-y-2 text-sm text-muted-foreground">
+              {['فیلدهای ضروری و اختیاری با برچسب روشن','اعتبارسنجی نوع داده، مقدار و دامنه مجاز','انتخاب شرکت، شعبه، دوره و ارز در صورت نیاز','ذخیره پیش‌نویس و امکان لغو امن','پیش‌نمایش اثر و ارجاع به تأییدکننده','نمایش خطا بدون اعلام موفقیت ساختگی'].map(x=><li key={x} className="flex gap-2"><FileCheck2 className="mt-0.5 h-4 w-4 shrink-0 text-primary"/>{x}</li>)}
+            </ul>
           </section>
         </div>
       )}
