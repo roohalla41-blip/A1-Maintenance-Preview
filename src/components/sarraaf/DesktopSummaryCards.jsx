@@ -1,43 +1,38 @@
 import React from 'react';
-import { Download, Send, Users, Banknote, Landmark } from 'lucide-react';
+import { Download, Send, Users, Banknote, Landmark, TrendingUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { formatNumber } from '@/lib/sarraaf';
 
 const STYLES = {
-  bank: { icon: Landmark, accent: 'border-b-cyan-500', iconBg: 'bg-cyan-50 dark:bg-cyan-950/30', iconColor: 'text-cyan-600' },
-  treasury: { icon: Banknote, accent: 'border-b-amber-500', iconBg: 'bg-amber-50 dark:bg-amber-950/30', iconColor: 'text-amber-600' },
-  customers: { icon: Users, accent: 'border-b-blue-500', iconBg: 'bg-blue-50 dark:bg-blue-950/30', iconColor: 'text-blue-600' },
-  sent: { icon: Send, accent: 'border-b-violet-500', iconBg: 'bg-violet-50 dark:bg-violet-950/30', iconColor: 'text-violet-600' },
-  received: { icon: Download, accent: 'border-b-emerald-500', iconBg: 'bg-emerald-50 dark:bg-emerald-950/30', iconColor: 'text-emerald-600' },
+  bank: { icon: Landmark, tone: 'cyan', color: 'text-cyan-700' },
+  treasury: { icon: Banknote, tone: 'green', color: 'text-emerald-700' },
+  customers: { icon: Users, tone: 'blue', color: 'text-blue-700' },
+  sent: { icon: Send, tone: 'violet', color: 'text-violet-700' },
+  received: { icon: Download, tone: 'teal', color: 'text-teal-700' },
 };
 
 export default function DesktopSummaryCards({ cards }) {
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3 mb-5">
-      {cards.map((card, index) => {
-        const s = STYLES[card.key];
+    <div className="grid grid-cols-2 lg:grid-cols-3 2xl:grid-cols-5 gap-3">
+      {cards.map((card) => {
+        const s = STYLES[card.key] || STYLES.bank;
         const Icon = s.icon;
         return (
-          <section key={card.key} className={cn('min-w-0 rounded-xl border border-border bg-card p-4 shadow-card border-b-4', s.accent, index === 4 && 'col-span-2 lg:col-span-1')}>
-            <div className="flex items-start justify-between mb-2">
-              <p className="text-xs font-medium text-muted-foreground">{card.label}</p>
-              <div className={cn('w-8 h-8 rounded-lg flex items-center justify-center shrink-0', s.iconBg)}>
-                <Icon className={cn('w-4 h-4', s.iconColor)} strokeWidth={2} />
+          <section key={card.key} className={cn('a1-stat-card min-w-0')}>
+            <div className="flex items-center justify-between gap-2 mb-3">
+              <p className="text-xs font-bold text-slate-600 truncate">{card.label}</p>
+              <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 bg-${s.tone}-50`}>
+                <Icon className={cn('w-5 h-5',s.color)} strokeWidth={2.1}/>
               </div>
             </div>
             <div className="flex items-baseline gap-1.5 flex-wrap">
-              <span className="text-xl font-bold tabular-nums">{card.main.value}</span>
-              {card.main.unit && <span className="text-xs text-muted-foreground">{card.main.unit}</span>}
+              <span className="text-xl xl:text-2xl font-extrabold text-slate-900 tabular-nums">{card.main.value}</span>
+              {card.main.unit && <span className="text-[11px] text-slate-500">{card.main.unit}</span>}
             </div>
-            {card.others.map(o => (
-              <p key={o.unit} className="text-xs text-muted-foreground tabular-nums mt-0.5">{o.value} {o.unit}</p>
-            ))}
-            {card.footer.map(text => <p key={text} className="text-xs text-muted-foreground mt-1">{text}</p>)}
-            {card.trend !== null && (
-              <p className={cn('text-xs font-medium mt-1', card.trend >= 0 ? 'text-emerald-600' : 'text-red-600')}>
-                {card.trend >= 0 ? '▲' : '▼'} {formatNumber(Math.abs(card.trend))}٪ نسبت به دیروز
-              </p>
-            )}
+            {card.others.map(o => <p key={o.unit} className="text-[11px] text-slate-500 tabular-nums mt-1">{o.value} {o.unit}</p>)}
+            {card.footer.map(text => <p key={text} className="text-[11px] text-slate-500 mt-1">{text}</p>)}
+            {card.trend !== null && <p className={cn('text-[11px] font-bold mt-2',card.trend >= 0 ? 'text-emerald-700':'text-rose-600')}><TrendingUp className="inline w-3 h-3 ml-1"/>{formatNumber(Math.abs(card.trend))}٪ نسبت به دوره قبل</p>}
+            <div className={`h-1 rounded-full mt-3 bg-${s.tone}-100 overflow-hidden`}><div className={`h-full w-2/3 rounded-full bg-${s.tone}-500`}/></div>
           </section>
         );
       })}
