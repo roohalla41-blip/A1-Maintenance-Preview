@@ -2,6 +2,7 @@ name: Deploy isolated A1 maintenance preview
 # Rebuild the preview from the latest validated a1-structure-copy commit.
 # Mobile and desktop navigation now share the same grouped accounting modules.
 # Deployment is triggered from the default branch; application source is always checked out from a1-structure-copy.
+# Deployment refresh: publish the newest validated preview source after isolated build checks.
 
 on:
   push:
