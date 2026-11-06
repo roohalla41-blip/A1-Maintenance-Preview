@@ -1,7 +1,11 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/lib/AuthContext';
-import useWorkspaceModules, { isWorkspaceFeatureEnabled } from '@/lib/useWorkspaceModules';
+import { useFeatures } from '@/lib/useSarraaf';
+import { isFeatureEnabled, getFeatureStatus, getFeatureMessage } from '@/lib/features';
+import { isWorkspaceFeatureEnabled } from '@/lib/useWorkspaceModules';
+import useWorkspaceModules from '@/lib/useWorkspaceModules';
+import UpdatingNotice from '@/components/sarraaf/UpdatingNotice';
 
 const ROUTE_FEATURES = [
   ['/customers', 'customers'],
@@ -31,7 +35,6 @@ const ROUTE_FEATURES = [
   ['/sarraaf-chat', 'sarraaf_chat'],
   ['/backup', 'backup'],
   ['/support', 'support'],
-  ['/assistant', 'assistant'],
 ];
 
 function featureForPath(pathname) {
@@ -41,22 +44,32 @@ function featureForPath(pathname) {
   return ROUTE_FEATURES.find(([prefix]) => pathname === prefix || pathname.startsWith(prefix + '/'))?.[1] || null;
 }
 
-export default function WorkspaceModuleRouteGuard({ children }) {
-  const { pathname } = useLocation();
-  const { user } = useAuth();
-  const { enabledModules } = useWorkspaceModules(user?.id);
-  const featureKey = featureForPath(pathname);
-
-  if (!featureKey || isWorkspaceFeatureEnabled(featureKey, enabledModules)) return children;
-
+function ModuleAccessNotice() {
   return (
     <main dir="rtl" className="mx-auto flex min-h-[55vh] w-full max-w-2xl items-center justify-center px-4 py-10">
       <section className="w-full rounded-2xl border border-border bg-card p-6 text-center shadow-sm">
-        <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-muted text-muted-foreground">⊘</div>
+        <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-muted text-muted-foreground" aria-hidden="true">⊘</div>
         <h1 className="text-lg font-bold">این بخش در فضای کاری غیرفعال است</h1>
-        <p className="mt-2 text-sm leading-7 text-muted-foreground">برای استفاده دوباره، از تنظیمات فضای کاری این بخش را فعال کنید. غیرفعال‌سازی فقط دسترسی کاری را محدود می‌کند و سوابق و اطلاعات را حذف نمی‌کند.</p>
+        <p className="mt-2 text-sm leading-7 text-muted-foreground">برای استفاده دوباره، از تنظیمات فضای کاری این بخش را فعال کنید. غیرفعال‌سازی هیچ سابقه یا اطلاعات مالی را حذف نمی‌کند.</p>
         <Link to="/settings" className="mt-5 inline-flex min-h-10 items-center justify-center rounded-lg bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground">رفتن به تنظیمات</Link>
       </section>
     </main>
   );
+}
+
+export default function WorkspaceModuleRouteGuard({ children }) {
+  const { pathname } = useLocation();
+  const { user } = useAuth();
+  const { data: features } = useFeatures();
+  const { enabledModules } = useWorkspaceModules(user?.id);
+  const featureKey = featureForPath(pathname);
+
+  if (!featureKey) return children;
+  if (!isWorkspaceFeatureEnabled(featureKey, enabledModules)) return <ModuleAccessNotice />;
+
+  const status = getFeatureStatus(features || [], featureKey);
+  if (!isFeatureEnabled(features || [], featureKey) || status === 'disabled') return <ModuleAccessNotice />;
+  if (status === 'updating') return <UpdatingNotice message={getFeatureMessage(features || [], featureKey)} />;
+
+  return children;
 }
