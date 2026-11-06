@@ -4,19 +4,44 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="robots" content="noindex" />
-    <title>در حال بازگشت به حساب صراف…</title>
+    <meta name="theme-color" content="#0f172a" />
+    <title>بازیابی مسیر | حساب صراف</title>
+    <style>
+      * { box-sizing: border-box; }
+      body { margin: 0; min-height: 100vh; display: grid; place-items: center; padding: 24px; background: #0f172a; color: #f8fafc; font-family: Tahoma, Arial, sans-serif; }
+      main { width: 100%; max-width: 440px; padding: 30px 24px; text-align: center; border: 1px solid #334155; border-radius: 20px; background: #172033; box-shadow: 0 24px 60px #02061780; }
+      .mark { width: 56px; height: 56px; display: grid; place-items: center; margin: 0 auto 18px; border-radius: 16px; background: #c9a24b20; color: #e8c875; font-size: 28px; }
+      h1 { margin: 0 0 10px; font-size: 21px; }
+      p { margin: 0; color: #cbd5e1; font-size: 14px; line-height: 2; }
+      a { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; margin-top: 22px; padding: 0 20px; border-radius: 10px; background: #c9a24b; color: #17140e; font-size: 14px; font-weight: 700; text-decoration: none; }
+      .hint { margin-top: 14px; color: #94a3b8; font-size: 11px; }
+    </style>
   </head>
   <body>
-    <p>در حال بازگشت به حساب صراف…</p>
+    <main>
+      <div class="mark" aria-hidden="true">↗</div>
+      <h1>در حال بازیابی صفحه</h1>
+      <p>درخواست شما در حال بازگشت به حساب صراف است. اگر انتقال خودکار انجام نشد، از دکمهٔ زیر استفاده کنید.</p>
+      <a id="home-link" href="/A1-Maintenance-Preview/">بازگشت به حساب صراف</a>
+      <div class="hint">حساب صراف · صفحهٔ بازیابی مسیر</div>
+    </main>
     <script>
-      // GitHub Pages project sites live under /A1-Maintenance-Preview/.
-      // Preserve that base path so React Router can restore nested routes.
-      var basePath = '/A1-Maintenance-Preview/';
-      var requestedPath = window.location.pathname + window.location.search + window.location.hash;
-      var appPath = requestedPath.indexOf(basePath) === 0
-        ? requestedPath.slice(basePath.length)
-        : requestedPath.replace(/^\\/+/, '');
-      window.location.replace(basePath + '?__spa_path=' + encodeURIComponent('/A1-Maintenance-Preview/' + appPath));
+      (function () {
+        var basePath = '/A1-Maintenance-Preview/';
+        var path = window.location.pathname;
+        var appPath = '';
+        if (path === basePath.slice(0, -1) || path === basePath) {
+          appPath = '';
+        } else if (path.indexOf(basePath) === 0) {
+          appPath = path.slice(basePath.length);
+        } else {
+          appPath = path.replace(/^\\/+/, '');
+        }
+        var requestedRoute = basePath + appPath + window.location.search + window.location.hash;
+        var home = document.getElementById('home-link');
+        if (home) home.href = basePath;
+        window.location.replace(basePath + '?__spa_path=' + encodeURIComponent(requestedRoute));
+      })();
     </script>
   </body>
 </html>
