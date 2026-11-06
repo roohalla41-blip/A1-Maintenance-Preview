@@ -174,7 +174,7 @@ export default function Layout() {
     <ForceUpdateGate>
     <div className="min-h-screen bg-background flex">
       {/* Enterprise workspace navigation for desktop and tablet. */}
-      <aside className="hidden md:flex w-64 lg:w-72 sticky top-0 h-screen flex-col bg-slate-950 text-slate-100 border-r border-slate-800 shadow-xl shrink-0 print:hidden">
+      <aside className="hidden md:flex w-56 xl:w-60 sticky top-0 h-screen flex-col bg-[#092b59] text-slate-100 border-r border-slate-800 shadow-xl shrink-0 print:hidden">
         {/* Brand header */}
         <div className="px-4 py-5 border-b border-white/10 flex items-center gap-3 bg-gradient-to-br from-slate-900 to-slate-950">
           <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shrink-0 shadow-lg ring-1 ring-white/15">
