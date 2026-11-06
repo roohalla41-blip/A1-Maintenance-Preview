@@ -8,7 +8,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
-  Shield, Users, CreditCard, Lock, Bell, MessageSquare,
+  Shield, Layers3, Users, CreditCard, Lock, Bell, MessageSquare,
   Server, Wallet, Crown, Upload, LogOut, Download, AlertTriangle, UserCog, Clock, Eye, Mail, Smartphone, Gamepad2, Zap, Globe, Store, FlaskConical, Database, Bot
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -22,6 +22,7 @@ import PlanPricingManager from '@/components/sarraaf/PlanPricingManager';
 import PermissionManager from '@/components/sarraaf/PermissionManager';
 import PaymentMethodsManager from '@/components/sarraaf/PaymentMethodsManager';
 import SystemOverview from '@/components/sarraaf/SystemOverview';
+import WorkspaceArchitecturePanel from '@/components/sarraaf/WorkspaceArchitecturePanel';
 import OrphanCustomerManager from '@/components/sarraaf/OrphanCustomerManager';
 import SqlMigrationHelper from '@/components/sarraaf/SqlMigrationHelper';
 import VersionManager from '@/components/sarraaf/VersionManager';
@@ -71,6 +72,12 @@ const TAB_GROUPS = [
     icon: Server,
     value: 'system',
     description: 'نمای کلی، اتصال و آمار',
+  },
+  {
+    label: 'نقشه ساختار',
+    icon: Layers3,
+    value: 'architecture',
+    description: 'نقشه پنل‌ها و دامنه‌های سامانه',
   },
   {
     label: 'بخش‌ها',
@@ -371,6 +378,8 @@ export default function BuilderPanel() {
             <SqlMigrationHelper />
           </div>
         </TabsContent>
+
+        <TabsContent value="architecture"><WorkspaceArchitecturePanel /></TabsContent>
 
         {/* بخش‌ها */}
         <TabsContent value="features">
