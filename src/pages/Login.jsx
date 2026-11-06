@@ -284,7 +284,7 @@ export default function Login() {
           setError('این حساب مشتری است. لطفاً از تب مشتری وارد شوید.');
           return;
         }
-        window.location.replace(HOME_BY_ROLE[previewRole] || '/');
+        navigate(HOME_BY_ROLE[previewRole] || '/', { replace: true });
         return;
       }
 
@@ -344,7 +344,7 @@ export default function Login() {
               setLoading(false);
               return;
             }
-            window.location.replace(HOME_BY_ROLE[userRole] || '/');
+            navigate(HOME_BY_ROLE[userRole] || '/', { replace: true });
             return;
           }
 
@@ -373,7 +373,7 @@ export default function Login() {
             setLoading(false);
             return;
           }
-          window.location.replace(HOME_BY_ROLE[userRole] || '/');
+          navigate(HOME_BY_ROLE[userRole] || '/', { replace: true });
           return;
         }
       }
@@ -429,7 +429,7 @@ export default function Login() {
         setLoading(false);
         return;
       }
-      window.location.replace(HOME_BY_ROLE[result.user.role] || '/');
+      navigate(HOME_BY_ROLE[result.user.role] || '/', { replace: true });
     } catch (err) {
       setError(err.message || 'خطا در ورود');
     } finally {
@@ -481,7 +481,7 @@ export default function Login() {
     handleGoogleCallback().then((result) => {
       if (result?.linked && result?.user) {
         window.history.replaceState({}, '', '/login');
-        window.location.replace(HOME_BY_ROLE[result.user.role] || '/');
+        navigate(HOME_BY_ROLE[result.user.role] || '/', { replace: true });
       } else if (result?.error === 'user_not_found' && result.google_email) {
         const params = new URLSearchParams({ tab: 'google', email: result.google_email });
         if (result.google_name) params.set('name', result.google_name);
