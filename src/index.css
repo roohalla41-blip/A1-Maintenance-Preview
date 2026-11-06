@@ -274,3 +274,5 @@ body { font-feature-settings: "ss01" on; }
   .a1-dashboard .a1-stat-card { padding:12px; border-radius:13px; }
   .a1-dashboard .a1-action { min-height:52px; font-size:12px; }
 }
+
+/* Preview deployment trigger: reference dashboard refresh */
