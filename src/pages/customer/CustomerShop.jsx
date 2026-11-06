@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ShoppingCart, Phone, CheckCircle, Clock, Package, Loader2, ArrowRight } from 'lucide-react';
+import { ShoppingCart, Phone, CheckCircle, Clock, Package, Loader2, ArrowRight, Store, Handshake, ShieldCheck, WalletCards } from 'lucide-react';
 import { SAMPLE_PRODUCTS, createSellerOrder, loadCustomerOrders, loadPricingSettings } from '@/lib/sellerApi';
 
 const ORDER_STATUS_LABELS = {
@@ -30,7 +30,7 @@ export default function CustomerShop() {
   const [submitting, setSubmitting] = useState(false);
   const [orders, setOrders] = useState([]);
   const [pricing, setPricing] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true);\n  const [activeTab, setActiveTab] = useState('catalog');
 
   const loadData = useCallback(async () => {
     if (!user?.id) return;
@@ -109,6 +109,52 @@ export default function CustomerShop() {
         <h1 className="text-lg font-bold">خرید شارژ و بسته اینترنت</h1>
       </div>
 
+      <div className="grid grid-cols-3 gap-2" role="tablist" aria-label="بخش‌های بازار خدمات">
+        {[
+          ['catalog','فروشگاه',ShoppingCart],
+          ['orders','سفارش‌های من',Package],
+          ['seller','همکاری فروش',Store],
+        ].map(([key,label,Icon]) => (
+          <button key={key} type="button" role="tab" aria-selected={activeTab===key}
+            onClick={() => { setActiveTab(key); setSelectedProduct(null); }}
+            className={`flex min-h-12 items-center justify-center gap-1.5 rounded-xl border px-2 py-2 text-xs font-semibold ${activeTab===key?'border-primary bg-primary/10 text-primary':'bg-card text-muted-foreground'}`}>
+            <Icon className="h-4 w-4"/>{label}
+          </button>
+        ))}
+      </div>
+
+      {activeTab === 'seller' && (
+        <div className="space-y-3">
+          <Card><CardContent className="space-y-3 p-4">
+            <div className="flex items-center gap-3">
+              <div className="rounded-xl bg-primary/10 p-3 text-primary"><Handshake className="h-6 w-6"/></div>
+              <div><h2 className="font-bold">درخواست همکاری به‌عنوان فروشنده</h2><p className="text-xs text-muted-foreground">فروشنده یک نقش/مجوز اضافه روی همین حساب مشتری است؛ پنل جداگانه‌ای ساخته نمی‌شود.</p></div>
+            </div>
+            <div className="rounded-lg border bg-muted/30 p-3 text-xs leading-6">
+              <p className="font-semibold">نحوه کار فروشندگی در حساب صراف</p>
+              <ol className="mt-2 list-decimal space-y-1 pr-4 text-muted-foreground">
+                <li>مشتری از همین حساب درخواست همکاری می‌دهد.</li>
+                <li>سازنده یا مدیر مجاز، درخواست را بررسی و فروشندگی را تأیید یا رد می‌کند.</li>
+                <li>سازنده کاتالوگ، قیمت پایه، قیمت فروش و سهم کمیسیون را تعیین می‌کند.</li>
+                <li>فروشنده فقط محصولات و قیمت‌های تأییدشده را می‌بیند و سفارش‌های تخصیص‌یافته را انجام می‌دهد.</li>
+                <li>گزارش فروش، سفارش‌ها، کمیسیون و تسویه در همین فضای مشتری نمایش داده می‌شود.</li>
+              </ol>
+            </div>
+            <div className="grid gap-2 sm:grid-cols-2">
+              <div className="rounded-lg border p-3"><p className="flex items-center gap-2 text-xs font-semibold"><ShieldCheck className="h-4 w-4 text-primary"/>کنترل قیمت</p><p className="mt-1 text-xs leading-5 text-muted-foreground">فروشنده اجازه تغییر قیمت مصوب سازنده را ندارد.</p></div>
+              <div className="rounded-lg border p-3"><p className="flex items-center gap-2 text-xs font-semibold"><WalletCards className="h-4 w-4 text-primary"/>حساب و تسویه</p><p className="mt-1 text-xs leading-5 text-muted-foreground">درآمد، کمیسیون، مانده قابل تسویه و سوابق پرداخت جداگانه قابل مشاهده خواهد بود.</p></div>
+            </div>
+            <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs leading-5 text-amber-900">
+              <strong>وضعیت این بخش: اسکلت طراحی</strong>
+              <p>فرم ثبت درخواست، بررسی مدارک، تأیید سازنده، تخصیص محصولات و میزکار سفارش‌های فروشنده در مرحله اتصال آزمایشی تکمیل می‌شود. در این نسخه هیچ درخواست واقعی ارسال نمی‌شود.</p>
+            </div>
+            <Button className="w-full" variant="outline" disabled>درخواست همکاری فروشنده · در حال تکمیل</Button>
+          </CardContent></Card>
+        </div>
+      )}
+
+      {activeTab === 'catalog' && (
+      <>
       {/* فهرست محصولات */}
       {!selectedProduct ? (
         <>
@@ -170,6 +216,11 @@ export default function CustomerShop() {
         </Card>
       )}
 
+      </>
+      )}
+
+      {activeTab === 'orders' && (
+      <>
       {/* سفارش‌های من */}
       {orders.length > 0 && (
         <div className="space-y-2">
@@ -193,6 +244,8 @@ export default function CustomerShop() {
             </Card>
           ))}
         </div>
+      )}
+      </>
       )}
     </div>
   );
