@@ -98,7 +98,6 @@ const CustomerWallet = lazyWithRetry(() => import('@/pages/customer/CustomerWall
 const CustomerRecharge = lazyWithRetry(() => import('@/pages/customer/CustomerRecharge'));
 const CustomerAfghan5 = lazyWithRetry(() => import('@/pages/customer/CustomerAfghan5'));
 const CustomerShop = lazyWithRetry(() => import('@/pages/customer/CustomerShop'));
-const SellerPanel = lazyWithRetry(() => import('@/pages/seller/SellerPanel'));
 const CustomerGames = lazyWithRetry(() => import('@/pages/customer/CustomerGames'));
 const CustomerTransfer = lazyWithRetry(() => import('@/pages/customer/CustomerTransfer'));
 const CustomerWithdraw = lazyWithRetry(() => import('@/pages/customer/CustomerWithdraw'));
@@ -208,10 +207,8 @@ const AppRoutes = () => {
           </Route>
         </Route>
 
-        {/* Seller Panel — any authenticated user (component checks seller access) */}
-        <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
-          <Route path="/seller" element={<SellerPanel />} />
-        </Route>
+        {/* Seller access is a capability inside the existing customer or sarraaf workspace.
+            There is intentionally no standalone fourth seller panel. */}
 
         {/* Receipt — any authenticated user */}
         <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
