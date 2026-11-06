@@ -11,7 +11,7 @@ import { TX_TYPE_LABELS } from '@/lib/sarraaf';
 import { buildTransferLines, buildOpeningBalanceLines } from '@/lib/ledgerApi';
 import { useTreasuryBalances } from '@/lib/useSarraaf';
 import { toast } from '@/components/ui/use-toast';
-import { Banknote, ArrowRightLeft, Plus, Pencil, Loader2 } from 'lucide-react';
+import { Banknote, ArrowRightLeft, Plus, Pencil, Loader2, WalletCards, ArrowDownUp, Users, Scale, FileBarChart, Settings2, ShieldCheck, History, Vault } from 'lucide-react';
 
 export default function Cash() {
   const { data: txs, isLoading } = useTransactions();
@@ -22,6 +22,7 @@ export default function Cash() {
   const createSafeMut = useCreateSafe();
   const updateSafeMut = useUpdateSafe();
 
+  const [activeSection, setActiveSection] = useState('overview');
   const [transferOpen, setTransferOpen] = useState(false);
   const [fromType, setFromType] = useState('cash');
   const [toType, setToType] = useState('bank');
@@ -171,11 +172,40 @@ export default function Cash() {
         }
       />
 
+      <section className="mb-5 rounded-2xl border bg-card p-3 shadow-sm" aria-label="بخش‌های تخصصی صندوق">
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <p className="text-sm font-bold">مرکز مدیریت صندوق و وجوه نقد</p>
+            <p className="mt-1 text-xs text-muted-foreground">زیرسیستم عملیاتی صندوق، گردش وجوه و کنترل‌های مالی</p>
+          </div>
+          <span className="rounded-full bg-blue-50 px-2.5 py-1 text-[10px] font-semibold text-blue-700">چندارزی · چندصندوقی</span>
+        </div>
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 xl:grid-cols-8">
+          {[
+            ['overview','نمای کلی',WalletCards],
+            ['cashboxes','صندوق‌ها',Vault],
+            ['movements','گردش وجوه',ArrowDownUp],
+            ['transfers','انتقال داخلی',ArrowRightLeft],
+            ['cashiers','صندوقداران',Users],
+            ['reconciliation','مغایرت‌گیری',Scale],
+            ['reports','گزارش‌ها',FileBarChart],
+            ['controls','کنترل‌ها و تنظیمات',Settings2],
+          ].map(([key,label,Icon]) => (
+            <button key={key} type="button" onClick={() => setActiveSection(key)}
+              aria-pressed={activeSection === key}
+              className={`flex min-h-11 items-center justify-center gap-2 rounded-xl border px-2 py-2 text-xs font-semibold transition-colors ${activeSection === key ? 'border-primary bg-primary text-primary-foreground shadow-sm' : 'border-border bg-background text-muted-foreground hover:bg-muted'}`}>
+              <Icon className="h-4 w-4 shrink-0" /><span>{label}</span>
+            </button>
+          ))}
+        </div>
+      </section>
+
       {safesError && (
         <div className="mb-4 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">
           خطا در بارگذاری صندوق‌ها: {safesError.message}
         </div>
       )}
+      {(activeSection === 'overview' || activeSection === 'cashboxes') && <>
       {/* کارت‌های صندوق */}
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-4">
         {safeList.length === 0 ? (
@@ -204,11 +234,43 @@ export default function Cash() {
         )}
       </div>
 
-      <h3 className="text-sm font-semibold mb-2">گردش صندوق</h3>
-      {isLoading ? <LoadingState /> : cashTxs.length === 0 ? <EmptyState title="تراکنشی نیست" /> : (
-        <div className="space-y-1">
-          {cashTxs.map(tx => <TransactionRow key={tx.id} tx={tx} labels={TX_TYPE_LABELS} />)}
-        </div>
+      </>}
+
+      {(activeSection === 'overview' || activeSection === 'movements') && <section className="mb-5">
+        <div className="mb-2 flex items-center justify-between gap-2"><h3 className="text-sm font-semibold">گردش صندوق و سوابق وجوه</h3><span className="text-[11px] text-muted-foreground">آخرین ۲۰ رویداد نقدی</span></div>
+        {isLoading ? <LoadingState /> : cashTxs.length === 0 ? <EmptyState title="تراکنشی نیست" /> : (
+          <div className="space-y-1">{cashTxs.map(tx => <TransactionRow key={tx.id} tx={tx} labels={TX_TYPE_LABELS} />)}</div>
+        )}
+      </section>}
+
+      {activeSection === 'transfers' && (
+        <section className="mb-5 rounded-2xl border bg-card p-4">
+          <h3 className="font-bold">انتقال بین محل‌های نگهداری وجه</h3>
+          <p className="mt-1 text-sm leading-6 text-muted-foreground">انتقال کنترل‌شده میان صندوق و حساب بانکی، با ارز یکسان، کنترل مبدأ و مقصد و ثبت سند حسابداری.</p>
+          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+            <div className="rounded-xl bg-muted/50 p-3"><p className="text-xs font-semibold">کنترل‌های قبل از ثبت</p><ul className="mt-2 list-disc space-y-1 pr-4 text-xs leading-5 text-muted-foreground"><li>بررسی موجودی قابل‌استفاده مبدأ</li><li>یکسان‌بودن ارز انتقال</li><li>ممنوعیت انتخاب مبدأ و مقصد یکسان</li><li>ثبت شناسه سند و عامل عملیات</li></ul></div>
+            <div className="rounded-xl bg-muted/50 p-3"><p className="text-xs font-semibold">گردش ثبت</p><ol className="mt-2 list-decimal space-y-1 pr-4 text-xs leading-5 text-muted-foreground"><li>انتخاب مبدأ و مقصد</li><li>تعیین ارز و مبلغ</li><li>بازبینی اطلاعات</li><li>ثبت سند دوطرفه و به‌روزرسانی مانده‌ها</li></ol></div>
+          </div>
+          <Button className="mt-4" onClick={() => setTransferOpen(true)}><ArrowRightLeft className="ml-2 h-4 w-4"/> ثبت انتقال داخلی</Button>
+        </section>
+      )}
+
+      {['cashiers','reconciliation','reports','controls'].includes(activeSection) && (
+        <section className="mb-5 space-y-4">
+          <div className="rounded-2xl border bg-card p-4">
+            <div className="flex items-start gap-3">
+              <div className="rounded-xl bg-muted p-2"><ShieldCheck className="h-5 w-5 text-primary"/></div>
+              <div className="min-w-0">
+                <h3 className="font-bold">{({cashiers:'مدیریت صندوقداران و شیفت‌ها',reconciliation:'مغایرت‌گیری و بستن صندوق',reports:'گزارش‌ها و تحلیل نقدینگی',controls:'کنترل‌های داخلی و تنظیمات'})[activeSection]}</h3>
+                <p className="mt-1 text-sm leading-6 text-muted-foreground">{({cashiers:'ساختار موردنیاز: تعریف صندوقدار، تخصیص صندوق و ارز، شروع و پایان شیفت، تحویل‌وتحول، حدود اختیار و ثبت مسئول هر عملیات.',reconciliation:'ساختار موردنیاز: شمارش واقعی، مانده دفتری، اختلاف، علت اختلاف، سند تعدیل با مجوز، تأیید سرپرست و بستن دوره صندوق.',reports:'ساختار موردنیاز: گردش روزانه، مانده به تفکیک صندوق و ارز، دریافت و پرداخت، انتقالات، عملکرد صندوقدار، مغایرت‌ها و خروجی قابل چاپ.',controls:'ساختار موردنیاز: سقف دریافت و پرداخت، حد موجودی، الزام تأیید، تفکیک ثبت‌کننده و تأییدکننده، دوره کاری و تاریخچه تغییرات.'})[activeSection]}</p>
+              </div>
+            </div>
+            <div className="mt-4 grid gap-2 sm:grid-cols-2">
+              {({cashiers:['پرونده و وضعیت صندوقدار','تخصیص صندوق و ارز','شیفت و تحویل‌وتحول','حدود دسترسی و سقف عملیات'],reconciliation:['شمارش و صورت‌جلسه صندوق','مقایسه مانده واقعی و دفتری','ثبت اختلاف و علت آن','تأیید و سند تعدیل'],reports:['گزارش گردش و مانده','گزارش دریافت و پرداخت','عملکرد صندوق و صندوقدار','خروجی PDF و Excel'],controls:['سقف و محدودیت عملیات','گردش تأیید چندمرحله‌ای','قفل دوره و بستن روز','تاریخچه و ردپای حسابرسی']})[activeSection].map(item => <div key={item} className="rounded-lg border bg-background px-3 py-2 text-xs">{item}</div>)}
+            </div>
+            <p className="mt-4 rounded-lg bg-amber-50 px-3 py-2 text-xs leading-5 text-amber-800">این قسمت در این مرحله نقشه ساختار و نیازمندی‌ها را نشان می‌دهد؛ عملیات مدیریتی آن هنوز به گردش‌کار و داده‌های اختصاصی متصل نشده است.</p>
+          </div>
+        </section>
       )}
 
       {/* دیالوگ انتقال داخلی */}
