@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, Settings } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 // Keep the full feature catalog, but use one representative icon per group.
@@ -15,7 +15,7 @@ const GROUPS = [
   ['گزارش‌ها، بودجه و تحلیل مالی', ['reports', 'profit_loss', 'cash_flow', 'budgets', 'cost_centers', 'fx_exposure', 'fx_revaluation', 'standards', 'consolidation']],
   ['سازمان، شعب و دارایی‌ها', ['agents', 'agency_network', 'multi_company', 'fixed_assets']],
   ['ریسک، انطباق و اسناد', ['kyc', 'compliance', 'aml_screening', 'internal_controls', 'data_governance', 'audit_log', 'document_center', 'approvals', 'tax']],
-  ['بازار، خدمات و مدیریت سامانه', ['sarraaf_market', 'online_products', 'payment_gateway', 'sarraaf_chat', 'chat_groups', 'settings', 'backup', 'support', 'assistant']],
+  ['بازار و خدمات دیجیتال', ['sarraaf_market', 'online_products', 'payment_gateway', 'sarraaf_chat', 'chat_groups', 'backup', 'support', 'assistant']],
 ];
 
 export default function WorkspaceNavigation({ items, onNavigate }) {
@@ -72,6 +72,30 @@ export default function WorkspaceNavigation({ items, onNavigate }) {
           </details>
         );
       })}
+      {(() => {
+        const settingsItem = items.find(item => item.featureKey === 'settings');
+        if (!settingsItem) return null;
+        const active = pathname === settingsItem.path || pathname.startsWith(settingsItem.path + '/');
+        return (
+          <div className="mt-3 pt-3 border-t border-white/10">
+            <Link
+              to={settingsItem.path}
+              onClick={onNavigate}
+              aria-current={active ? 'page' : undefined}
+              className={cn(
+                'flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-semibold transition-colors border-r-2',
+                active
+                  ? 'border-indigo-400 bg-indigo-600/20 text-white'
+                  : 'border-transparent text-slate-200 hover:bg-slate-700/60 hover:text-white'
+              )}
+            >
+              <Settings className="w-4 h-4 shrink-0 text-indigo-300" />
+              <span>تنظیمات</span>
+              <span className="mr-auto text-[10px] text-slate-500">همیشه در دسترس</span>
+            </Link>
+          </div>
+        );
+      })()}
     </nav>
   );
 }
