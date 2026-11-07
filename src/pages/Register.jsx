@@ -5,6 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import SarraafLogo from '@/components/SarraafLogo';
+import ExchangeTierSelector from '@/components/ExchangeTierSelector';
+import { DEFAULT_EXCHANGE_TIER, saveExchangeTier } from '@/lib/exchangeTiers';
 import EmailVerificationStep from '@/components/EmailVerificationStep';
 import { directRegisterExchange, directRegisterCustomer } from '@/lib/directAuth';
 import { registerExchange as registerLocalExchange, registerCustomer as registerLocalCustomer } from '@/lib/localAuth';
@@ -44,6 +46,8 @@ export default function Register() {
   const [otpPending, setOtpPending] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [tierDialogOpen, setTierDialogOpen] = useState(false);
+  const [selectedExchangeTier, setSelectedExchangeTier] = useState(DEFAULT_EXCHANGE_TIER);
 
   useEffect(() => {
     if (!isLoadingAuth && isAuthenticated && user) {
@@ -102,20 +106,16 @@ export default function Register() {
     if (v) { setError(v); return; }
     setError('');
 
-    // Google tab: user already verified via Supabase Auth OAuth
-    if (tab === 'google') {
-      await completeSarraafRegistration(true);
+    if (tab !== 'google' && !SKIP_SARRAAF_EMAIL_VERIFICATION && !emailVerified) {
+      setError('ابتدا ایمیل خود را تأیید کنید');
       return;
     }
+    // Before creating the exchanger account, let the owner choose the workspace tier.
+    setTierDialogOpen(true);
+  };
 
-    // Sarraaf tab: بدون تأیید ایمیل مستقیماً ثبت می‌شود.
-    if (SKIP_SARRAAF_EMAIL_VERIFICATION) {
-      await completeSarraafRegistration(true);
-      return;
-    }
-
-    // حالت تأیید ایمیل (غیرفعال): باید ابتدا ایمیل تأیید شود.
-    if (!emailVerified) { setError('ابتدا ایمیل خود را تأیید کنید'); return; }
+  const confirmExchangeTier = async () => {
+    setTierDialogOpen(false);
     await completeSarraafRegistration(true);
   };
 
@@ -132,8 +132,10 @@ export default function Register() {
           email: email.trim(),
           country: country.trim(),
           city: city.trim(),
+          workspace_tier: selectedExchangeTier,
         });
         if (!localRes.success) { setError(errorMsg(localRes.error)); return; }
+        saveExchangeTier(localRes.user?.id, selectedExchangeTier);
         window.location.href = '/dashboard';
         return;
       }
@@ -149,6 +151,8 @@ export default function Register() {
         exchange_code: inviteCode.trim() || undefined,
       });
       if (!res.success) { setError(errorMsg(res.error)); return; }
+      // Preview-only metadata: server-side tier persistence requires a separately approved schema migration.
+      saveExchangeTier(res.user?.id, selectedExchangeTier);
       // Store the Supabase Auth access_token — AuthContext reads it on next load
       if (res.token) localStorage.setItem('auth_token', res.token);
       window.location.href = '/dashboard';
@@ -201,6 +205,7 @@ export default function Register() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-primary/5 to-muted/30 px-4 py-8 relative overflow-hidden">
+      <ExchangeTierSelector open={tierDialogOpen} value={selectedExchangeTier} onChange={setSelectedExchangeTier} onConfirm={confirmExchangeTier} onClose={() => setTierDialogOpen(false)} busy={loading} />
       <div className="absolute top-[-10%] left-1/2 -translate-x-1/2 w-[500px] h-[500px] rounded-full bg-primary/[0.06] blur-[120px] pointer-events-none" />
       <div className="absolute bottom-[-5%] right-[-5%] w-[400px] h-[400px] rounded-full bg-primary/[0.04] blur-[100px] pointer-events-none" />
 
