@@ -116,3 +116,12 @@ export function getTierForUser(user, profile) {
     profile?.workspace_tier || user?.workspace_tier || user?.exchange_tier || DEFAULT_EXCHANGE_TIER
   );
 }
+
+export function saveExchangeTier(userId, tier) {
+  if (!userId || typeof localStorage === 'undefined') return;
+  try {
+    localStorage.setItem(`exchange_workspace_tier_${userId}`, normalizeExchangeTier(tier));
+  } catch {
+    // Browser storage is optional in preview environments.
+  }
+}
