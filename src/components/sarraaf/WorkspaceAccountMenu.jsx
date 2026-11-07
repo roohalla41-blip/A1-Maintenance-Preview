@@ -2,10 +2,12 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Settings, Shield, Crown, X, ChevronDown, Copy } from 'lucide-react';
 import { getRoleLabel, isManagementRole } from '@/lib/rbac';
+import { getExchangeTier, getTierForUser } from '@/lib/exchangeTiers';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 
 export default function WorkspaceAccountMenu({ user, profile, settingsItem, paidSystemEnabled, openUpgrade, onLogout }) {
   const name = user?.full_name || user?.name || user?.email || 'کاربر';
+  const currentTier = getExchangeTier(getTierForUser(user, profile));
   return (
     <DropdownMenu dir="rtl">
       <DropdownMenuTrigger asChild>
@@ -15,7 +17,7 @@ export default function WorkspaceAccountMenu({ user, profile, settingsItem, paid
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-64">
-        <DropdownMenuLabel className="space-y-1"><p className="truncate">{name}</p><p className="text-xs font-normal text-muted-foreground">{getRoleLabel(user?.role)}</p>{profile?.code && <p className="text-xs font-normal text-muted-foreground" dir="ltr">{profile.code}</p>}</DropdownMenuLabel>
+        <DropdownMenuLabel className="space-y-1"><p className="truncate">{name}</p><p className="text-xs font-normal text-muted-foreground">{getRoleLabel(user?.role)}</p>{user?.role !== 'customer' && <p className="inline-flex items-center rounded-full bg-primary/10 px-2 py-1 text-xs font-semibold text-primary">سطح فضای کاری: {currentTier.label} · {currentTier.englishLabel}</p>}{profile?.code && <p className="text-xs font-normal text-muted-foreground" dir="ltr">{profile.code}</p>}</DropdownMenuLabel>
         {(profile?.code || profile?.exchange_code) && <DropdownMenuItem onSelect={() => navigator.clipboard?.writeText(profile.code || profile.exchange_code)}><Copy />کپی کد صرافی</DropdownMenuItem>}
         <DropdownMenuSeparator />
         {settingsItem && <DropdownMenuItem asChild><Link to={settingsItem.path}><Settings />تنظیمات و اطلاعات حساب</Link></DropdownMenuItem>}
