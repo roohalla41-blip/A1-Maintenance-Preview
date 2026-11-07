@@ -7,6 +7,11 @@ name: Deploy isolated A1 maintenance preview
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/deploy-preview.yml
 
 permissions:
   contents: read
