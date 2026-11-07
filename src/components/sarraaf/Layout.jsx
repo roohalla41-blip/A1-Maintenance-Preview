@@ -32,6 +32,7 @@ import WorkspaceModuleRouteGuard from '@/components/sarraaf/WorkspaceModuleRoute
 import WorkspaceHeader from '@/components/sarraaf/WorkspaceHeader';
 import PwaInstallPrompt from '@/components/PwaInstallPrompt';
 import useWorkspaceModules, { isWorkspaceFeatureEnabled } from '@/lib/useWorkspaceModules';
+import { getTierForUser, canTierAccessNavKey } from '@/lib/exchangeTiers';
 
 const NAV_ITEMS = [
   { featureKey: 'dashboard', label: 'داشبورد', path: '/dashboard', icon: LayoutDashboard, order: 0 },
@@ -139,10 +140,23 @@ export default function Layout() {
   };
 
   const userRole = user?.role || 'user';
+  const workspaceTier = getTierForUser(user, profile);
   const featureFiltered = visibleNavItems(features || [], NAV_ITEMS, profile || user, paidSystemEnabled);
-  const items = getAllowedNavItems(userRole, featureFiltered);
+  // The selected workspace tier is the first-level product boundary; optional module toggles remain secondary.
+  const tierFiltered = featureFiltered.filter(item => canTierAccessNavKey(workspaceTier, item.featureKey));
+  const items = getAllowedNavItems(userRole, tierFiltered);
   // NAV_ITEMS is the single source of truth; do not append duplicate routes here.
   const desktopItems = items.filter(item => item.featureKey === 'settings' || isWorkspaceFeatureEnabled(item.featureKey, enabledModules));
+
+  // Direct URL entry must respect the same tier as the visible navigation.
+  useEffect(() => {
+    const currentItem = NAV_ITEMS.find(item =>
+      location.pathname === item.path || location.pathname.startsWith(item.path + '/')
+    );
+    if (currentItem && !canTierAccessNavKey(workspaceTier, currentItem.featureKey)) {
+      navigate('/dashboard', { replace: true });
+    }
+  }, [location.pathname, workspaceTier, navigate]);
   const bottomItems = BOTTOM_NAV
     .map(tab => desktopItems.find(item => item.featureKey === tab.featureKey) || tab)
     .filter(item => desktopItems.some(candidate => candidate.featureKey === item.featureKey));
