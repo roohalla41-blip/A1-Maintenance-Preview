@@ -112,8 +112,16 @@ export function canTierAccessNavKey(tier, featureKey) {
 }
 
 export function getTierForUser(user, profile) {
+  let localTier = null;
+  try {
+    if (user?.id && typeof localStorage !== 'undefined') {
+      localTier = localStorage.getItem(`exchange_workspace_tier_${user.id}`);
+    }
+  } catch {
+    // Browser storage is optional.
+  }
   return normalizeExchangeTier(
-    profile?.workspace_tier || user?.workspace_tier || user?.exchange_tier || DEFAULT_EXCHANGE_TIER
+    profile?.workspace_tier || user?.workspace_tier || user?.exchange_tier || localTier || DEFAULT_EXCHANGE_TIER
   );
 }
 
