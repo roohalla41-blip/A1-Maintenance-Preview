@@ -35,7 +35,8 @@
         } else if (path.indexOf(basePath) === 0) {
           appPath = path.slice(basePath.length);
         } else {
-          appPath = path.replace(/^\\/+/, '');
+          appPath = path;
+          while (appPath.charAt(0) === '/') appPath = appPath.slice(1);
         }
         var requestedRoute = basePath + appPath + window.location.search + window.location.hash;
         var home = document.getElementById('home-link');
