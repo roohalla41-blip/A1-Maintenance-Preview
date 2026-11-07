@@ -119,6 +119,7 @@ function seedSarraafProfile(user, exchange) {
       quota_limit: 100,
       quota_used: 0,
       plan: 'free',
+      workspace_tier: user.workspace_tier || 'basic',
       status: 'active',
       created_date: new Date().toISOString(),
       updated_date: new Date().toISOString(),
@@ -155,6 +156,7 @@ function storeSession(user, exchange) {
     status: user.status || 'active',
     exchange_code: exchange?.exchange_code || user.exchange_code || '',
     exchange_name: exchange?.exchange_name || user.exchange_name || '',
+    workspace_tier: user.workspace_tier || 'basic',
     isLocal: true,
   });
   // اطلاعات سازنده هرگز در localStorage ذخیره نمی‌شود
@@ -165,7 +167,7 @@ function storeSession(user, exchange) {
 }
 
 export function registerExchange(data) {
-  const { exchange_name, full_name, mobile, username, password, email, country, city } = data;
+  const { exchange_name, full_name, mobile, username, password, email, country, city, workspace_tier = 'basic' } = data;
   if (!exchange_name || !full_name || !mobile || !username || !password) {
     return { success: false, error: 'missing_fields' };
   }
@@ -190,6 +192,7 @@ export function registerExchange(data) {
     status: 'active',
     exchange_code: exchangeCode,
     exchange_name: exchange_name,
+    workspace_tier,
     country: country || '',
     city: city || '',
   };
