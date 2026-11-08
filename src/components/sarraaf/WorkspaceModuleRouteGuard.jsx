@@ -37,6 +37,10 @@ const ROUTE_FEATURES = [
   ['/sarraaf-chat', 'sarraaf_chat'],
   ['/backup', 'backup'],
   ['/support', 'support'],
+  ['/debtors', 'debtors'],
+  ['/notifications', 'notifications'],
+  ['/settings', 'settings'],
+  ['/agency', 'agency_network'],
 ];
 
 function featureForPath(pathname) {
