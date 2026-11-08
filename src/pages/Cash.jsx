@@ -64,6 +64,11 @@ export default function Cash() {
   const handleSaveSafe = async (e) => {
     e.preventDefault();
     if (!safeForm.name || !safeForm.currency) return;
+    const openingBalance = Number(safeForm.opening_balance || 0);
+    if (!Number.isFinite(openingBalance) || openingBalance < 0) {
+      toast({ title: 'مبلغ افتتاحیه معتبر نیست', description: 'مبلغ باید صفر یا بیشتر باشد.', variant: 'destructive' });
+      return;
+    }
 
     // چند صندوق با ارز یکسان مجاز است؛ هر صندوق شناسه مستقل دارد.
 
