@@ -3,6 +3,7 @@ import { Check, Eye, EyeOff, LayoutGrid } from 'lucide-react';
 import { useAuth } from '@/lib/AuthContext';
 import useWorkspaceModules, { WORKSPACE_MODULES } from '@/lib/useWorkspaceModules';
 import SettingsSection from '@/components/sarraaf/settings/SettingsSection';
+import TierFeatureVisibilitySettings from '@/components/sarraaf/settings/TierFeatureVisibilitySettings';
 
 export default function WorkspaceModuleSettings() {
   const { user } = useAuth();
@@ -46,6 +47,7 @@ export default function WorkspaceModuleSettings() {
           );
         })}
       </div>
+      {user?.role === 'creator' && <TierFeatureVisibilitySettings />}
       <p className="text-[11px] text-muted-foreground mt-3">
         در این پیش‌نمایش، انتخاب‌ها فقط در همین مرورگر ذخیره می‌شوند و هنوز بین دستگاه‌ها همگام نیستند. خاموش‌کردن ماژول هیچ مشتری، سند، تراکنش یا مانده‌ای را پاک نمی‌کند. تنظیمات و داشبورد همیشه در دسترس می‌مانند.
       </p>
