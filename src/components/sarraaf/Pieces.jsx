@@ -75,13 +75,13 @@ export function StatCard({ label, value, sub, icon: Icon, gradient }) {
   );
 }
 
-export function BalanceCard({ label, amounts, accent = 'text-primary' }) {
+export function BalanceCard({ label, amounts, accent = 'text-primary', emptyLabel = '۰' }) {
   return (
     <Card className="overflow-hidden shadow-card">
       <CardContent className="p-4 lg:p-5">
         <p className="text-xs text-muted-foreground mb-2 font-medium">{label}</p>
         {Object.entries(amounts).length === 0 ? (
-          <p className="text-sm font-semibold text-muted-foreground">۰</p>
+          <p className="text-xs font-semibold leading-5 text-muted-foreground">{emptyLabel}</p>
         ) : (
           <div className="space-y-1.5 lg:space-y-2">
             {Object.entries(amounts).map(([cur, val]) => (
