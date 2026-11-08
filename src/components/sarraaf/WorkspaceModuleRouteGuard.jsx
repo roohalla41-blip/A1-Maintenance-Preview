@@ -5,7 +5,8 @@ import { useFeatures } from '@/lib/useSarraaf';
 import { isFeatureEnabled, getFeatureStatus, getFeatureMessage } from '@/lib/features';
 import { isWorkspaceFeatureEnabled } from '@/lib/useWorkspaceModules';
 import useWorkspaceModules from '@/lib/useWorkspaceModules';
-import { canTierAccessNavKey, getExchangeTier, getTierForUser } from '@/lib/exchangeTiers';
+import { getExchangeTier, getTierForUser } from '@/lib/exchangeTiers';
+import useTierFeatureVisibility, { isTierFeatureVisible } from '@/lib/tierFeatureVisibility';
 import UpdatingNotice from '@/components/sarraaf/UpdatingNotice';
 
 const ROUTE_FEATURES = [
@@ -80,6 +81,7 @@ export default function WorkspaceModuleRouteGuard({ children }) {
   const { user } = useAuth();
   const { data: features } = useFeatures();
   const { enabledModules } = useWorkspaceModules(user?.id);
+  const { visibilityByTier } = useTierFeatureVisibility();
   const featureKey = featureForPath(pathname);
 
   if (!featureKey) return children;
@@ -87,7 +89,7 @@ export default function WorkspaceModuleRouteGuard({ children }) {
   // Enforce the selected product tier at the route boundary as well as in navigation.
   // This prevents direct URL entry from exposing pages excluded from the account's tier.
   const tier = getExchangeTier(getTierForUser(user));
-  if (!canTierAccessNavKey(tier.id, featureKey)) return <TierAccessNotice tier={tier} />;
+  if (!isTierFeatureVisible(tier.id, featureKey, visibilityByTier)) return <TierAccessNotice tier={tier} />;
 
   if (!isWorkspaceFeatureEnabled(featureKey, enabledModules)) return <ModuleAccessNotice />;
 
