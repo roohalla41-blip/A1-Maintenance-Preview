@@ -19,8 +19,8 @@ export default function TierFeatureVisibilitySettings() {
   return (
     <SettingsSection
       icon={Layers3}
-      title="مدیریت آیکون‌ها بر اساس سطح کاربری"
-      description="سازنده سیستم می‌تواند مشخص کند هر آیکون در کدام سطح نمایش داده شود. روشن‌کردن یک آیکون، آن قابلیت را به منوی همان سطح اضافه می‌کند؛ خاموش‌کردن فقط نمایش آن را پنهان می‌کند."
+      title="مدیریت بسته‌های اشتراک و تخصیص امکانات"
+      description="برای هر بسته مشخص کنید کدام قابلیت‌ها در اختیار کاربران آن سطح باشد. این تنظیمات در پیش‌نمایش، فهرست منوهای همان سطح را نیز کنترل می‌کند."
     >
       <div className="space-y-4" dir="rtl">
         <div className="grid grid-cols-3 gap-2">
@@ -43,8 +43,9 @@ export default function TierFeatureVisibilitySettings() {
 
         <div className="flex items-center justify-between gap-3 rounded-xl bg-muted/60 p-3">
           <div className="min-w-0">
-            <p className="text-sm font-semibold">سطح {tier.label}</p>
+            <p className="text-sm font-semibold">بسته {tier.label} ({tier.englishLabel})</p>
             <p className="mt-1 text-[11px] text-muted-foreground">{tier.tagline}</p>
+            <p className="mt-1 text-[10px] text-primary">{features.filter(item => isTierFeatureVisible(selectedTier, item.feature_key, visibilityByTier)).length} قابلیت از {features.length} قابلیت فهرست‌شده فعال است</p>
           </div>
           <button
             type="button"
@@ -68,8 +69,9 @@ export default function TierFeatureVisibilitySettings() {
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-semibold">{feature.name}</p>
                   <p className="mt-0.5 text-[10px] text-muted-foreground">
-                    {enabled ? 'در منوی این سطح نمایش داده می‌شود' : 'در منوی این سطح پنهان است'}
+                    {enabled ? 'در بسته این سطح قرار دارد و در منو نمایش داده می‌شود' : 'در بسته این سطح قرار ندارد'}
                     {!isDefault && enabled ? ' · با تنظیم سازنده اضافه شده' : ''}
+                    {feature.default_status === 'updating' ? ' · در حال تکمیل؛ هنوز عملیاتی نیست' : ''}
                   </p>
                 </div>
                 <button
@@ -89,7 +91,7 @@ export default function TierFeatureVisibilitySettings() {
 
         <div className="flex gap-2 rounded-xl border border-border p-3 text-[11px] leading-6 text-muted-foreground">
           <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-          <p>داشبورد و تنظیمات همیشه در دسترس می‌مانند. این تنظیمات در نسخه آزمایشی فقط در مرورگر ذخیره می‌شوند و هنوز به سرور یا دستگاه‌های دیگر همگام نیستند. این کنترل، نمایش منو و دسترسی مسیر در پیش‌نمایش را هماهنگ می‌کند؛ مجوزهای عملیاتی و امنیتی در فاز بعد جداگانه تکمیل می‌شوند.</p>
+          <p>داشبورد و تنظیمات همیشه در دسترس می‌مانند. این تنظیمات در نسخه آزمایشی فقط در مرورگر ذخیره می‌شوند و هنوز به سرور یا دستگاه‌های دیگر همگام نیستند. کنترل امنیتی سمت سرور، پرداخت و فعال‌سازی واقعی اشتراک در این مرحله پیاده‌سازی نشده‌اند. قابلیت‌های «در حال تکمیل» هنوز عملیاتی نیستند.</p>
         </div>
       </div>
     </SettingsSection>

@@ -5,6 +5,7 @@ on:
     branches:
       - a1-structure-copy
       - feature/tier-icon-visibility
+      - feature/subscription-plans-ui
   workflow_dispatch:
 
 permissions:

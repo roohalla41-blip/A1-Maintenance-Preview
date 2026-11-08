@@ -19,6 +19,7 @@ import SecuritySection from '@/components/sarraaf/settings/SecuritySection';
 import PreferencesSection from '@/components/sarraaf/settings/PreferencesSection';
 import SettingsSection from '@/components/sarraaf/settings/SettingsSection';
 import WorkspaceModuleSettings from '@/components/sarraaf/settings/WorkspaceModuleSettings';
+import SubscriptionPlansSettings from '@/components/sarraaf/settings/SubscriptionPlansSettings';
 import { useSarraafProfile, useToggleReferral } from '@/lib/useSarraaf';
 import { useUpgrade } from '@/lib/UpgradeContext';
 import { usePaidSystemEnabled } from '@/lib/usePaidSystem';
@@ -61,7 +62,7 @@ export default function Settings() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-5 h-auto p-0.5 mb-4">
+        <TabsList className="grid w-full grid-cols-6 h-auto p-0.5 mb-4">
           <TabsTrigger value="profile" className="flex flex-col gap-0.5 py-2 text-[11px]">
             <User className="w-4 h-4" />
             پروفایل
@@ -81,6 +82,10 @@ export default function Settings() {
           <TabsTrigger value="modules" className="flex flex-col gap-0.5 py-2 text-[11px]">
             <LayoutGrid className="w-4 h-4" />
             آیکون‌ها
+          </TabsTrigger>
+          <TabsTrigger value="subscription" className="flex flex-col gap-0.5 py-2 text-[11px]">
+            <Crown className="w-4 h-4" />
+            اشتراک
           </TabsTrigger>
         </TabsList>
 
@@ -102,6 +107,10 @@ export default function Settings() {
         {/* Workspace module visibility */}
         <TabsContent value="modules" className="mt-0">
           <WorkspaceModuleSettings />
+        </TabsContent>
+
+        <TabsContent value="subscription" className="mt-0">
+          <SubscriptionPlansSettings />
         </TabsContent>
 
         {/* More Tab */}
