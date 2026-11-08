@@ -352,11 +352,19 @@ export function buildWalletTransferLines({ from_wallet_id, to_wallet_id, currenc
   ];
 }
 
-export function buildOpeningBalanceLines({ customer_id, customer_name, currency, amount }) {
-  // صندوق‌ها در v_treasury_balances با account_type='cash' و ارز تجمیع می‌شوند.
+export function buildOpeningBalanceLines({ safe_id, customer_id, customer_name, currency, amount }) {
+  // شناسه واقعی صندوق به دفترکل متصل می‌شود؛ مانده‌ها همچنان بر اساس ارز قابل تجمیع‌اند.
+  const safeId = safe_id ?? customer_id;
+  if (safeId === undefined || safeId === null || String(safeId).trim() === '') {
+    throw new Error('شناسه صندوق برای ثبت موجودی افتتاحیه الزامی است');
+  }
+  const numericAmount = Number(amount);
+  if (!Number.isFinite(numericAmount) || numericAmount <= 0) {
+    throw new Error('مبلغ موجودی افتتاحیه باید بیشتر از صفر باشد');
+  }
   return [
-    { account_type: 'cash', account_id: currency, account_name: customer_name || 'صندوق', currency, debit: Number(amount), credit: 0, description: 'موجودی افتتاحیه صندوق', line_no: 1 },
-    { account_type: 'suspense', account_id: '', account_name: 'موجودی افتتاحیه', currency, debit: 0, credit: Number(amount), description: 'بستانکاری موقت افتتاحیه', line_no: 2 },
+    { account_type: 'cash', account_id: String(safeId), account_name: customer_name || 'صندوق', currency, debit: numericAmount, credit: 0, description: 'موجودی افتتاحیه صندوق', line_no: 1 },
+    { account_type: 'suspense', account_id: '', account_name: 'موجودی افتتاحیه', currency, debit: 0, credit: numericAmount, description: 'بستانکاری موقت افتتاحیه', line_no: 2 },
   ];
 }
 
