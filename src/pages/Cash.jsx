@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import CashControlWorkspace from '@/components/sarraaf/CashControlWorkspace';
+import CashBlueprintWorkspace from '@/components/sarraaf/CashBlueprintWorkspace';
 import { useTransactions, useBankAccounts, useSafes, useCreateSafe, useUpdateSafe, useCurrencies, usePostDocument } from '@/lib/useSarraaf';
 import { PageHeader, BalanceCard, TransactionRow, EmptyState, LoadingState } from '@/components/sarraaf/Pieces';
 import { Button } from '@/components/ui/button';
@@ -12,7 +13,7 @@ import { TX_TYPE_LABELS } from '@/lib/sarraaf';
 import { buildTransferLines, buildOpeningBalanceLines } from '@/lib/ledgerApi';
 import { useTreasuryBalances } from '@/lib/useSarraaf';
 import { toast } from '@/components/ui/use-toast';
-import { Banknote, ArrowRightLeft, Plus, Pencil, Loader2, WalletCards, ArrowDownUp, Users, Scale, FileBarChart, Settings2, ShieldCheck, History, Vault } from 'lucide-react';
+import { Banknote, ArrowRightLeft, Plus, Pencil, Loader2, WalletCards, ArrowDownUp, Users, Scale, FileBarChart, Settings2, ShieldCheck, History, Vault, ArrowDownToLine, ArrowUpFromLine, Landmark, BookOpen, FileCheck2, ClipboardCheck } from 'lucide-react';
 
 export default function Cash() {
   const { data: txs, isLoading } = useTransactions();
@@ -185,11 +186,17 @@ export default function Cash() {
           {[
             ['overview','نمای کلی',WalletCards],
             ['cashboxes','صندوق‌ها',Vault],
+            ['opening','ثبت اولیه',FileCheck2],
+            ['receipts','دریافت به صندوق',ArrowDownToLine],
+            ['payments','پرداخت از صندوق',ArrowUpFromLine],
             ['movements','گردش وجوه',ArrowDownUp],
             ['transfers','انتقال داخلی',ArrowRightLeft],
+            ['bank','صندوق و بانک',Landmark],
+            ['ledger','دفتر و اسناد',BookOpen],
             ['cashiers','صندوقداران',Users],
             ['reconciliation','مغایرت‌گیری',Scale],
             ['reports','گزارش‌ها',FileBarChart],
+            ['audit','ممیزی',ClipboardCheck],
             ['controls','کنترل‌ها و تنظیمات',Settings2],
           ].map(([key,label,Icon]) => (
             <button key={key} type="button" onClick={() => setActiveSection(key)}
@@ -243,6 +250,8 @@ export default function Cash() {
           <div className="space-y-1">{cashTxs.map(tx => <TransactionRow key={tx.id} tx={tx} labels={TX_TYPE_LABELS} />)}</div>
         )}
       </section>}
+
+      {['opening','receipts','payments','bank','ledger','audit'].includes(activeSection) && <CashBlueprintWorkspace section={activeSection} />}
 
       {activeSection === 'transfers' && (
         <section className="mb-5 rounded-2xl border bg-card p-4">
