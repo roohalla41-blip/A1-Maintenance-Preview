@@ -32,7 +32,8 @@ import WorkspaceModuleRouteGuard from '@/components/sarraaf/WorkspaceModuleRoute
 import WorkspaceHeader from '@/components/sarraaf/WorkspaceHeader';
 import PwaInstallPrompt from '@/components/PwaInstallPrompt';
 import useWorkspaceModules, { isWorkspaceFeatureEnabled } from '@/lib/useWorkspaceModules';
-import { getTierForUser, canTierAccessNavKey } from '@/lib/exchangeTiers';
+import { getTierForUser } from '@/lib/exchangeTiers';
+import useTierFeatureVisibility, { isTierFeatureVisible } from '@/lib/tierFeatureVisibility';
 
 const NAV_ITEMS = [
   { featureKey: 'dashboard', label: 'داشبورد', path: '/dashboard', icon: LayoutDashboard, order: 0 },
@@ -109,6 +110,7 @@ export default function Layout() {
   const { data: features } = useFeatures();
   const { data: profile } = useSarraafProfile(user?.id);
   const { enabledModules } = useWorkspaceModules(user?.id);
+  const { visibilityByTier } = useTierFeatureVisibility();
   const { data: paidSystemEnabled } = usePaidSystemEnabled();
   const [moreOpen, setMoreOpen] = useState(false);
   const { openUpgrade } = useUpgrade();
@@ -143,7 +145,7 @@ export default function Layout() {
   const workspaceTier = getTierForUser(user, profile);
   const featureFiltered = visibleNavItems(features || [], NAV_ITEMS, profile || user, paidSystemEnabled);
   // The selected workspace tier is the first-level product boundary; optional module toggles remain secondary.
-  const tierFiltered = featureFiltered.filter(item => canTierAccessNavKey(workspaceTier, item.featureKey));
+  const tierFiltered = featureFiltered.filter(item => isTierFeatureVisible(workspaceTier, item.featureKey, visibilityByTier));
   const items = getAllowedNavItems(userRole, tierFiltered);
   // NAV_ITEMS is the single source of truth; do not append duplicate routes here.
   const desktopItems = items.filter(item => item.featureKey === 'settings' || isWorkspaceFeatureEnabled(item.featureKey, enabledModules));
@@ -153,10 +155,10 @@ export default function Layout() {
     const currentItem = NAV_ITEMS.find(item =>
       location.pathname === item.path || location.pathname.startsWith(item.path + '/')
     );
-    if (currentItem && !canTierAccessNavKey(workspaceTier, currentItem.featureKey)) {
+    if (currentItem && !isTierFeatureVisible(workspaceTier, currentItem.featureKey, visibilityByTier)) {
       navigate('/dashboard', { replace: true });
     }
-  }, [location.pathname, workspaceTier, navigate]);
+  }, [location.pathname, workspaceTier, visibilityByTier, navigate]);
   const bottomItems = BOTTOM_NAV
     .map(tab => desktopItems.find(item => item.featureKey === tab.featureKey) || tab)
     .filter(item => desktopItems.some(candidate => candidate.featureKey === item.featureKey));
