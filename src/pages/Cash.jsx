@@ -42,8 +42,10 @@ export default function Cash() {
 
   const { data: treasuryBalances } = useTreasuryBalances();
   const balances = {};
+  const safeBalances = {};
   for (const b of (treasuryBalances || [])) {
     balances[b.currency] = b.balance;
+    if (b.account_id !== undefined && b.account_id !== null) safeBalances[String(b.account_id)] = b.balance;
   }
   const cashTxs = (txs || []).filter(t => t.counter_type === 'cash').slice(0, 20);
   const safeList = safes || [];
@@ -225,10 +227,10 @@ export default function Cash() {
           )
         ) : (
           safeList.map(safe => {
-            const bal = balances[safe.currency] ?? safe.opening_balance ?? 0;
+            const bal = safeBalances[String(safe.id)];
             return (
               <div key={safe.id} className="relative group">
-                <BalanceCard label={safe.name} amounts={{ [safe.currency]: bal }} />
+                <BalanceCard label={safe.name} amounts={bal === undefined ? {} : { [safe.currency]: bal }} emptyLabel="مانده اختصاصی هنوز از دفترکل تفکیک نشده" />
                 <button
                   onClick={() => openSafeDialog(safe)}
                   className="absolute top-2 left-2 p-1 rounded-md bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
