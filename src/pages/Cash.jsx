@@ -177,28 +177,32 @@ export default function Cash() {
           </div>
           <span className="rounded-full bg-blue-50 px-2.5 py-1 text-[10px] font-semibold text-blue-700">چندارزی · چندصندوقی</span>
         </div>
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 xl:grid-cols-8">
+        <div className="space-y-3">
           {[
-            ['overview','نمای کلی',WalletCards],
-            ['cashboxes','صندوق‌ها',Vault],
-            ['opening','ثبت اولیه',FileCheck2],
-            ['receipts','دریافت به صندوق',ArrowDownToLine],
-            ['payments','پرداخت از صندوق',ArrowUpFromLine],
-            ['movements','گردش وجوه',ArrowDownUp],
-            ['transfers','انتقال داخلی',ArrowRightLeft],
-            ['bank','صندوق و بانک',Landmark],
-            ['ledger','دفتر و اسناد',BookOpen],
-            ['cashiers','صندوقداران',Users],
-            ['reconciliation','مغایرت‌گیری',Scale],
-            ['reports','گزارش‌ها',FileBarChart],
-            ['audit','ممیزی',ClipboardCheck],
-            ['controls','کنترل‌ها و تنظیمات',Settings2],
-          ].map(([key,label,Icon]) => (
-            <button key={key} type="button" onClick={() => setActiveSection(key)}
-              aria-pressed={activeSection === key}
-              className={`flex min-h-11 items-center justify-center gap-2 rounded-xl border px-2 py-2 text-xs font-semibold transition-colors ${activeSection === key ? 'border-primary bg-primary text-primary-foreground shadow-sm' : 'border-border bg-background text-muted-foreground hover:bg-muted'}`}>
-              <Icon className="h-4 w-4 shrink-0" /><span>{label}</span>
-            </button>
+            { title: 'عملیات روزانه', items: [
+              ['overview','نمای کلی',WalletCards], ['cashboxes','صندوق‌ها',Vault], ['opening','ثبت اولیه',FileCheck2],
+              ['receipts','دریافت به صندوق',ArrowDownToLine], ['payments','پرداخت از صندوق',ArrowUpFromLine], ['movements','گردش وجوه',ArrowDownUp],
+            ]},
+            { title: 'انتقالات و تطبیق', items: [
+              ['transfers','انتقال داخلی',ArrowRightLeft], ['bank','صندوق و بانک',Landmark], ['reconciliation','مغایرت‌گیری',Scale],
+            ]},
+            { title: 'مدیریت و نظارت', items: [
+              ['cashiers','صندوقداران',Users], ['ledger','دفتر و اسناد',BookOpen], ['reports','گزارش‌ها',FileBarChart],
+              ['audit','ممیزی',ClipboardCheck], ['controls','کنترل‌ها و تنظیمات',Settings2],
+            ]},
+          ].map(group => (
+            <div key={group.title}>
+              <p className="mb-2 text-[11px] font-bold text-muted-foreground">{group.title}</p>
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-6">
+                {group.items.map(([key,label,Icon]) => (
+                  <button key={key} type="button" onClick={() => setActiveSection(key)}
+                    aria-pressed={activeSection === key}
+                    className={`flex min-h-11 items-center justify-center gap-2 rounded-xl border px-2 py-2 text-xs font-semibold transition-colors ${activeSection === key ? 'border-primary bg-primary text-primary-foreground shadow-sm' : 'border-border bg-background text-muted-foreground hover:bg-muted'}`}>
+                    <Icon className="h-4 w-4 shrink-0" /><span>{label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
           ))}
         </div>
       </section>
