@@ -30,6 +30,8 @@ export default function Cash() {
   const [toType, setToType] = useState('bank');
   const [fromBankId, setFromBankId] = useState('');
   const [toBankId, setToBankId] = useState('');
+  const [fromSafeId, setFromSafeId] = useState('');
+  const [toSafeId, setToSafeId] = useState('');
   const [currency, setCurrency] = useState('AFN');
   const [amount, setAmount] = useState(0);
   const [description, setDescription] = useState('');
@@ -61,26 +63,7 @@ export default function Cash() {
     e.preventDefault();
     if (!safeForm.name || !safeForm.currency) return;
 
-    // بررسی محدودیت ۴ صندوق (فقط هنگام ایجاد جدید)
-    if (!editingSafe && safeList.length >= 4) {
-      toast({
-        title: 'هشدار',
-        description: 'هر صراف نهایتاً می‌تواند ۴ صندوق ایجاد کند.',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    // بررسی ارز تکراری
-    const duplicate = safeList.find(s => s.currency === safeForm.currency && s.id !== editingSafe?.id);
-    if (duplicate) {
-      toast({
-        title: 'هشدار',
-        description: `صندوقی با ارز ${safeForm.currency} قبلاً ثبت شده است. هر صندوق باید ارز منحصراً فرد داشته باشد.`,
-        variant: 'destructive',
-      });
-      return;
-    }
+    // چند صندوق با ارز یکسان مجاز است؛ هر صندوق شناسه مستقل دارد.
 
     try {
       if (editingSafe) {
@@ -138,13 +121,25 @@ export default function Cash() {
       toast({ title: 'خطا', description: 'حساب بانکی مقصد را انتخاب کنید', variant: 'destructive' });
       return;
     }
+    if (fromType === 'cash' && !fromSafeId) {
+      toast({ title: 'خطا', description: 'صندوق مبدأ را انتخاب کنید', variant: 'destructive' });
+      return;
+    }
+    if (toType === 'cash' && !toSafeId) {
+      toast({ title: 'خطا', description: 'صندوق مقصد را انتخاب کنید', variant: 'destructive' });
+      return;
+    }
+    if (fromType === 'cash' && toType === 'cash' && fromSafeId === toSafeId) {
+      toast({ title: 'خطا', description: 'صندوق مبدأ و مقصد نمی‌توانند یکسان باشند', variant: 'destructive' });
+      return;
+    }
     if (fromType === 'bank' && toType === 'bank' && fromBankId === toBankId) {
       toast({ title: 'خطا', description: 'حساب مبدأ و مقصد نمی‌توانند یکسان باشند', variant: 'destructive' });
       return;
     }
     const lines = buildTransferLines({
-      from_type: fromType, from_id: fromType === 'bank' ? fromBankId : currency,
-      to_type: toType, to_id: toType === 'bank' ? toBankId : currency,
+      from_type: fromType, from_id: fromType === 'bank' ? fromBankId : fromSafeId,
+      to_type: toType, to_id: toType === 'bank' ? toBankId : toSafeId,
       currency, amount,
     });
     try {
@@ -290,6 +285,24 @@ export default function Cash() {
                 </Select>
               </div>
             </div>
+            {fromType === 'cash' && (
+              <div>
+                <Label>صندوق مبدأ</Label>
+                <Select value={fromSafeId} onValueChange={setFromSafeId}>
+                  <SelectTrigger><SelectValue placeholder="انتخاب صندوق مبدأ" /></SelectTrigger>
+                  <SelectContent>{safeList.filter(s => s.currency === currency && s.active !== false).map(s => <SelectItem key={s.id} value={String(s.id)}>{s.name}</SelectItem>)}</SelectContent>
+                </Select>
+              </div>
+            )}
+            {toType === 'cash' && (
+              <div>
+                <Label>صندوق مقصد</Label>
+                <Select value={toSafeId} onValueChange={setToSafeId}>
+                  <SelectTrigger><SelectValue placeholder="انتخاب صندوق مقصد" /></SelectTrigger>
+                  <SelectContent>{safeList.filter(s => s.currency === currency && s.active !== false).map(s => <SelectItem key={s.id} value={String(s.id)}>{s.name}</SelectItem>)}</SelectContent>
+                </Select>
+              </div>
+            )}
             {fromType === 'bank' && (
               <div>
                 <Label>حساب بانکی مبدأ</Label>
@@ -321,6 +334,8 @@ export default function Cash() {
                     setCurrency(value);
                     setFromBankId('');
                     setToBankId('');
+                    setFromSafeId('');
+                    setToSafeId('');
                   }}
                   currencies={currencies}
                 />
