@@ -94,7 +94,7 @@ export default function Cash() {
 
         if (safeForm.opening_balance && Number(safeForm.opening_balance) > 0) {
           const lines = buildOpeningBalanceLines({
-            customer_id: created.id,
+            safe_id: created.id,
             customer_name: safeForm.name,
             currency: safeForm.currency,
             amount: safeForm.opening_balance,
