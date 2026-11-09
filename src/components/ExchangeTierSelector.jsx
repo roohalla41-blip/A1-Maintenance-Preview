@@ -3,7 +3,7 @@ import { Check, Building2, Store, Crown, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { EXCHANGE_TIERS } from '@/lib/exchangeTiers';
 
-const ICONS = { basic: Store, standard: Building2, enterprise: Crown };
+const ICONS = { basic: Store, professional: Building2, enterprise: Crown };
 
 export default function ExchangeTierSelector({ open, value, onChange, onConfirm, onClose, busy = false }) {
   if (!open) return null;
