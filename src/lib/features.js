@@ -66,6 +66,7 @@ export const FEATURE_CATALOG = [
   { feature_key: 'consolidation', name: 'صورت‌های مالی تلفیقی', icon: 'Building2', location: 'nav', display_order: 64, critical: false, default_status: 'updating', default_message: 'فرایند تلفیق و حذف معاملات درون‌گروهی هنوز پیاده‌سازی نشده است.' },
   { feature_key: 'internal_controls', name: 'کنترل‌های داخلی و ریسک', icon: 'ClipboardCheck', location: 'nav', display_order: 65, critical: false, default_status: 'updating', default_message: 'ماتریس کنترل و فرایند ارزیابی ریسک هنوز پیاده‌سازی نشده است.' },
   { feature_key: 'data_governance', name: 'حاکمیت داده و حریم خصوصی', icon: 'Shield', location: 'nav', display_order: 66, critical: false, default_status: 'updating', default_message: 'سیاست‌های چرخه عمر داده و حریم خصوصی هنوز پیاده‌سازی نشده‌اند.' },
+  { feature_key: 'income_expense', name: 'درآمد و هزینه', icon: 'HandCoins', location: 'nav', display_order: 67, critical: false, default_status: 'updating', default_message: 'ثبت درآمد و هزینه در این پیش‌نمایش هنوز به موتور حسابداری متصل نشده است.' },
   { feature_key: 'settings', name: 'تنظیمات', icon: 'Settings', location: 'nav', display_order: 24, critical: true },
   { feature_key: 'main_settings', name: 'تنظیمات اصلی', icon: 'Shield', location: 'nav', display_order: 25, critical: true },
 ];
