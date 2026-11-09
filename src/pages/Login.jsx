@@ -641,7 +641,8 @@ export default function Login() {
 
         {/* لینک‌ها */}
         <div className="mt-5 flex flex-col gap-2 text-xs text-center">
-          <Link to="/register" className="pgm-link">حساب ندارید؟ بسازید</Link>
+          <Link to="/register/email" className="pgm-link-gold">ثبت‌نام با ایمیل</Link>
+          <Link to="/register" className="pgm-link">سایر روش‌های ثبت‌نام</Link>
           <Link to="/forgot-password" className="pgm-link">رمز را فراموش کرده‌اید؟</Link>
         </div>
 
