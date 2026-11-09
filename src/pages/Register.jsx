@@ -342,7 +342,7 @@ export default function Register() {
                 <Field icon={User} label="نام کاربری" required value={username} onChange={setUsername} placeholder="نام کاربری (یکتا)" />
                 <Field icon={Lock} label="رمز عبور" required type="password" value={password} onChange={setPassword} placeholder="حداقل ۸ کاراکتر" />
                 <Field icon={Lock} label="تکرار رمز عبور" required type="password" value={confirmPassword} onChange={setConfirmPassword} placeholder="تکرار رمز" />
-                <Field icon={Mail} label="ایمیل (اختیاری)" type="email" value={email} onChange={setEmail} placeholder="email@gmail.com" />
+                <Field icon={Mail} label="ایمیل برای ثبت‌نام و ورود" required type="email" value={email} onChange={setEmail} placeholder="email@gmail.com" />
 
                 {error && <p className="text-sm text-destructive text-center">{error}</p>}
                 <Button type="submit" className="w-full h-11" disabled={loading}>
