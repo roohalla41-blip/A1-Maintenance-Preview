@@ -6,6 +6,7 @@
 
 import { supabase } from './supabaseClient';
 import { getExchangeCode, listTransactions } from './supabaseApi';
+import { buildFxExchangeLines } from './accountingLineBuilders';
 
 // ─ـ Helper: get current user from session ──
 function getSessionUser() {
@@ -535,10 +536,12 @@ export function buildDadogereftLines({ customer_id, customer_name, direction, cu
 export function buildTransferLines({ from_type, from_id, to_type, to_id, currency, amount, rate, pair_currency, pair_amount }) {
   const lines = [];
   if (pair_currency && pair_amount && pair_currency !== currency) {
-    lines.push(
-      { account_type: from_type, account_id: String(from_id), account_name: from_type === 'bank' ? 'بانک' : 'صندوق', currency, debit: 0, credit: Number(amount), description: `خروج ${currency} از ${from_type}`, line_no: 1, rate: rate || null },
-      { account_type: to_type, account_id: String(to_id), account_name: to_type === 'bank' ? 'بانک' : 'صندوق', currency: pair_currency, debit: Number(pair_amount), credit: 0, description: `ورود ${pair_currency} به ${to_type}`, line_no: 2, rate: rate || null },
-    );
+    lines.push(...buildFxExchangeLines({
+      from_type, from_id, to_type, to_id,
+      from_currency: currency, from_amount: amount,
+      to_currency: pair_currency, to_amount: pair_amount,
+      rate, description: 'انتقال و تبدیل بین دو ارز',
+    }));
   } else {
     lines.push(
       { account_type: from_type, account_id: String(from_id), account_name: from_type === 'bank' ? 'بانک' : 'صندوق', currency, debit: 0, credit: Number(amount), description: `خروج از ${from_type}`, line_no: 1 },
@@ -549,10 +552,12 @@ export function buildTransferLines({ from_type, from_id, to_type, to_id, currenc
 }
 
 export function buildConversionLines({ from_currency, from_amount, to_currency, to_amount, rate }) {
-  return [
-    { account_type: 'cash', account_id: from_currency, account_name: 'صندوق', currency: from_currency, debit: 0, credit: Number(from_amount), description: `خروج ${from_currency} از صندوق`, line_no: 1, rate: rate || null },
-    { account_type: 'cash', account_id: to_currency, account_name: 'صندوق', currency: to_currency, debit: Number(to_amount), credit: 0, description: `ورود ${to_currency} به صندوق`, line_no: 2, rate: rate || null },
-  ];
+  return buildFxExchangeLines({
+    from_type: 'cash', from_id: from_currency,
+    to_type: 'cash', to_id: to_currency,
+    from_currency, from_amount, to_currency, to_amount, rate,
+    description: 'تبدیل ارز در صندوق',
+  });
 }
 
 export function buildWalletTopupLines({ wallet_id, wallet_owner, currency, amount }) {
