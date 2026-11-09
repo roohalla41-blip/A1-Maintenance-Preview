@@ -7,6 +7,7 @@
 import { supabase } from './supabaseClient';
 import { getExchangeCode, listTransactions } from './supabaseApi';
 import { buildFxExchangeLines } from './accountingLineBuilders';
+import { isIsolatedPreview } from './previewIsolation';
 
 // ─ـ Helper: get current user from session ──
 function getSessionUser() {
@@ -18,7 +19,7 @@ function getSessionUser() {
 }
 
 function isPreviewOnly() {
-  return typeof window !== 'undefined' && window.__SUPABASE_CONFIG__?.previewOnly === true;
+  return isIsolatedPreview();
 }
 
 function getPreviewTenant() {
@@ -216,13 +217,25 @@ export async function postTransfer({ direction, sender_name, sender_phone, recei
 
   const numericAmount = Number(amount);
   const numericFee = Number(fee) || 0;
-  if (!Number.isFinite(numericAmount) || !Number.isFinite(numericFee)) {
-    throw new Error('مبلغ یا کارمزد معتبر نیست');
+  if (!Number.isFinite(numericAmount) || numericAmount <= 0
+    || !Number.isFinite(numericFee) || numericFee < 0) {
+    throw new Error('مبلغ حواله باید بیشتر از صفر و کارمزد نباید منفی باشد');
+  }
+  if (!['send', 'receive'].includes(direction)) throw new Error('جهت حواله معتبر نیست');
+  const numericRate = rate === undefined || rate === null || rate === '' ? null : Number(rate);
+  if (numericRate !== null && (!Number.isFinite(numericRate) || numericRate <= 0)) {
+    throw new Error('نرخ حواله معتبر نیست');
   }
 
   if (isPreviewOnly()) {
     const tenant = getPreviewTenant();
     if (!tenant) throw new Error('نشست آزمایشی معتبر نیست');
+    const rows = readPreviewRows('Transfer');
+    const operationKey = String(client_operation_id || '');
+    if (operationKey) {
+      const existing = rows.find(row => row.client_operation_id === operationKey);
+      if (existing) return { ...existing, success: true, idempotent: true, preview_only: true };
+    }
     const now = new Date().toISOString();
     const transferNo = nextPreviewNumber('Transfer', 'transfer_no', direction === 'send' ? 'S' : 'R', 4);
     const item = {
@@ -230,15 +243,14 @@ export async function postTransfer({ direction, sender_name, sender_phone, recei
       direction, sender_name: sender_name || '', sender_phone: sender_phone || '',
       receiver_name: receiver_name || '', receiver_phone: receiver_phone || '',
       destination: destination || '', origin: origin || '', amount: numericAmount,
-      currency: currency || 'AFN', rate: rate ? Number(rate) : null, fee: numericFee,
+      currency: currency || 'AFN', rate: numericRate, fee: numericFee,
       fee_currency: fee_currency || currency || 'AFN', description: description || '',
-      customer_id: customer_id || null, agent_id: agent_id || null, status: 'registered',
+      customer_id: customer_id || null, agent_id: agent_id || null, client_operation_id: operationKey || null, status: 'registered',
       created_date: now, updated_date: now, preview_only: true,
     };
-    const rows = readPreviewRows('Transfer');
     rows.unshift(item);
     writePreviewRows('Transfer', rows);
-    return { ...item, success: true, preview_only: true };
+    return { ...item, success: true, idempotent: false, preview_only: true };
   }
 
   const userIdRaw = getSessionUserId();
