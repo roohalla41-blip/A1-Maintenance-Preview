@@ -25,7 +25,7 @@ export const EXCHANGE_TIERS = {
     navKeys: [
       'dashboard', 'customers', 'dadogereft', 'trade', 'transfer_send',
       'transfer_receive', 'cash', 'bank', 'currencies', 'reports', 'transfer_book',
-      'journal_entry', 'journal', 'general_ledger', 'chart_of_accounts', 'trial_balance',
+      'journal_entry', 'journal', 'general_ledger', 'chart_of_accounts', 'trial_balance', 'income_expense',
       'convert', 'receipt', 'support', 'assistant', 'notifications', 'settings',
     ],
     modules: ['dashboard', 'customers', 'trade', 'transfers', 'cash', 'bank', 'currencies', 'accounting', 'reports', 'receipts', 'support', 'settings'],
@@ -53,7 +53,7 @@ export const EXCHANGE_TIERS = {
       'dashboard', 'customers', 'dadogereft', 'trade', 'transfer_send',
       'transfer_receive', 'cash', 'bank', 'currencies', 'reports', 'profit_loss',
       'debtors', 'agents', 'agency_network', 'transfer_book', 'journal',
-      'general_ledger', 'journal_entry', 'chart_of_accounts', 'trial_balance', 'balance_sheet', 'reconciliation',
+      'general_ledger', 'journal_entry', 'chart_of_accounts', 'trial_balance', 'income_expense', 'balance_sheet', 'reconciliation',
       'convert', 'receipt', 'support', 'assistant', 'notifications', 'settings',
       'document_center', 'approvals', 'treasury',
     ],
