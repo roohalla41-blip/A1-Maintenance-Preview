@@ -72,6 +72,7 @@ test('exchange role aliases are normalized consistently and unknown routes stay 
 
 test('notifications is registered and incomplete payment routes remain visibly guarded', () => {
   assert.ok(FEATURE_CATALOG.some(feature => feature.feature_key === 'notifications'));
+  assert.ok(FEATURE_CATALOG.some(feature => feature.feature_key === 'income_expense'));
   assert.equal(getFeatureStatus([], 'payment_gateway'), 'updating');
   assert.equal(isFeatureEnabled([], 'payment_gateway'), true);
 });
