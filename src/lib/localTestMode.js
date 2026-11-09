@@ -14,19 +14,22 @@
  * ساختار اصلی Supabase و دیتابیس دست‌نخورده باقی می‌ماند.
  */
 
+import { isIsolatedPreview } from './previewIsolation';
+
 const FLAG_KEY = 'local_test_mode';
 
 export function isLocalTestMode() {
   // Preview mode is immutable: never allow a browser setting to re-enable server sync.
   try {
-    if (typeof window !== 'undefined' && window.__SUPABASE_CONFIG__?.previewOnly === true) return true;
+    if (isIsolatedPreview()) return true;
     const v = localStorage.getItem(FLAG_KEY);
     if (v === 'true') return true;
     // Outside the isolated preview, retain the original production default.
     if (v === null) localStorage.setItem(FLAG_KEY, 'false');
     return false;
   } catch {
-    return false;
+    // Fail closed: storage errors must not enable server access in the preview.
+    return isIsolatedPreview();
   }
 }
 
