@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import CashControlWorkspace from '@/components/sarraaf/CashControlWorkspace';
 import CashBlueprintWorkspace from '@/components/sarraaf/CashBlueprintWorkspace';
+import CashMovementWorkspace from '@/components/sarraaf/CashMovementWorkspace';
 import { useTransactions, useBankAccounts, useSafes, useCreateSafe, useUpdateSafe, useCurrencies, usePostDocument } from '@/lib/useSarraaf';
 import { PageHeader, BalanceCard, TransactionRow, EmptyState, LoadingState } from '@/components/sarraaf/Pieces';
 import { Button } from '@/components/ui/button';
@@ -257,7 +258,8 @@ export default function Cash() {
         )}
       </section>}
 
-      {['opening','receipts','payments','bank','ledger','audit'].includes(activeSection) && <CashBlueprintWorkspace section={activeSection} />}
+      {['receipts','payments'].includes(activeSection) && <CashMovementWorkspace section={activeSection} />}
+      {['opening','bank','ledger','audit'].includes(activeSection) && <CashBlueprintWorkspace section={activeSection} />}
 
       {activeSection === 'transfers' && (
         <section className="mb-5 rounded-2xl border bg-card p-4">
