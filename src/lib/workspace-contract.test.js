@@ -23,6 +23,7 @@ import {
 import { MODULE_WORKSPACE_SCHEMAS } from './moduleWorkspaceSchemas.js';
 import { isWorkspaceFeatureEnabled } from './useWorkspaceModules.js';
 import { isIsolatedPreview } from './previewIsolation.js';
+import { buildFxExchangeLines } from './accountingLineBuilders.js';
 
 test('only the three canonical exchange tiers are enumerable', () => {
   assert.deepEqual(Object.keys(EXCHANGE_TIERS), ['basic', 'professional', 'enterprise']);
@@ -101,4 +102,37 @@ test('preview host remains isolated even when runtime config is missing', () => 
   assert.equal(isIsolatedPreview({}, { hostname: 'roohalla41-blip.github.io', pathname: '/A1-Maintenance-Preview/' }), true);
   assert.equal(isIsolatedPreview({}, { hostname: 'roohalla41-blip.github.io', pathname: '/another-project/' }), false);
   assert.equal(isIsolatedPreview({ previewOnly: true }, { hostname: 'example.com', pathname: '/' }), true);
+});
+
+test('cross-currency journals balance independently in each currency', () => {
+  const lines = buildFxExchangeLines({
+    from_type: 'cash', from_id: 'AFN-CASH',
+    to_type: 'bank', to_id: 'USD-BANK',
+    from_currency: 'AFN', from_amount: 7000,
+    to_currency: 'USD', to_amount: 100,
+    rate: 70,
+  });
+  const totals = new Map();
+  for (const line of lines) {
+    const current = totals.get(line.currency) || { debit: 0, credit: 0 };
+    current.debit += line.debit;
+    current.credit += line.credit;
+    totals.set(line.currency, current);
+  }
+  assert.equal(lines.length, 4);
+  assert.deepEqual([...totals.entries()].sort(), [
+    ['AFN', { debit: 7000, credit: 7000 }],
+    ['USD', { debit: 100, credit: 100 }],
+  ]);
+});
+
+test('cross-currency journal builder rejects invalid amounts and identical currencies', () => {
+  assert.throws(() => buildFxExchangeLines({
+    from_currency: 'AFN', from_amount: 0,
+    to_currency: 'USD', to_amount: 10,
+  }));
+  assert.throws(() => buildFxExchangeLines({
+    from_currency: 'AFN', from_amount: 10,
+    to_currency: 'AFN', to_amount: 10,
+  }));
 });
