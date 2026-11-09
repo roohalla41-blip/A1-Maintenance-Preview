@@ -76,7 +76,7 @@ export const ROUTE_PERMISSIONS = {
   '/transfers/send': ['creator', 'admin', 'sarraaf', 'employee'],
   '/transfers/receive': ['creator', 'admin', 'sarraaf', 'employee'],
   '/cash': ['creator', 'admin', 'sarraaf', 'employee'],
-  '/bank': ['creator', 'admin', 'sarraaf', 'employee'],
+  '/bank': ['creator', 'admin', 'sarraaf'],
   '/reports': ['creator', 'admin', 'sarraaf', 'employee'],
   '/transfer-book': ['creator', 'admin', 'sarraaf', 'employee'],
   '/convert': ['creator', 'admin', 'sarraaf', 'employee'],
@@ -90,7 +90,7 @@ export const ROUTE_PERMISSIONS = {
   '/agency': ['creator', 'admin', 'sarraaf'],
 
   // ── تنظیمات ──
-  '/settings': ['creator', 'admin', 'sarraaf', 'employee'],
+  '/settings': ['creator', 'admin', 'sarraaf'],
   '/notifications': ['creator', 'admin', 'sarraaf', 'employee'],
 
   // ── محصولات آنلاین ──
