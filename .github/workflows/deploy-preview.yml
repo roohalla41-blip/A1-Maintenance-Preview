@@ -1,11 +1,8 @@
 name: Deploy isolated A1 maintenance preview
 # Rebuild the preview from the latest validated a1-structure-copy commit.
-# Mobile and desktop navigation now share the same grouped accounting modules.
+# Mobile and desktop navigation share the same grouped accounting modules.
 # Deployment is triggered from the default branch; application source is always checked out from a1-structure-copy.
-# Deployment refresh: publish the newest validated preview source after isolated build checks.
-# Refresh requested after standardizing enterprise module workspaces and the cash subsystem skeleton.
-# Deployment source remains isolated on a1-structure-copy; this workflow file only triggers the existing preview publish.
-# Refresh preview after expanding the complete exchanger and creator workspaces.
+# Deployment source remains isolated on a1-structure-copy; this workflow only publishes the existing preview.
 
 on:
   workflow_dispatch:
@@ -44,6 +41,9 @@ jobs:
       - name: Install dependencies
         run: npm install --package-lock=false --no-audit --no-fund
 
+      - name: Run workspace contract tests
+        run: npm run test:contracts
+
       - name: Build isolated application
         run: npm run build
 
@@ -60,9 +60,3 @@ jobs:
       - name: Publish live preview
         id: deployment
         uses: actions/deploy-pages@v4
-
-# Publish preview after adding local-only sample data and real accounting route links; Supabase remains disabled.
-
-# Publish latest local-only preview route and ledger fixes from a1-structure-copy.
-
-# Publish the complete local-only preview navigation and tier selector; no database configuration is present.
