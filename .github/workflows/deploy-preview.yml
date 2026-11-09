@@ -60,3 +60,5 @@ jobs:
       - name: Publish live preview
         id: deployment
         uses: actions/deploy-pages@v4
+
+# Publish preview after adding local-only sample data and real accounting route links; Supabase remains disabled.
