@@ -223,18 +223,26 @@ export default function Welcome() {
             <span className="flex-1 text-sm font-extrabold text-amber-100">دستیار هوشمند، از من بپرس</span>
             <ArrowLeft className="h-5 w-5 shrink-0 text-amber-200 transition-transform group-hover:-translate-x-1" aria-hidden="true" />
           </button>
-          <Link to="/login" className="pgm-btn pgm-btn-primary">
-            <ArrowLeft className="w-[18px] h-[18px]" />
-            {t('welcome.login')}
-          </Link>
-          <Link to="/register?tab=sarraaf" className="pgm-btn pgm-btn-outline">
-            <Store className="w-[18px] h-[18px]" />
-            {t('welcome.register_sarraaf')}
-          </Link>
-          <Link to="/register?tab=customer" className="pgm-btn pgm-btn-outline">
+          <Link to="/login?role=customer" className="pgm-btn pgm-btn-outline">
             <UserCircle className="w-[18px] h-[18px]" />
-            {t('welcome.register_customer')}
+            ورود مشتری
           </Link>
+          <Link to="/login?role=sarraaf" className="pgm-btn pgm-btn-primary">
+            <Store className="w-[18px] h-[18px]" />
+            ورود صراف
+          </Link>
+          <Link to="/preview-builder" className="pgm-btn pgm-btn-outline">
+            <Shield className="w-[18px] h-[18px]" />
+            ورود سازنده (آزمایشی)
+          </Link>
+          <div className="grid grid-cols-2 gap-2">
+            <Link to="/register?tab=customer" className="pgm-btn pgm-btn-outline text-xs">
+              ثبت‌نام مشتری
+            </Link>
+            <Link to="/register?tab=sarraaf" className="pgm-btn pgm-btn-outline text-xs">
+              ثبت‌نام صراف
+            </Link>
+          </div>
         </div>
       </div>
 
