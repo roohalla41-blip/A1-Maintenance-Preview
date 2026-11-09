@@ -92,4 +92,5 @@ test('workspace module switches hide module routes without disabling core naviga
   assert.equal(isWorkspaceFeatureEnabled('cash', { treasury: false }), false);
   assert.equal(isWorkspaceFeatureEnabled('notifications', { governance: false }), false);
   assert.equal(isWorkspaceFeatureEnabled('assistant', { governance: false }), false);
+  assert.equal(isWorkspaceFeatureEnabled('income_expense', { accounting: false }), false);
 });
