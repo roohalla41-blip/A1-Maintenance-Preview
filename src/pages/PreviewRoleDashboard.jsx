@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowRight, BadgeCheck, Clock3, Crown, LogOut, Send, ShieldCheck, UserRound } from 'lucide-react';
-import { readPreviewState, writePreviewState, clearPreviewSession } from '@/lib/previewDemo';
+import { ArrowRight, Crown, LogOut, Send, ShieldCheck, UserRound } from 'lucide-react';
+import { readPreviewState, writePreviewState, clearPreviewSession, hasPreviewSession } from '@/lib/previewDemo';
 
 const plans = [
   { id: 'basic', name: 'Basic', title: 'معمولی' },
@@ -12,6 +12,7 @@ const plans = [
 export default function PreviewRoleDashboard({ role = 'sarraaf' }) {
   const navigate = useNavigate();
   const [state, setState] = useState(() => readPreviewState());
+  const allowed = hasPreviewSession(role);
   const [requestedTier, setRequestedTier] = useState('professional');
   const [note, setNote] = useState('');
   const isCustomer = role === 'customer';
@@ -33,6 +34,8 @@ export default function PreviewRoleDashboard({ role = 'sarraaf' }) {
     clearPreviewSession();
     navigate('/', { replace: true });
   };
+
+  if (!allowed) return <main dir="rtl" className="min-h-screen bg-slate-950 p-8 text-slate-100"><div className="mx-auto max-w-xl rounded-xl border border-slate-800 bg-slate-900 p-6"><h1 className="text-xl font-bold">ورود آزمایشی</h1><p className="mt-3 text-sm text-slate-400">برای ورود، نقش موردنظر را از صفحه آغازین انتخاب کنید.</p><Link to="/" className="mt-5 inline-flex text-amber-300">بازگشت به صفحه آغازین</Link></div></main>;
 
   return (
     <main dir="rtl" className="min-h-screen bg-slate-950 text-slate-100 p-4 sm:p-8">
