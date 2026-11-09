@@ -18,6 +18,19 @@ export function startPreviewSession(role) {
   return user;
 }
 
+export function hasPreviewSession(role) {
+  if (typeof window === 'undefined' || window.__SUPABASE_CONFIG__?.previewOnly !== true) return false;
+  try {
+    const user = JSON.parse(localStorage.getItem('auth_user') || 'null');
+    const token = localStorage.getItem('auth_token') || '';
+    return localStorage.getItem('preview_demo_session') === 'true'
+      && token.startsWith('preview_demo_')
+      && user?.role === role;
+  } catch {
+    return false;
+  }
+}
+
 export function readPreviewState() {
   try {
     const saved = JSON.parse(localStorage.getItem(STATE_KEY) || '{}');
