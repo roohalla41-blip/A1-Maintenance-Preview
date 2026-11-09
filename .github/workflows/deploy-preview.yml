@@ -44,7 +44,7 @@ jobs:
       - name: Run workspace contract tests
         run: npm run test:contracts
 
-      - name: Build isolated application
+      - name: Build isolated application after preview ledger hardening
         run: npm run build
 
       - name: Configure GitHub Pages
