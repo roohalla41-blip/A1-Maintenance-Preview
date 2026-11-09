@@ -10,6 +10,7 @@
 
 import { createClient } from '@supabase/supabase-js';
 import { getSupabaseConfig } from './supabaseConfig';
+import { isIsolatedPreview } from './previewIsolation';
 
 // ── Custom fetch that injects the x-app-token header on every request ──
 // Supabase JS v2 does NOT support global.headers as a function — only a static
@@ -46,7 +47,7 @@ export const supabase = new Proxy(
   {},
   {
     get(_target, prop) {
-      if (typeof window !== 'undefined' && window.__SUPABASE_CONFIG__?.previewOnly === true) {
+      if (isIsolatedPreview()) {
         throw new Error('Supabase is disabled in the isolated preview.');
       }
       if (!_client) {
@@ -73,7 +74,7 @@ export const supabase = new Proxy(
 
 export function getSupabaseClient() {
   // Preview must never create or return a network-capable Supabase client.
-  if (typeof window !== 'undefined' && window.__SUPABASE_CONFIG__?.previewOnly === true) return null;
+  if (isIsolatedPreview()) return null;
   if (!_client) {
     const cfg = resolveConfig();
     if (!cfg) return null;
