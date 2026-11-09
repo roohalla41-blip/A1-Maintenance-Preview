@@ -567,11 +567,11 @@ export default function Login() {
             <TabsContent value="sarraaf">
               <form onSubmit={handleLogin} className="space-y-3">
                 <div className="text-right">
-                  <Label className="pgm-label">نام کاربری، موبایل یا ایمیل</Label>
+                  <Label className="pgm-label">ایمیل، نام کاربری یا موبایل</Label>
                   <Input
                     value={identifier}
                     onChange={e => setIdentifier(e.target.value)}
-                    placeholder="نام کاربری / موبایل / ایمیل"
+                    placeholder="ایمیل / نام کاربری / موبایل"
                     className="pgm-input mt-1"
                     required
                   />
