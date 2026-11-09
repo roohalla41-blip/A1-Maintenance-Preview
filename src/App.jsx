@@ -133,6 +133,7 @@ const AppRoutes = () => {
         <Route path="/setup-database" element={<SetupDatabase />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/register/email" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
 
