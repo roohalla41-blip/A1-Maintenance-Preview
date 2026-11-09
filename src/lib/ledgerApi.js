@@ -103,9 +103,10 @@ export async function postDocument({ doc_type, currency, amount, fee, related_ty
   }
 
   const numericAmount = Number(amount);
-  const numericFee = Number(fee) || 0;
-  if (!Number.isFinite(numericAmount) || !Number.isFinite(numericFee)) {
-    throw new Error('مبلغ یا کارمزد معتبر نیست');
+  const numericFee = fee === undefined || fee === null || fee === '' ? 0 : Number(fee);
+  if (!Number.isFinite(numericAmount) || numericAmount < 0
+    || !Number.isFinite(numericFee) || numericFee < 0) {
+    throw new Error('مبلغ سند باید نامنفی و کارمزد نیز معتبر و نامنفی باشد');
   }
 
   const userIdRaw = getSessionUserId();
@@ -367,8 +368,12 @@ export async function editDocument({ document_id, description, amount, currency,
       edited: true, edited_date: now, edit_note: edit_note || '', updated_date: now,
     };
     const updates = { Transaction: nextDocs };
-    if (Array.isArray(new_lines)) {
-      if (!new_lines.length) throw new Error('سند باید حداقل یک ردیف دفترکل داشته باشد');
+    const hasReplacementLines = Array.isArray(new_lines) && new_lines.length > 0;
+    if (Array.isArray(new_lines) && new_lines.length === 0
+      && (amount !== undefined || currency !== undefined)) {
+      throw new Error('برای تغییر مبلغ یا ارز، ردیف‌های جدید و متوازن دفترکل نیز الزامی است');
+    }
+    if (hasReplacementLines) {
       const totals = new Map();
       const normalized = new_lines.map((line, i) => {
         const debit = Number(line.debit) || 0;
