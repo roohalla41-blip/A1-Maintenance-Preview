@@ -99,7 +99,13 @@ export default function WorkspaceModuleRouteGuard({ children }) {
 
   const status = getFeatureStatus(features || [], featureKey);
   if (!isFeatureEnabled(features || [], featureKey) || status === 'disabled') return <ModuleAccessNotice />;
-  if (status === 'updating') return <UpdatingNotice message={getFeatureMessage(features || [], featureKey)} />;
+  // Enterprise module routes are intentionally navigable blueprints. Their page
+  // explains the incomplete operational state; a generic notice would hide the
+  // actual module structure from the user. Other updating features stay blocked.
+  const isBlueprintRoute = pathname.startsWith('/enterprise/');
+  if (status === 'updating' && !isBlueprintRoute) {
+    return <UpdatingNotice message={getFeatureMessage(features || [], featureKey)} />;
+  }
 
   return children;
 }
