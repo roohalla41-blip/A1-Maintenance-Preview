@@ -93,6 +93,19 @@ export async function postDocument({ doc_type, currency, amount, fee, related_ty
     (globalThis.crypto?.randomUUID?.() || `op-${Date.now()}-${Math.random().toString(36).slice(2)}`);
   const operationId = `${ec}:${localOperationId}`;
 
+  const rpcLines = lines.map((line, index) => ({
+    account_type: line.account_type || 'cash',
+    account_id: line.account_id === undefined || line.account_id === null ? '' : String(line.account_id),
+    account_name: line.account_name || '',
+    currency: line.currency || currency,
+    debit: Number(line.debit) || 0,
+    credit: Number(line.credit) || 0,
+    rate: line.rate === undefined || line.rate === null ? null : Number(line.rate),
+    pair_entry_id: line.pair_entry_id || null,
+    description: line.description || '',
+    line_no: Number(line.line_no ?? line.doc_line_no ?? index + 1),
+  }));
+
   if (isPreviewOnly()) {
     const tenant = getPreviewTenant();
     if (!tenant) throw new Error('نشست آزمایشی معتبر نیست');
@@ -119,19 +132,6 @@ export async function postDocument({ doc_type, currency, amount, fee, related_ty
     writePreviewRows('LedgerEntry', entries);
     return { id: doc.id, doc_number: docNo, document_no: docNo, idempotent: false, preview_only: true };
   }
-
-  const rpcLines = lines.map((line, index) => ({
-    account_type: line.account_type || 'cash',
-    account_id: line.account_id === undefined || line.account_id === null ? '' : String(line.account_id),
-    account_name: line.account_name || '',
-    currency: line.currency || currency,
-    debit: Number(line.debit) || 0,
-    credit: Number(line.credit) || 0,
-    rate: line.rate === undefined || line.rate === null ? null : Number(line.rate),
-    pair_entry_id: line.pair_entry_id || null,
-    description: line.description || '',
-    line_no: Number(line.line_no ?? line.doc_line_no ?? index + 1),
-  }));
 
   const { data, error } = await supabase.rpc('post_document_transaction', {
     p_exchange_code: ec,
