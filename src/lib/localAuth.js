@@ -168,7 +168,7 @@ function storeSession(user, exchange) {
 
 export function registerExchange(data) {
   const { exchange_name, full_name, mobile, username, password, email, country, city, workspace_tier = 'basic' } = data;
-  if (!exchange_name || !full_name || !mobile || !username || !password) {
+  if (!exchange_name || !full_name || !mobile || !username || !password || !email?.trim()) {
     return { success: false, error: 'missing_fields' };
   }
 
@@ -179,6 +179,9 @@ export function registerExchange(data) {
   if (users.some(u => u.username === username)) {
     return { success: false, error: 'username_exists' };
   }
+  if (users.some(u => (u.email || '').toLowerCase() === email.trim().toLowerCase())) {
+    return { success: false, error: 'email_exists' };
+  }
 
   const exchangeCode = genExchangeCode();
   const newUser = {
@@ -187,7 +190,7 @@ export function registerExchange(data) {
     mobile,
     username,
     password_hash: hashPassword(password),
-    email: email && email.trim() ? email.trim() : '',
+    email: email.trim().toLowerCase(),
     role: 'exchange',
     status: 'active',
     exchange_code: exchangeCode,
@@ -215,7 +218,7 @@ export function registerExchange(data) {
 
 export function registerCustomer(data) {
   const { full_name, mobile, username, password, email } = data;
-  if (!full_name || !mobile || !username || !password) {
+  if (!full_name || !mobile || !username || !password || !email?.trim()) {
     return { success: false, error: 'missing_fields' };
   }
 
@@ -226,6 +229,9 @@ export function registerCustomer(data) {
   if (users.some(u => u.username === username)) {
     return { success: false, error: 'username_exists' };
   }
+  if (users.some(u => (u.email || '').toLowerCase() === email.trim().toLowerCase())) {
+    return { success: false, error: 'email_exists' };
+  }
 
   const newUser = {
     id: genId(),
@@ -233,7 +239,7 @@ export function registerCustomer(data) {
     mobile,
     username,
     password_hash: hashPassword(password),
-    email: email && email.trim() ? email.trim() : '',
+    email: email.trim().toLowerCase(),
     role: 'customer',
     status: 'active',
   };
