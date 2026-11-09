@@ -13,6 +13,7 @@ import {
   canAccessRoute,
   getAllowedNavItems,
   SARRAAF_NAV_BY_ROLE,
+  HOME_BY_ROLE,
 } from './rbac.js';
 import {
   FEATURE_CATALOG,
@@ -53,6 +54,7 @@ test('every tier navigation key is represented in the sarraaf role contract', ()
 test('exchange role aliases are normalized consistently and unknown routes stay closed', () => {
   assert.equal(normalizeRole('exchange'), 'sarraaf');
   assert.equal(getRoleLevel('exchange'), getRoleLevel('sarraaf'));
+  assert.equal(HOME_BY_ROLE.exchange, '/dashboard');
   assert.equal(canAccessRoute('exchange', '/dashboard'), true);
   assert.equal(canAccessRoute('exchange', '/builder'), false);
   assert.equal(canAccessRoute('employee', '/cash'), true);
