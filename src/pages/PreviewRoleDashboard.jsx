@@ -109,6 +109,9 @@ export default function PreviewRoleDashboard({ role = 'sarraaf' }) {
   const [state, setState] = useState(() => readPreviewState());
   const allowed = hasPreviewSession(role);
   const [requestedTier, setRequestedTier] = useState('professional');
+  const [testTier, setTestTier] = useState(() => {
+    try { return localStorage.getItem('exchange_workspace_tier_preview-sarraaf-001') || 'basic'; } catch { return 'basic'; }
+  });
   const [note, setNote] = useState('');
   const [activeTab, setActiveTab] = useState('dashboard');
   const [selectedModule, setSelectedModule] = useState(allItems[0][0]);
@@ -118,7 +121,7 @@ export default function PreviewRoleDashboard({ role = 'sarraaf' }) {
   const grant = state.grant;
   const today = new Date().toISOString().slice(0, 10);
   const activeGrant = useMemo(() => grant && grant.startDate <= today && grant.endDate >= today, [grant, today]);
-  const tier = activeGrant ? grant.tier : 'basic';
+  const tier = testTier || (activeGrant ? grant.tier : 'basic');
   const tierName = plans.find(p => p.id === tier)?.name || 'Basic';
   const selected = allItems.find(x => x[0] === selectedModule) || allItems[0];
   const SelectedIcon = selected[3];
@@ -133,6 +136,21 @@ export default function PreviewRoleDashboard({ role = 'sarraaf' }) {
     setState(next);
   };
   const logout = () => { clearPreviewSession(); navigate('/', { replace: true }); };
+  const changeTestTier = (nextTier) => {
+    if (!['basic', 'professional', 'enterprise'].includes(nextTier)) return;
+    setTestTier(nextTier);
+    try {
+      localStorage.setItem('exchange_workspace_tier_preview-sarraaf-001', nextTier);
+      const user = JSON.parse(localStorage.getItem('auth_user') || 'null');
+      if (user?.role === 'sarraaf') {
+        user.workspace_tier = nextTier;
+        localStorage.setItem('auth_user', JSON.stringify(user));
+      }
+      const key = 'cache_v2_SarraafProfile_PREVIEW-EX-001';
+      const rows = JSON.parse(localStorage.getItem(key) || '[]');
+      if (rows[0]) localStorage.setItem(key, JSON.stringify([{ ...rows[0], workspace_tier: nextTier, plan: nextTier }, ...rows.slice(1)]));
+    } catch { /* browser storage is optional */ }
+  };
 
   if (!allowed) return <main dir="rtl" className="min-h-screen bg-slate-950 p-8 text-slate-100"><div className="mx-auto max-w-xl rounded-xl border border-slate-800 bg-slate-900 p-6"><h1 className="text-xl font-bold">ورود آزمایشی</h1><p className="mt-3 text-sm text-slate-400">برای ورود، نقش موردنظر را از صفحه آغازین انتخاب کنید.</p><Link to="/" className="mt-5 inline-flex text-amber-300">بازگشت به صفحه آغازین</Link></div></main>;
 
@@ -142,7 +160,7 @@ export default function PreviewRoleDashboard({ role = 'sarraaf' }) {
     const Icon = item[3];
     const required = tierRank[item[2]] || 1;
     const locked = required > planRank[tier];
-    return <button key={item[0]} onClick={() => {const path=moduleRoutes[item[0]];setMenuOpen(false);if(path) navigate(path);else {setSelectedModule(item[0]);setActiveTab('module');}}} className="flex w-full items-start gap-3 rounded-xl border border-slate-800 bg-slate-900 p-3 text-right hover:border-amber-400/50">
+    return <button key={item[0]} onClick={() => {const required=tierRank[item[2]]||1;if(required>planRank[tier]){setSelectedModule(item[0]);setActiveTab('module');return;}const path=moduleRoutes[item[0]];setMenuOpen(false);if(path) navigate(path);else {setSelectedModule(item[0]);setActiveTab('module');}}} className="flex w-full items-start gap-3 rounded-xl border border-slate-800 bg-slate-900 p-3 text-right hover:border-amber-400/50">
       <span className="rounded-lg bg-slate-800 p-2 text-amber-300"><Icon className="h-5 w-5"/></span>
       <span className="min-w-0 flex-1"><span className="block text-sm font-semibold">{item[0]}</span><span className="mt-1 block text-xs leading-5 text-slate-400">{item[1]}</span></span>
       <span className="shrink-0 rounded-md bg-slate-800 px-2 py-1 text-[10px] text-slate-300">{locked ? 'قابل ارتقا' : item[2]}</span>
@@ -150,13 +168,13 @@ export default function PreviewRoleDashboard({ role = 'sarraaf' }) {
   };
 
   return <main dir="rtl" className="min-h-screen bg-slate-950 text-slate-100">
-    <header className="sticky top-0 z-30 border-b border-slate-800 bg-slate-950/95 px-4 py-3 backdrop-blur"><div className="mx-auto flex max-w-[1500px] items-center justify-between gap-3"><div className="flex items-center gap-3"><button className="rounded-lg border border-slate-700 p-2 lg:hidden" onClick={()=>setMenuOpen(!menuOpen)} aria-label="منو"><Menu className="h-5 w-5"/></button><div><div className="flex items-center gap-2 text-xs text-amber-300"><ShieldCheck className="h-4 w-4"/> محیط آزمایشی مستقل</div><h1 className="mt-1 text-lg font-bold">صرافی آزمایشی</h1></div></div><div className="flex items-center gap-2"><span className="rounded-lg border border-amber-400/30 bg-amber-400/10 px-3 py-2 text-xs text-amber-200">سطح {tierName}</span><button onClick={logout} className="rounded-lg border border-slate-700 p-2" aria-label="خروج"><LogOut className="h-4 w-4"/></button></div></div></header>
+    <header className="sticky top-0 z-30 border-b border-slate-800 bg-slate-950/95 px-4 py-3 backdrop-blur"><div className="mx-auto flex max-w-[1500px] items-center justify-between gap-3"><div className="flex items-center gap-3"><button className="rounded-lg border border-slate-700 p-2 lg:hidden" onClick={()=>setMenuOpen(!menuOpen)} aria-label="منو"><Menu className="h-5 w-5"/></button><div><div className="flex items-center gap-2 text-xs text-amber-300"><ShieldCheck className="h-4 w-4"/> محیط آزمایشی مستقل</div><h1 className="mt-1 text-lg font-bold">صرافی آزمایشی</h1></div></div><div className="flex items-center gap-2"><label className="flex items-center gap-2 rounded-lg border border-amber-400/30 bg-amber-400/10 px-2 py-1 text-xs text-amber-100"><span>آزمایش سطح</span><select aria-label="انتخاب سطح آزمایشی" value={tier} onChange={e=>changeTestTier(e.target.value)} className="rounded bg-slate-900 px-2 py-1 text-amber-100"><option value="basic">Basic</option><option value="professional">Professional</option><option value="enterprise">Enterprise</option></select></label><span className="hidden rounded-lg border border-slate-700 px-3 py-2 text-xs sm:inline">سطح {tierName}</span><button onClick={logout} className="rounded-lg border border-slate-700 p-2" aria-label="خروج"><LogOut className="h-4 w-4"/></button></div></div></header>
     <div className="mx-auto flex max-w-[1500px]">
       <aside className={`fixed inset-y-[61px] right-0 z-20 w-80 overflow-y-auto border-l border-slate-800 bg-slate-950 p-4 lg:sticky lg:top-[61px] lg:block lg:h-[calc(100vh-61px)] lg:translate-x-0 ${menuOpen?'translate-x-0':'translate-x-full'}`}>
         <button onClick={()=>setActiveTab('dashboard')} className="mb-3 flex w-full items-center gap-2 rounded-lg bg-slate-900 p-3 text-sm font-semibold"><LayoutDashboard className="h-4 w-4 text-amber-300"/> داشبورد صرافی</button>
         <button onClick={()=>setActiveTab('settings')} className="mb-3 flex w-full items-center gap-2 rounded-lg bg-slate-900 p-3 text-sm font-semibold"><Settings className="h-4 w-4 text-amber-300"/> تنظیمات و ارتقای پنل</button>
         <div className="relative mb-4"><Search className="absolute right-3 top-3 h-4 w-4 text-slate-500"/><input value={search} onChange={e=>setSearch(e.target.value)} placeholder="جست‌وجوی بخش‌ها..." className="w-full rounded-lg border border-slate-700 bg-slate-900 py-2.5 pr-9 pl-3 text-sm"/></div>
-        {filteredGroups.map(group=><section key={group.title} className="mb-4"><h2 className="mb-2 px-2 text-xs font-bold text-amber-300">{group.title}</h2><div className="space-y-1">{group.items.map(item=><button key={item[0]} onClick={()=>{setSelectedModule(item[0]);setActiveTab('module');setMenuOpen(false);}} className={`w-full rounded-lg px-3 py-2 text-right text-sm hover:bg-slate-900 ${selectedModule===item[0]&&activeTab==='module'?'bg-slate-800 text-amber-200':''}`}>{item[0]}<span className="mr-2 text-[10px] text-slate-500">{item[2]}</span></button>)}</div></section>)}
+        {filteredGroups.map(group=><section key={group.title} className="mb-4"><h2 className="mb-2 px-2 text-xs font-bold text-amber-300">{group.title}</h2><div className="space-y-1">{group.items.map(item=><button key={item[0]} onClick={()=>{const path=moduleRoutes[item[0]];setMenuOpen(false);if(path) navigate(path);else {setSelectedModule(item[0]);setActiveTab('module');}}} className={`w-full rounded-lg px-3 py-2 text-right text-sm hover:bg-slate-900 ${selectedModule===item[0]&&activeTab==='module'?'bg-slate-800 text-amber-200':''}`}>{item[0]}<span className="mr-2 text-[10px] text-slate-500">{item[2]}</span></button>)}</div></section>)}
       </aside>
       <section className="min-w-0 flex-1 p-4 sm:p-6">
         {activeTab==='dashboard'&&<><div className="mb-5"><h2 className="text-2xl font-bold">داشبورد مدیریت صرافی</h2><p className="mt-1 text-sm text-slate-400">ساختار کامل پنل در سطح Basic در دسترس است؛ قابلیت‌های پیشرفته با ارتقای سطح فعال می‌شوند.</p></div><div className="mb-6 grid gap-3 sm:grid-cols-3"><article className="rounded-xl border border-slate-800 bg-slate-900 p-4"><p className="text-xs text-slate-400">سطح فعلی</p><p className="mt-2 text-2xl font-bold text-amber-300">{tierName}</p></article><article className="rounded-xl border border-slate-800 bg-slate-900 p-4"><p className="text-xs text-slate-400">وضعیت درخواست</p><p className="mt-2 text-lg font-bold">{state.request?.status==='pending'?'در انتظار بررسی':state.request?.status==='approved'?'تأیید شده':state.request?.status==='rejected'?'رد شده':'بدون درخواست'}</p></article><article className="rounded-xl border border-slate-800 bg-slate-900 p-4"><p className="text-xs text-slate-400">اعتبار سطح بالاتر</p><p className="mt-2 text-sm font-semibold">{activeGrant?`${grant.startDate} تا ${grant.endDate}`:'—'}</p></article></div><div className="grid gap-6">{groups.map(g=><section key={g.title}><h3 className="mb-3 text-base font-bold">{g.title}</h3><div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">{g.items.map(renderModule)}</div></section>)}</div></>}
