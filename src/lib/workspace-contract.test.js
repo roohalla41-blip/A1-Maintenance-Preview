@@ -9,6 +9,7 @@ import {
 } from './exchangeTiers.js';
 import {
   normalizeRole,
+  getRoleLevel,
   canAccessRoute,
   getAllowedNavItems,
   SARRAAF_NAV_BY_ROLE,
@@ -47,8 +48,12 @@ test('every tier navigation key is represented in the sarraaf role contract', ()
 
 test('exchange role aliases are normalized consistently and unknown routes stay closed', () => {
   assert.equal(normalizeRole('exchange'), 'sarraaf');
+  assert.equal(getRoleLevel('exchange'), getRoleLevel('sarraaf'));
   assert.equal(canAccessRoute('exchange', '/dashboard'), true);
   assert.equal(canAccessRoute('exchange', '/builder'), false);
+  assert.equal(canAccessRoute('employee', '/cash'), true);
+  assert.equal(canAccessRoute('employee', '/bank'), false);
+  assert.equal(canAccessRoute('customer', '/dashboard'), false);
   assert.equal(canAccessRoute('sarraaf', '/route-that-does-not-exist'), false);
   const items = [{ featureKey: 'dashboard' }, { featureKey: 'cash' }];
   assert.deepEqual(getAllowedNavItems('exchange', items), items);
