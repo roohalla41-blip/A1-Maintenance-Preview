@@ -72,6 +72,8 @@ export const supabase = new Proxy(
 );
 
 export function getSupabaseClient() {
+  // Preview must never create or return a network-capable Supabase client.
+  if (typeof window !== 'undefined' && window.__SUPABASE_CONFIG__?.previewOnly === true) return null;
   if (!_client) {
     const cfg = resolveConfig();
     if (!cfg) return null;
