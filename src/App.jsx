@@ -91,6 +91,7 @@ const SarraafWallet = lazyWithRetry(() => import('@/pages/sarraaf/SarraafWallet'
 const SarraafRecharge = lazyWithRetry(() => import('@/pages/sarraaf/SarraafRecharge'));
 const SarraafGames = lazyWithRetry(() => import('@/pages/sarraaf/SarraafGames'));
 const BuilderPanel = lazyWithRetry(() => import('@/pages/BuilderPanel'));
+const PreviewBuilderPanel = lazyWithRetry(() => import('@/pages/PreviewBuilderPanel'));
 const SarraafSupport = lazyWithRetry(() => import('@/pages/SarraafSupport'));
 const Assistant = lazyWithRetry(() => import('@/pages/Assistant'));
 const CustomerLayout = lazyWithRetry(() => import('@/components/CustomerLayout'));
@@ -132,6 +133,7 @@ const AppRoutes = () => {
         <Route path="/" element={<Welcome />} />
         <Route path="/setup-database" element={<SetupDatabase />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/preview-builder" element={<PreviewBuilderPanel />} />
         <Route path="/register" element={<Register />} />
         <Route path="/register/email" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
