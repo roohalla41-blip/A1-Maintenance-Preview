@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowRight, Check, Clock3, Crown, Layers3, LogOut, ShieldCheck, Users, X } from 'lucide-react';
-import { clearPreviewSession, readPreviewState, writePreviewState } from '@/lib/previewDemo';
+import { clearPreviewSession, hasPreviewSession, readPreviewState, writePreviewState } from '@/lib/previewDemo';
 
 const plans = [
   { id:'basic', name:'Basic', fa:'معمولی', detail:'هسته مالی، مشتریان، معاملات، صندوق، دفتر روزنامه و گزارش‌های پایه' },
@@ -23,6 +23,7 @@ const tabs=[['requests','درخواست‌های ارتقا'],['users','مدیر
 export default function PreviewBuilderPanel() {
   const navigate=useNavigate();
   const [state,setState]=useState(()=>readPreviewState());
+  const allowed = hasPreviewSession('creator');
   const [startDate,setStartDate]=useState(new Date().toISOString().slice(0,10));
   const [duration,setDuration]=useState('1');
   const [tier,setTier]=useState('professional');
@@ -43,6 +44,7 @@ export default function PreviewBuilderPanel() {
     setState(next);setNotice(approved?'درخواست آزمایشی تأیید شد و اعتبار آن ثبت شد.':'درخواست آزمایشی رد شد.');
   };
   const logout=()=>{clearPreviewSession();navigate('/',{replace:true});};
+  if (!allowed) return <main dir="rtl" className="min-h-screen bg-slate-950 p-8 text-slate-100"><div className="mx-auto max-w-xl rounded-xl border border-slate-800 bg-slate-900 p-6"><h1 className="text-xl font-bold">ورود سازنده آزمایشی</h1><p className="mt-3 text-sm text-slate-400">برای ورود، از صفحه آغازین گزینه «ورود سازنده آزمایشی» را انتخاب کنید.</p><Link to="/" className="mt-5 inline-flex text-amber-300">بازگشت به صفحه آغازین</Link></div></main>;
   return <main dir="rtl" className="min-h-screen bg-slate-950 p-4 text-slate-100 sm:p-8"><div className="mx-auto max-w-7xl">
     <header className="mb-6 flex flex-wrap items-center justify-between gap-3"><div><span className="inline-flex items-center gap-2 rounded-full border border-amber-400/30 bg-amber-400/10 px-3 py-1 text-xs text-amber-200"><ShieldCheck className="h-4 w-4"/> سازنده — محیط آزمایشی</span><h1 className="mt-3 text-2xl font-bold sm:text-3xl">مرکز مدیریت و کنترل سامانه</h1><p className="mt-1 text-sm text-slate-400">مدیریت ساختار، کاربران، سطوح و درخواست‌ها؛ همه تغییرات فقط محلی و آزمایشی‌اند.</p></div><button onClick={logout} className="inline-flex items-center gap-2 rounded-lg border border-slate-700 px-4 py-2 text-sm"><LogOut className="h-4 w-4"/> خروج آزمایشی</button></header>
     <section className="mb-5 grid gap-3 sm:grid-cols-3">{[['۳ مسیر آزمایشی','نقش‌ها'],['Basic / Professional / Enterprise','سطوح اشتراک'],['قطع — مستقل','پایگاه داده']].map(([v,l])=><article key={l} className="rounded-xl border border-slate-800 bg-slate-900 p-4"><p className="text-sm text-slate-400">{l}</p><p className="mt-2 text-xl font-bold text-amber-300">{v}</p></article>)}</section>
