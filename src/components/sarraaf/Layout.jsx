@@ -93,6 +93,7 @@ const NAV_ITEMS = [
   { featureKey: 'backup', label: 'بکاپ و بازیابی', path: '/backup', icon: DatabaseBackup, order: 23 },
   { featureKey: 'support', label: 'پشتیبانی آنلاین', path: '/support', icon: Headphones, order: 24 },
   { featureKey: 'assistant', label: 'دستیار هوشمند', path: '/assistant', icon: Bot, order: 25 },
+  { featureKey: 'notifications', label: 'اعلان‌ها', path: '/notifications', icon: Bell, order: 26 },
 ];
 
 const BOTTOM_NAV = [
