@@ -78,6 +78,32 @@ const allItems = groups.flatMap(g => g.items);
 const tierRank = { پایه: 1, حرفه‌ای: 2, سازمانی: 3 };
 const planRank = { basic: 1, professional: 2, enterprise: 3 };
 
+const moduleRoutes = {
+  'داشبورد مالی': '/dashboard', 'اعلان‌ها': '/notifications',
+  'مدیریت مشتریان': '/customers', 'داد و گرفت': '/dadogereft',
+  'خرید و فروش ارز': '/trade', 'حواله‌های ارسالی': '/transfers/send',
+  'حواله‌های دریافتی': '/transfers/receive', 'دفتر حواله': '/transfer-book',
+  'ارزها و نرخ‌ها': '/currencies', 'تبدیل ارز': '/convert',
+  'صندوق‌ها': '/cash', 'بانک': '/bank', 'خزانه‌داری و نقدینگی': '/enterprise/treasury',
+  'انتقال بین صندوق و مشتری': '/cash', 'مغایرت‌گیری': '/reconciliation',
+  'ثبت سند حسابداری': '/journal-entry', 'دفتر روزنامه': '/journal',
+  'دفتر کل': '/general-ledger', 'معین و تفصیلی': '/enterprise/subsidiary-ledger',
+  'کدینگ حساب‌ها': '/enterprise/chart-of-accounts', 'تراز آزمایشی': '/enterprise/trial-balance',
+  'ترازنامه': '/balance-sheet', 'سود و زیان': '/profit-loss',
+  'دوره مالی و بستن حساب‌ها': '/enterprise/fiscal-periods',
+  'گزارش‌های مالی': '/reports', 'بدهکاران و بستانکاران': '/debtors',
+  'ردپای حسابرسی': '/enterprise/audit-log', 'کنترل‌های داخلی': '/enterprise/internal-controls',
+  'گزارش تحلیلی': '/reports', 'شعب و نمایندگی‌ها': '/agents',
+  'کاربران و کارکنان': '/settings', 'نقش‌ها و مجوزها': '/settings',
+  'محصولات و خدمات آنلاین': '/online-products', 'فروشندگی': '/online-products',
+  'پشتیبانی و پیام‌ها': '/support', 'بکاپ و بازیابی': '/backup',
+  'تنظیمات صرافی': '/settings', 'حساب‌های بین‌صرافی': '/enterprise/intercompany',
+  'چندشرکتی و تلفیق': '/enterprise/multi-company',
+  'مراکز هزینه و سود': '/enterprise/cost-centers',
+  'بودجه و پیش‌بینی': '/enterprise/budgets',
+  'احراز هویت و انطباق': '/enterprise/compliance',
+};
+
 export default function PreviewRoleDashboard({ role = 'sarraaf' }) {
   const navigate = useNavigate();
   const [state, setState] = useState(() => readPreviewState());
@@ -116,7 +142,7 @@ export default function PreviewRoleDashboard({ role = 'sarraaf' }) {
     const Icon = item[3];
     const required = tierRank[item[2]] || 1;
     const locked = required > planRank[tier];
-    return <button key={item[0]} onClick={() => {setSelectedModule(item[0]);setActiveTab('module');setMenuOpen(false);}} className="flex w-full items-start gap-3 rounded-xl border border-slate-800 bg-slate-900 p-3 text-right hover:border-amber-400/50">
+    return <button key={item[0]} onClick={() => {const path=moduleRoutes[item[0]];setMenuOpen(false);if(path) navigate(path);else {setSelectedModule(item[0]);setActiveTab('module');}}} className="flex w-full items-start gap-3 rounded-xl border border-slate-800 bg-slate-900 p-3 text-right hover:border-amber-400/50">
       <span className="rounded-lg bg-slate-800 p-2 text-amber-300"><Icon className="h-5 w-5"/></span>
       <span className="min-w-0 flex-1"><span className="block text-sm font-semibold">{item[0]}</span><span className="mt-1 block text-xs leading-5 text-slate-400">{item[1]}</span></span>
       <span className="shrink-0 rounded-md bg-slate-800 px-2 py-1 text-[10px] text-slate-300">{locked ? 'قابل ارتقا' : item[2]}</span>
@@ -134,7 +160,7 @@ export default function PreviewRoleDashboard({ role = 'sarraaf' }) {
       </aside>
       <section className="min-w-0 flex-1 p-4 sm:p-6">
         {activeTab==='dashboard'&&<><div className="mb-5"><h2 className="text-2xl font-bold">داشبورد مدیریت صرافی</h2><p className="mt-1 text-sm text-slate-400">ساختار کامل پنل در سطح Basic در دسترس است؛ قابلیت‌های پیشرفته با ارتقای سطح فعال می‌شوند.</p></div><div className="mb-6 grid gap-3 sm:grid-cols-3"><article className="rounded-xl border border-slate-800 bg-slate-900 p-4"><p className="text-xs text-slate-400">سطح فعلی</p><p className="mt-2 text-2xl font-bold text-amber-300">{tierName}</p></article><article className="rounded-xl border border-slate-800 bg-slate-900 p-4"><p className="text-xs text-slate-400">وضعیت درخواست</p><p className="mt-2 text-lg font-bold">{state.request?.status==='pending'?'در انتظار بررسی':state.request?.status==='approved'?'تأیید شده':state.request?.status==='rejected'?'رد شده':'بدون درخواست'}</p></article><article className="rounded-xl border border-slate-800 bg-slate-900 p-4"><p className="text-xs text-slate-400">اعتبار سطح بالاتر</p><p className="mt-2 text-sm font-semibold">{activeGrant?`${grant.startDate} تا ${grant.endDate}`:'—'}</p></article></div><div className="grid gap-6">{groups.map(g=><section key={g.title}><h3 className="mb-3 text-base font-bold">{g.title}</h3><div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">{g.items.map(renderModule)}</div></section>)}</div></>}
-        {activeTab==='module'&&<div className="rounded-2xl border border-slate-800 bg-slate-900 p-6"><div className="flex items-center gap-3"><SelectedIcon className="h-7 w-7 text-amber-300"/><h2 className="text-2xl font-bold">{selected[0]}</h2></div><p className="mt-4 leading-8 text-slate-300">{selected[1]}</p><div className="mt-5 rounded-xl border border-dashed border-slate-700 p-5 text-sm leading-7 text-slate-400">این صفحه در پیش‌نمایش، ساختار و جایگاه ماژول را نشان می‌دهد. اتصال عملیاتی، ثبت تراکنش واقعی و ذخیره‌سازی سرور عمداً فعال نیست. در نسخه نهایی، فرم‌ها، فهرست‌ها، گردش‌کارها و گزارش‌های این بخش تکمیل می‌شوند.</div><button onClick={()=>setActiveTab('dashboard')} className="mt-5 rounded-lg bg-amber-400 px-4 py-2 font-semibold text-slate-950">بازگشت به داشبورد</button></div>}
+        {activeTab==='module'&&<div className="rounded-2xl border border-slate-800 bg-slate-900 p-6"><div className="flex items-center gap-3"><SelectedIcon className="h-7 w-7 text-amber-300"/><h2 className="text-2xl font-bold">{selected[0]}</h2></div><p className="mt-4 leading-8 text-slate-300">{selected[1]}</p><div className="mt-5 rounded-xl border border-dashed border-slate-700 p-5 text-sm leading-7 text-slate-400">این بخش هنوز صفحهٔ عملیاتی مستقل ندارد و برای تکمیل علامت‌گذاری شده است.</div><button onClick={()=>setActiveTab('dashboard')} className="mt-5 rounded-lg bg-amber-400 px-4 py-2 font-semibold text-slate-950">بازگشت به داشبورد</button></div>}
         {activeTab==='settings'&&<div className="grid gap-4 lg:grid-cols-2"><article className="rounded-2xl border border-slate-800 bg-slate-900 p-5"><h2 className="flex items-center gap-2 text-xl font-bold"><Crown className="h-5 w-5 text-amber-300"/> درخواست ارتقای پنل</h2><p className="mt-2 text-sm leading-6 text-slate-400">برای فعال‌سازی امکانات پیشرفته، درخواست خود را برای سازنده سامانه ارسال کنید.</p><label className="mt-5 block text-sm">سطح درخواستی<select value={requestedTier} onChange={e=>setRequestedTier(e.target.value)} className="mt-2 w-full rounded-lg border border-slate-700 bg-slate-950 p-3">{plans.filter(p=>p.id!=='basic').map(p=><option key={p.id} value={p.id}>{p.name} — {p.title}</option>)}</select></label><label className="mt-4 block text-sm">توضیحات و نیازهای صرافی<textarea value={note} onChange={e=>setNote(e.target.value)} rows={4} className="mt-2 w-full rounded-lg border border-slate-700 bg-slate-950 p-3" placeholder="نیازهای خود را بنویسید (اختیاری)"/></label><button disabled={state.request?.status==='pending'} onClick={submitRequest} className="mt-4 w-full rounded-lg bg-amber-400 px-4 py-3 font-bold text-slate-950 disabled:opacity-40">ثبت درخواست برای سازنده</button>{state.request&&<p className="mt-3 text-sm text-amber-200">درخواست {state.request.tier} — {state.request.status==='pending'?'در انتظار بررسی':state.request.status==='approved'?'تأیید شده':'رد شده'}</p>}</article><article className="rounded-2xl border border-slate-800 bg-slate-900 p-5"><h3 className="font-bold">وضعیت اشتراک</h3><p className="mt-3 text-sm text-slate-400">سطح فعلی: <b className="text-amber-200">{tierName}</b></p><p className="mt-2 text-sm text-slate-400">شروع اعتبار: {activeGrant?grant.startDate:'—'}</p><p className="mt-2 text-sm text-slate-400">پایان اعتبار: {activeGrant?grant.endDate:'—'}</p><div className="mt-5 rounded-lg bg-slate-950 p-4 text-sm leading-7 text-slate-400">پس از پایان اعتبار سطح ارتقایافته، دسترسی به‌صورت خودکار به Basic بازمی‌گردد. این چرخه در این نسخه فقط آزمایشی و محلی است.</div><h3 className="mt-5 font-bold">تنظیمات عمومی</h3><div className="mt-3 space-y-2 text-sm text-slate-300">{['اطلاعات و مشخصات صرافی','حساب کاربری و امنیت','زبان و ترجیحات','مدیریت نمایش ماژول‌ها','پشتیبانی و ارتباط با سازنده'].map(x=><div key={x} className="rounded-lg bg-slate-950 p-3">{x}</div>)}</div></article></div>}
       </section>
     </div>
