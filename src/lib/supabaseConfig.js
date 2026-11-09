@@ -6,6 +6,8 @@
 //
 // The anon key is PUBLIC by design — security comes from RLS, not key secrecy.
 
+import { isIsolatedPreview } from './previewIsolation';
+
 function readWindowConfig() {
   if (typeof window !== 'undefined' && window.__SUPABASE_CONFIG__) {
     return { url: window.__SUPABASE_CONFIG__.url, key: window.__SUPABASE_CONFIG__.key };
@@ -29,7 +31,7 @@ function normalizeUrl(url) {
 
 export function getSupabaseConfig() {
   // Hard isolation: preview builds must never resolve production Supabase credentials.
-  if (typeof window !== 'undefined' && window.__SUPABASE_CONFIG__?.previewOnly === true) {
+  if (isIsolatedPreview()) {
     throw new Error('Database access is disabled in the isolated A1 preview.');
   }
   // Try window config first (runtime-injected), then env vars (build-time)
