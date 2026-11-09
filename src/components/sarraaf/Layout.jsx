@@ -283,11 +283,12 @@ export default function Layout() {
         {/* Desktop footer bar */}
         <footer className="hidden md:flex items-center justify-between border-t border-border bg-card px-6 py-2.5 text-xs text-muted-foreground print:hidden">
           <div className="flex items-center gap-4">
-            <Link to="/support" className="hover:text-primary transition-colors">راهنمای استفاده</Link>
-            <Link to="/support" className="hover:text-primary transition-colors">پشتیبانی</Link>
-            <Link to="/settings" className="hover:text-primary transition-colors">تنظیمات</Link>
+            <Link to="/support" className="hover:text-primary transition-colors">راهنمای استفاده و پشتیبانی</Link>
+            {items.some(item => item.featureKey === 'settings') && (
+              <Link to="/settings" className="hover:text-primary transition-colors">تنظیمات</Link>
+            )}
           </div>
-          <span className="hidden lg:inline">امنیت اولویت ماست. تمامی تراکنش‌ها با بالاترین سطح امنیت انجام می‌شود.</span>
+          <span className="hidden lg:inline">این نسخه پیش‌نمایش است؛ اطلاعات مالی واقعی وارد نکنید.</span>
         </footer>
       </div>
 
