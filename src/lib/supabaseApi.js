@@ -6,6 +6,7 @@
 
 import { ENTITY_TABLE_MAP, supabase } from './supabaseClient';
 import { getSupabaseConfig } from './supabaseConfig';
+import { isIsolatedPreview } from './previewIsolation';
 
 // ── DEPRECATED: direct anon-key REST access — removed for security ──
 // All callers must use callSupabase('crud', ...) or the specialized backend actions.
@@ -225,7 +226,7 @@ export function isCreatorOrAdmin() {
 // Admin operations that need service_role will try the Edge Function fallback.
 export async function callSupabase(action, payload = {}) {
   // Immutable preview isolation: never attempt auth, CRUD, keepalive, or Edge Function requests.
-  if (typeof window !== 'undefined' && window.__SUPABASE_CONFIG__?.previewOnly === true) {
+  if (isIsolatedPreview()) {
     return { success: false, previewOnly: true, error: 'preview_local_only', message: 'این عملیات فقط در داده‌های محلی نسخه آزمایشی قابل انجام است.' };
   }
   // Handle logout via Supabase Auth directly
