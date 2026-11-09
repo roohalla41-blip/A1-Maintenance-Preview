@@ -227,7 +227,12 @@ export default function Register() {
             {emailRegistration ? 'ثبت‌نام با ایمیل' : 'ثبت‌نام در حساب صراف'}
           </h1>
           <p className="text-xs text-muted-foreground mt-1">سامانه تخصصی مدیریت صرافی</p>
-          {emailRegistration && <p className="text-xs text-primary mt-2">با ایمیل و رمز عبور حساب بسازید؛ نوع حساب را در پایین انتخاب کنید.</p>}
+          {emailRegistration && (
+            <div className="mt-2 space-y-1">
+              <p className="text-xs text-primary">با ایمیل و رمز عبور حساب بسازید؛ نوع حساب را در پایین انتخاب کنید.</p>
+              <p className="text-[11px] text-muted-foreground">در این پیش‌نمایش، ایمیل برای ورود ذخیره می‌شود؛ ارسال و تأیید ایمیل پس از راه‌اندازی سرویس احراز هویت فعال خواهد شد.</p>
+            </div>
+          )}
         </div>
 
         {/* Card */}
