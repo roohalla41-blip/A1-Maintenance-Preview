@@ -64,3 +64,5 @@ jobs:
 # Publish preview after adding local-only sample data and real accounting route links; Supabase remains disabled.
 
 # Publish latest local-only preview route and ledger fixes from a1-structure-copy.
+
+# Publish the complete local-only preview navigation and tier selector; no database configuration is present.
