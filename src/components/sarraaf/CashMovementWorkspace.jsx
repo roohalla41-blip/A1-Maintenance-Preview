@@ -51,6 +51,10 @@ export default function CashMovementWorkspace({ section }) {
       toast({ title: 'مبلغ نامعتبر است', description: 'مبلغ باید بیشتر از صفر باشد.', variant: 'destructive' });
       return;
     }
+    if (selectedSafe.currency && String(selectedSafe.currency).toUpperCase() !== String(currency).toUpperCase()) {
+      toast({ title: 'ارز صندوق مطابقت ندارد', description: `ارز این صندوق ${selectedSafe.currency} است؛ همان ارز را برای عملیات انتخاب کنید.`, variant: 'destructive' });
+      return;
+    }
     if (!isReceipt && numericAmount > availableBalance + 0.000001) {
       toast({
         title: 'موجودی کافی نیست',
