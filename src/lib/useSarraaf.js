@@ -7,6 +7,7 @@ import { generateUniqueInviteCode } from './referralSystem';
 import { trackOp, finishOp } from './syncStatus';
 import { postDocument, postTransfer, reverseDocument, editDocument, getBalances, listDocuments } from './ledgerApi';
 import { getMyExchange, listTransactions } from './supabaseApi';
+import { isIsolatedPreview } from './previewIsolation';
 
 // Direct Supabase entity instances (no localStorage cache — always reads from server)
 const sbTransfers = offlineDB.Transfer;
@@ -246,7 +247,7 @@ export function useExecuteTransfer() {
       }
       // A preview transfer currently has no balanced settlement journal.
       // Refuse to mark it paid until the corresponding ledger posting exists.
-      if (typeof window !== 'undefined' && window.__SUPABASE_CONFIG__?.previewOnly === true) {
+      if (isIsolatedPreview()) {
         throw new Error('تسویهٔ حواله در محیط آزمایشی هنوز به سند حسابداری و دفترکل متصل نشده است؛ وضعیت حواله تغییر نکرد.');
       }
       trackOp();
