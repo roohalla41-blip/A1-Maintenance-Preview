@@ -50,7 +50,7 @@ function nextPreviewNumber(entity, field, prefix, width) {
   const rows = readPreviewRows(entity);
   let max = 0;
   rows.forEach(row => {
-    const match = String(row[field] || '').match(/(\\d+)$/);
+    const match = String(row[field] || '').match(/(\d+)$/);
     if (match) max = Math.max(max, Number(match[1]));
   });
   return `${prefix}-${String(max + 1).padStart(width, '0')}`;
