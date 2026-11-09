@@ -69,7 +69,7 @@ export default function PreviewRoleDashboard({ role = 'sarraaf' }) {
           <>
             <section className="mb-5 grid gap-3 sm:grid-cols-3">
               <article className="rounded-xl border border-slate-800 bg-slate-900 p-5"><p className="text-sm text-slate-400">سطح فعلی حساب</p><p className="mt-2 text-2xl font-bold text-amber-300">{tierName}</p><p className="text-xs text-slate-500">ثبت‌نام صراف با Basic آغاز می‌شود</p></article>
-              <article className="rounded-xl border border-slate-800 bg-slate-900 p-5"><p className="text-sm text-slate-400">وضعیت ارتقا</p><p className="mt-2 text-xl font-bold">{activeGrant ? 'ارتقا فعال' : state.request?.status === 'pending' ? 'در انتظار بررسی سازنده' : 'بدون درخواست فعال'}</p></article>
+              <article className="rounded-xl border border-slate-800 bg-slate-900 p-5"><p className="text-sm text-slate-400">وضعیت ارتقا</p><p className="mt-2 text-xl font-bold">{activeGrant ? 'ارتقا فعال' : grant && grant.endDate < today ? 'منقضی شده — Basic فعال است' : state.request?.status === 'pending' ? 'در انتظار بررسی سازنده' : 'بدون درخواست فعال'}</p></article>
               <article className="rounded-xl border border-slate-800 bg-slate-900 p-5"><p className="text-sm text-slate-400">اعتبار سطح بالاتر</p><p className="mt-2 text-xl font-bold">{activeGrant ? `${grant.startDate} تا ${grant.endDate}` : '—'}</p></article>
             </section>
             <section className="grid gap-4 lg:grid-cols-2">
