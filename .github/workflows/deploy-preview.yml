@@ -7,6 +7,7 @@ name: Deploy isolated A1 maintenance preview
 # Fail-closed preview isolation guard and regression contract test are included.
 # Cash and bank local-ledger entity wiring fixes are included.
 # Safe offline entity and balanced FX journal builder with regression tests are included.
+# Remittance validation, idempotency and preview settlement guards are included.
 
 on:
   workflow_dispatch:
