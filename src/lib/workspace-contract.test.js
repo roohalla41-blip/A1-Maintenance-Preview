@@ -22,6 +22,7 @@ import {
 } from './features.js';
 import { MODULE_WORKSPACE_SCHEMAS } from './moduleWorkspaceSchemas.js';
 import { isWorkspaceFeatureEnabled } from './useWorkspaceModules.js';
+import { isIsolatedPreview } from './previewIsolation.js';
 
 test('only the three canonical exchange tiers are enumerable', () => {
   assert.deepEqual(Object.keys(EXCHANGE_TIERS), ['basic', 'professional', 'enterprise']);
@@ -94,4 +95,10 @@ test('workspace module switches hide module routes without disabling core naviga
   assert.equal(isWorkspaceFeatureEnabled('notifications', { governance: false }), false);
   assert.equal(isWorkspaceFeatureEnabled('assistant', { governance: false }), false);
   assert.equal(isWorkspaceFeatureEnabled('income_expense', { accounting: false }), false);
+});
+
+test('preview host remains isolated even when runtime config is missing', () => {
+  assert.equal(isIsolatedPreview({}, { hostname: 'roohalla41-blip.github.io', pathname: '/A1-Maintenance-Preview/' }), true);
+  assert.equal(isIsolatedPreview({}, { hostname: 'roohalla41-blip.github.io', pathname: '/another-project/' }), false);
+  assert.equal(isIsolatedPreview({ previewOnly: true }, { hostname: 'example.com', pathname: '/' }), true);
 });
