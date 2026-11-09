@@ -11,7 +11,7 @@ const GROUPS = [
   ['عملیات صرافی و معاملات', ['dadogereft', 'trade', 'convert', 'currencies']],
   ['صندوق، بانک و خزانه‌داری', ['cash', 'bank', 'treasury', 'receipt']],
   ['حواله‌ها و تسویه بین‌صرافی', ['transfer_send', 'transfer_receive', 'transfer_book', 'intercompany']],
-  ['حسابداری و دفاتر مالی', ['chart_of_accounts', 'journal_entry', 'journal', 'general_ledger', 'subsidiary_ledger', 'trial_balance', 'balance_sheet', 'reconciliation', 'period_close', 'fiscal_periods']],
+  ['حسابداری و دفاتر مالی', ['chart_of_accounts', 'journal_entry', 'journal', 'general_ledger', 'income_expense', 'subsidiary_ledger', 'trial_balance', 'balance_sheet', 'reconciliation', 'period_close', 'fiscal_periods']],
   ['گزارش‌ها، بودجه و تحلیل مالی', ['reports', 'profit_loss', 'cash_flow', 'budgets', 'cost_centers', 'fx_exposure', 'fx_revaluation', 'standards', 'consolidation']],
   ['سازمان، شعب و دارایی‌ها', ['agents', 'agency_network', 'multi_company', 'fixed_assets']],
   ['ریسک، انطباق و اسناد', ['kyc', 'compliance', 'aml_screening', 'internal_controls', 'data_governance', 'audit_log', 'document_center', 'approvals', 'tax']],
