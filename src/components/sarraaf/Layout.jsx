@@ -83,6 +83,7 @@ const NAV_ITEMS = [
   { featureKey: 'consolidation', label: 'صورت‌های مالی تلفیقی', path: '/enterprise/consolidation', icon: Building2, order: 46 },
   { featureKey: 'internal_controls', label: 'کنترل‌های داخلی و ریسک', path: '/enterprise/internal-controls', icon: ClipboardCheck, order: 47 },
   { featureKey: 'data_governance', label: 'حاکمیت داده و حریم خصوصی', path: '/enterprise/data-governance', icon: Shield, order: 48 },
+  { featureKey: 'income_expense', label: 'درآمد و هزینه', path: '/enterprise/income-expense', icon: HandCoins, order: 49 },
   { featureKey: 'convert', label: 'تبدیل ارز', path: '/convert', icon: ArrowRightLeft, order: 18 },
   { featureKey: 'online_products', label: 'محصولات آنلاین', path: '/online-products', icon: ShoppingBag, order: 19 },
   { featureKey: 'payment_gateway', label: 'درگاه پرداخت', path: '/payment-gateway', icon: CreditCard, order: 19.5 },
