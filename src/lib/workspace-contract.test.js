@@ -20,6 +20,7 @@ import {
   isFeatureEnabled,
 } from './features.js';
 import { MODULE_WORKSPACE_SCHEMAS } from './moduleWorkspaceSchemas.js';
+import { isWorkspaceFeatureEnabled } from './useWorkspaceModules.js';
 
 test('only the three canonical exchange tiers are enumerable', () => {
   assert.deepEqual(Object.keys(EXCHANGE_TIERS), ['basic', 'professional', 'enterprise']);
@@ -77,4 +78,12 @@ test('every enterprise workspace schema has registers, forms, and workflow steps
     assert.ok(Array.isArray(schema.forms) && schema.forms.length > 0, `${moduleKey}: missing form contract`);
     assert.ok(Array.isArray(schema.workflow) && schema.workflow.length > 0, `${moduleKey}: missing workflow`);
   }
+});
+
+test('workspace module switches hide module routes without disabling core navigation', () => {
+  assert.equal(isWorkspaceFeatureEnabled('dashboard', { treasury: false }), true);
+  assert.equal(isWorkspaceFeatureEnabled('settings', { governance: false }), true);
+  assert.equal(isWorkspaceFeatureEnabled('cash', { treasury: false }), false);
+  assert.equal(isWorkspaceFeatureEnabled('notifications', { governance: false }), false);
+  assert.equal(isWorkspaceFeatureEnabled('assistant', { governance: false }), false);
 });
