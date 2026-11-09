@@ -1,9 +1,6 @@
 name: Validate isolated A1 preview build
 
 on:
-  push:
-    branches:
-      - a1-structure-copy
   workflow_dispatch:
 
 permissions:
