@@ -42,6 +42,7 @@ export const HOME_BY_ROLE = {
   creator: '/builder',
   admin: '/dashboard',
   sarraaf: '/dashboard',
+  exchange: '/dashboard', // Legacy backend role alias.
   employee: '/dashboard',
   customer: '/customer',
   user: '/',
