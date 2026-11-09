@@ -9,6 +9,7 @@ name: Deploy isolated A1 maintenance preview
 # Safe offline entity and balanced FX journal builder with regression tests are included.
 # Remittance validation, idempotency and preview settlement guards are included.
 # Ledger edit validation now requires replacement lines when financial values change.
+# Local cash receipt and payment forms now post balanced ledger documents.
 
 on:
   workflow_dispatch:
