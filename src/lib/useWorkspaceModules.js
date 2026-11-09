@@ -10,7 +10,7 @@ export const WORKSPACE_MODULES = [
   { id: 'reports', label: 'گزارش و تحلیل', description: 'گزارش‌ها، سود و زیان و تحلیل ریسک', keys: ['reports', 'profit_loss', 'fx_exposure'] },
   { id: 'organization', label: 'شعب و سازمان', description: 'نمایندگی‌ها و مدیریت چندشرکتی', keys: ['agents', 'agency_network', 'multi_company'] },
   { id: 'digital', label: 'خدمات دیجیتال', description: 'محصولات آنلاین و درگاه پرداخت', keys: ['online_products', 'payment_gateway'] },
-  { id: 'governance', label: 'امنیت، کنترل و ارتباطات', description: 'امنیت، حسابرسی، انطباق، پشتیبانی و ارتباطات', keys: ['kyc', 'compliance', 'aml_screening', 'internal_controls', 'data_governance', 'audit_log', 'document_center', 'approvals', 'sarraaf_chat', 'chat_groups', 'backup', 'support', 'assistant'] },
+  { id: 'governance', label: 'امنیت، کنترل و ارتباطات', description: 'امنیت، حسابرسی، انطباق، پشتیبانی و ارتباطات', keys: ['kyc', 'compliance', 'aml_screening', 'internal_controls', 'data_governance', 'audit_log', 'document_center', 'approvals', 'sarraaf_chat', 'chat_groups', 'backup', 'support', 'assistant', 'notifications'] },
 ];
 
 // Settings and the dashboard are system controls, not optional business modules.
