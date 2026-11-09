@@ -3,6 +3,7 @@ name: Deploy isolated A1 maintenance preview
 # Mobile and desktop navigation share the same grouped accounting modules.
 # Deployment is triggered from the default branch; application source is always checked out from a1-structure-copy.
 # Deployment source remains isolated on a1-structure-copy; this workflow only publishes the existing preview.
+# Ledger validation and preview transfer safety fixes are included in this deployment.
 
 on:
   workflow_dispatch:
