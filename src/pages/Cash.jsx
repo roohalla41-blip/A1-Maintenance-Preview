@@ -44,7 +44,7 @@ export default function Cash() {
   const balances = {};
   const safeBalances = {};
   for (const b of (treasuryBalances || [])) {
-    balances[b.currency] = b.balance;
+    balances[b.currency] = (balances[b.currency] || 0) + (Number(b.balance) || 0);
     if (b.account_id !== undefined && b.account_id !== null) safeBalances[String(b.account_id)] = b.balance;
   }
   const cashTxs = (txs || []).filter(t => t.counter_type === 'cash').slice(0, 20);
