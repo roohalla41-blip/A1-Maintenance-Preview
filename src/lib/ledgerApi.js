@@ -42,6 +42,29 @@ function writePreviewRows(entity, rows) {
   localStorage.setItem(`cache_v2_${entity}_${tenant.code}`, JSON.stringify(rows));
 }
 
+// Best-effort atomic commit across preview collections. If any write fails,
+// previously stored values are restored before the error is surfaced.
+function writePreviewBatch(updates) {
+  const tenant = getPreviewTenant();
+  if (!tenant) throw new Error('ورود آزمایشی صراف معتبر نیست');
+  const snapshot = new Map();
+  const keys = Object.keys(updates).map(entity => `cache_v2_${entity}_${tenant.code}`);
+  try {
+    keys.forEach(key => snapshot.set(key, localStorage.getItem(key)));
+    Object.entries(updates).forEach(([entity, rows]) => {
+      localStorage.setItem(`cache_v2_${entity}_${tenant.code}`, JSON.stringify(rows));
+    });
+  } catch (error) {
+    for (const [key, value] of snapshot) {
+      try {
+        if (value === null) localStorage.removeItem(key);
+        else localStorage.setItem(key, value);
+      } catch { /* preserve the original storage error */ }
+    }
+    throw new Error(`ذخیره‌سازی آزمایشی کامل نشد؛ تغییرات قبلی بازگردانده شد. ${error?.message || ''}`);
+  }
+}
+
 function previewId(prefix = 'preview') {
   return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
 }
@@ -128,6 +151,12 @@ export async function postDocument({ doc_type, currency, amount, fee, related_ty
     }
     const tenant = getPreviewTenant();
     if (!tenant) throw new Error('نشست آزمایشی معتبر نیست');
+    const operationKey = String(client_operation_id || '');
+    const docs = readPreviewRows('Transaction');
+    if (operationKey) {
+      const existing = docs.find(row => row.client_operation_id === operationKey && !row.deleted);
+      if (existing) return { id: existing.id, doc_number: existing.document_no || existing.doc_number, document_no: existing.document_no || existing.doc_number, idempotent: true, preview_only: true };
+    }
     const now = new Date().toISOString();
     const docNo = nextPreviewNumber('Transaction', 'document_no', 'DV', 5);
     const doc = {
@@ -137,18 +166,19 @@ export async function postDocument({ doc_type, currency, amount, fee, related_ty
       related_id: related_id || null, customer_id: related_id ? String(related_id) : null,
       related_name: related_name || '', customer_name: related_name || '',
       description: description || '', registered_by: tenant.user.full_name || 'صراف آزمایشی',
-      transfer_id: transfer_id || null, created_at: now, created_date: now, date: now.slice(0, 10),
+      transfer_id: transfer_id || null, client_operation_id: operationKey || null,
+      created_at: now, created_date: now, date: now.slice(0, 10),
       updated_at: now, deleted: false, preview_only: true,
     };
-    const docs = readPreviewRows('Transaction');
-    docs.unshift(doc);
-    writePreviewRows('Transaction', docs);
     const entries = readPreviewRows('LedgerEntry');
-    rpcLines.forEach((line, index) => entries.unshift({
+    const newEntries = rpcLines.map((line, index) => ({
       id: previewId('preview-ledger'), exchange_code: tenant.code, document_id: doc.id,
       document_no: docNo, line_no: index + 1, ...line, created_date: now, deleted: false,
     }));
-    writePreviewRows('LedgerEntry', entries);
+    writePreviewBatch({
+      Transaction: [doc, ...docs],
+      LedgerEntry: [...newEntries, ...entries],
+    });
     return { id: doc.id, doc_number: docNo, document_no: docNo, idempotent: false, preview_only: true };
   }
 
