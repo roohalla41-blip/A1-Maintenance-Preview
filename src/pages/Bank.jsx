@@ -32,8 +32,8 @@ export default function Bank() {
   };
 
   const getBankBalance = (bankId) => {
-    const b = (bankBalancesData || []).find(x => String(x.bank_id) === String(bankId));
-    return b ? { [b.currency]: b.current_balance || 0 } : {};
+    const b = (bankBalancesData || []).find(x => String(x.account_id) === String(bankId));
+    return b ? { [b.currency]: Number(b.balance) || 0 } : {};
   };
 
   return (
