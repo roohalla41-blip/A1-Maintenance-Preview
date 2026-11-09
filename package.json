@@ -7,7 +7,8 @@
     "dev": "vite --host 0.0.0.0",
     "build": "vite build",
     "preview": "vite preview --host 0.0.0.0",
-    "check": "vite build"
+    "check": "vite build",
+    "test:contracts": "node --test src/lib/workspace-contract.test.js"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
