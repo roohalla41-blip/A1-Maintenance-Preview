@@ -20,7 +20,7 @@ import {
   CalendarDays, CalendarCheck, Building2, HandCoins, ChartNoAxesCombined,
   BadgeCheck, ShieldCheck, FileClock, FolderOpen, ClipboardCheck, FileSpreadsheet, GitBranch
 } from 'lucide-react';
-import { getAllowedNavItems, isManagementRole } from '@/lib/rbac';
+import { getAllowedNavItems, isManagementRole, normalizeRole } from '@/lib/rbac';
 import { isReadOnlyMode, getTrialDaysRemaining, getPlanDisplay } from '@/lib/permissions';
 import ExchangeMark from '@/components/ExchangeMark';
 import TermsGate from '@/components/TermsGate';
@@ -139,7 +139,7 @@ export default function Layout() {
     }
   };
 
-  const userRole = user?.role || 'user';
+  const userRole = normalizeRole(user?.role || 'user');
   const workspaceTier = getTierForUser(user, profile);
   const featureFiltered = visibleNavItems(features || [], NAV_ITEMS, profile || user, paidSystemEnabled);
   // The selected workspace tier is the first-level product boundary; optional module toggles remain secondary.
