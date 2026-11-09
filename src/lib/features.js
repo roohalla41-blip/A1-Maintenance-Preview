@@ -38,6 +38,7 @@ export const FEATURE_CATALOG = [
   { feature_key: 'backup', name: 'بکاپ و بازیابی', icon: 'DatabaseBackup', location: 'nav', display_order: 26, critical: false },
   { feature_key: 'support', name: 'پشتیبانی آنلاین', icon: 'Headphones', location: 'nav', display_order: 27, critical: false },
   { feature_key: 'assistant', name: 'دستیار هوشمند', icon: 'Bot', location: 'nav', display_order: 27.5, critical: false, default_status: 'active' },
+  { feature_key: 'notifications', name: 'اعلان‌ها', icon: 'Bell', location: 'nav', display_order: 28, critical: false, default_status: 'active' },
   { feature_key: 'chart_of_accounts', name: 'کدینگ حساب‌ها', icon: 'ListTree', location: 'nav', display_order: 40, critical: false, default_status: 'updating', default_message: 'اسکلت این بخش تعریف شده اما گردش‌کار و کنترل‌های عملیاتی آن هنوز پیاده‌سازی و آزمون نشده است.' },
   { feature_key: 'subsidiary_ledger', name: 'دفاتر معین و تفصیلی', icon: 'BookOpenCheck', location: 'nav', display_order: 41, critical: false, default_status: 'updating', default_message: 'اسکلت این بخش تعریف شده اما گردش‌کار و کنترل‌های عملیاتی آن هنوز پیاده‌سازی و آزمون نشده است.' },
   { feature_key: 'trial_balance', name: 'تراز آزمایشی', icon: 'Scale', location: 'nav', display_order: 42, critical: false, default_status: 'updating', default_message: 'اسکلت این بخش تعریف شده اما گردش‌کار و کنترل‌های عملیاتی آن هنوز پیاده‌سازی و آزمون نشده است.' },
