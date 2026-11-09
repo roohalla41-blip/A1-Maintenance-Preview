@@ -28,7 +28,7 @@ export const EXCHANGE_TIERS = {
   },
   professional: {
     id: 'professional',
-    label: 'متوسط',
+    label: 'حرفه‌ای',
     englishLabel: 'Professional',
     tagline: 'برای صرافی‌های در حال رشد و چندکاربره',
     description: 'تمام امکانات سطح معمولی به‌علاوه کنترل دقیق‌تر صندوق، بانک، حسابداری و مدیریت کارکنان.',
@@ -63,7 +63,7 @@ export const EXCHANGE_TIERS = {
     description: 'مجموعه کامل امکانات مالی، کنترلی، تحلیلی و سازمانی برای ساختارهای پیچیده.',
     recommendedFor: 'مجموعه‌های چندشعبه‌ای، چندشرکتی و دارای تیم مالی و حسابرسی',
     features: [
-      'تمام امکانات سطح متوسط',
+      'تمام امکانات سطح حرفه‌ای',
       'مدیریت چندشرکتی و حسابداری تلفیقی',
       'خزانه‌داری و مدیریت نقدینگی پیشرفته',
       'حساب‌های بین‌شرکتی و تسویه متقابل',
@@ -97,7 +97,12 @@ export const EXCHANGE_TIERS = {
 
 // Backward-compatible alias for older preview accounts and UI code.
 // New code and newly saved values must use the canonical `professional` key.
-EXCHANGE_TIERS.standard = EXCHANGE_TIERS.professional;
+Object.defineProperty(EXCHANGE_TIERS, 'standard', {
+  value: EXCHANGE_TIERS.professional,
+  enumerable: false,
+  configurable: false,
+  writable: false,
+});
 
 export const DEFAULT_EXCHANGE_TIER = 'basic';
 
