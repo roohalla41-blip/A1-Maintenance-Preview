@@ -467,6 +467,19 @@ export function createSupabaseEntity(entityName) {
 
 // ── Get my exchange profile (sarraaf) — via direct Supabase client ──
 export async function getMyExchange() {
+  if (typeof window !== 'undefined' && window.__SUPABASE_CONFIG__?.previewOnly === true) {
+    const raw = localStorage.getItem('auth_user');
+    const user = raw ? JSON.parse(raw) : null;
+    if (!user || user.role !== 'sarraaf') return null;
+    const code = user.exchange_code || 'PREVIEW-EX-001';
+    const rows = JSON.parse(localStorage.getItem(`cache_v2_SarraafProfile_${code}`) || '[]');
+    return rows[0] || {
+      id: user.id, user_id: user.id, code, exchange_code: code,
+      exchange_name: user.exchange_name || 'صرافی آزمایشی',
+      name: user.full_name || 'صراف آزمایشی', workspace_tier: user.workspace_tier || 'basic',
+      status: 'active',
+    };
+  }
   // This app uses HMAC custom tokens, not Supabase Auth user sessions.
   // Resolve the application user by the verified session's user id.
   let cachedUser = null;
@@ -572,6 +585,36 @@ export async function bulkExtendTrial() {
 
 // ── List transactions — via direct Supabase client ──
 export async function listTransactions(filters = {}, sort, limit) {
+  if (typeof window !== 'undefined' && window.__SUPABASE_CONFIG__?.previewOnly === true) {
+    const raw = localStorage.getItem('auth_user');
+    const user = raw ? JSON.parse(raw) : null;
+    const tenant = user?.exchange_code || user?.id || '';
+    const rows = tenant ? JSON.parse(localStorage.getItem(`cache_v2_Transaction_${tenant}`) || '[]') : [];
+    let local = rows.filter(row => Object.entries(filters || {}).every(([key, value]) =>
+      value === undefined || value === null || value === '' || String(row[key]) === String(value)
+    ));
+    if (sort) {
+      const desc = sort.startsWith('-');
+      const field = sort.replace(/^-/, '');
+      local = [...local].sort((a, b) => {
+        const av = a[field] ?? a.created_date ?? '';
+        const bv = b[field] ?? b.created_date ?? '';
+        return (av > bv ? 1 : av < bv ? -1 : 0) * (desc ? -1 : 1);
+      });
+    } else {
+      local = [...local].sort((a, b) => String(b.id).localeCompare(String(a.id)));
+    }
+    if (limit) local = local.slice(0, Number(limit));
+    return local.map(d => ({
+      ...d,
+      id: String(d.id),
+      document_no: d.document_no || d.doc_number || null,
+      type: d.type || d.doc_type,
+      customer_id: d.customer_id || (d.related_id ? String(d.related_id) : null),
+      customer_name: d.customer_name || d.related_name || '',
+      date: d.date || (d.created_date ? d.created_date.split('T')[0] : null),
+    }));
+  }
   let query = supabase.from('documents').select('*');
   if (filters && typeof filters === 'object') {
     for (const [key, value] of Object.entries(filters)) {
