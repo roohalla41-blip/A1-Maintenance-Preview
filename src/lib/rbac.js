@@ -18,15 +18,15 @@ export const ROLE_LEVELS = Object.fromEntries(
 );
 
 export function getRoleLevel(role) {
-  return ROLE_LEVELS[role] ?? 0;
+  return ROLE_LEVELS[normalizeRole(role)] ?? 0;
 }
 
 export function getRoleLabel(role) {
-  return ROLES[role]?.label || 'کاربر';
+  return ROLES[normalizeRole(role)]?.label || 'کاربر';
 }
 
 export function getRolePanel(role) {
-  return ROLES[role]?.panel || 'public';
+  return ROLES[normalizeRole(role)]?.panel || 'public';
 }
 
 // ── نگاشت نقش بک‌اند → فرانت‌اند ──
@@ -200,6 +200,7 @@ export const SETTINGS_MENU_BY_ROLE = {
 
 // آیا کاربر با این نقش به این مسیر دسترسی دارد؟
 export function canAccessRoute(role, path) {
+  role = normalizeRole(role);
   // تطبیق دقیق
   if (ROUTE_PERMISSIONS[path]) {
     return ROUTE_PERMISSIONS[path].includes(role);
@@ -228,21 +229,22 @@ export function hasMinimumRole(userRole, requiredRole) {
 
 // آیا کاربر نقش مدیریتی دارد؟
 export function isManagementRole(role) {
-  return ['creator', 'admin'].includes(role);
+  return ['creator', 'admin'].includes(normalizeRole(role));
 }
 
 // آیا کاربر نقش پنل صراف دارد؟
 export function isSarraafRole(role) {
-  return ['creator', 'admin', 'sarraaf', 'employee'].includes(role);
+  return ['creator', 'admin', 'sarraaf', 'employee'].includes(normalizeRole(role));
 }
 
 // آیا کاربر نقش مشتری دارد؟
 export function isCustomerRole(role) {
-  return role === 'customer';
+  return normalizeRole(role) === 'customer';
 }
 
 // لیست آیتم‌های منوی مجاز برای نقش
 export function getAllowedNavItems(role, allItems) {
+  role = normalizeRole(role);
   const allowedKeys = SARRAAF_NAV_BY_ROLE[role] || [];
   if (role === 'creator' || role === 'admin') {
     // creator و admin به همه آیتم‌ها دسترسی دارند
@@ -263,5 +265,5 @@ export function getAllowedDashboardLinks(role, allLinks) {
 
 // لیست منوی تنظیمات مجاز برای نقش
 export function getAllowedSettingsMenu(role) {
-  return SETTINGS_MENU_BY_ROLE[role] || [];
+  return SETTINGS_MENU_BY_ROLE[normalizeRole(role)] || [];
 }
