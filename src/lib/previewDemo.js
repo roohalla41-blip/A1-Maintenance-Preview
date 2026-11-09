@@ -25,6 +25,9 @@ export function startPreviewSession(role) {
     const seed = (key, rows) => {
       if (!localStorage.getItem(key)) localStorage.setItem(key, JSON.stringify(rows));
     };
+    const seedIfEmpty = (key, rows) => {
+      try { const current = JSON.parse(localStorage.getItem(key) || 'null'); if (!Array.isArray(current) || current.length === 0) localStorage.setItem(key, JSON.stringify(rows)); } catch { localStorage.setItem(key, JSON.stringify(rows)); }
+    };
     seed('cache_v2_SarraafProfile_PREVIEW-EX-001', [{
       id: user.id, user_id: user.id, code: user.exchange_code, exchange_code: user.exchange_code,
       exchange_name: user.exchange_name, name: user.full_name, quota_limit: 1000, quota_used: 0,
@@ -46,7 +49,7 @@ export function startPreviewSession(role) {
     seed('cache_v2_Transaction_PREVIEW-EX-001', []);
     seed('cache_v2_Transfer_PREVIEW-EX-001', []);
     seed('cache_v2_BankAccount_PREVIEW-EX-001', []);
-    seed('cache_v2_LedgerEntry_PREVIEW-EX-001', [
+    seedIfEmpty('cache_v2_LedgerEntry_PREVIEW-EX-001', [
       { id: 'preview-opening-afn-1', document_id: 'preview-opening-afn', document_no: 'OB-00001', account_type: 'cash', account_id: 'preview-safe-001', account_name: 'صندوق اصلی', currency: 'AFN', debit: 50000, credit: 0, line_no: 1, created_date: '2026-11-09T16:46:09.218Z', deleted: false },
       { id: 'preview-opening-afn-2', document_id: 'preview-opening-afn', document_no: 'OB-00001', account_type: 'suspense', account_id: 'opening', account_name: 'موجودی افتتاحیه', currency: 'AFN', debit: 0, credit: 50000, line_no: 2, created_date: '2026-11-09T16:46:09.218Z', deleted: false },
       { id: 'preview-opening-usd-1', document_id: 'preview-opening-usd', document_no: 'OB-00002', account_type: 'cash', account_id: 'preview-safe-002', account_name: 'صندوق دالر', currency: 'USD', debit: 500, credit: 0, line_no: 1, created_date: '2026-11-09T16:46:09.218Z', deleted: false },
