@@ -58,3 +58,13 @@ test('notifications is registered and incomplete payment routes remain visibly g
   assert.equal(getFeatureStatus([], 'payment_gateway'), 'updating');
   assert.equal(isFeatureEnabled([], 'payment_gateway'), true);
 });
+
+test('every enterprise workspace schema has registers, forms, and workflow steps', () => {
+  const entries = Object.entries(MODULE_WORKSPACE_SCHEMAS);
+  assert.ok(entries.length >= 20, 'Expected the complete enterprise module schema set');
+  for (const [moduleKey, schema] of entries) {
+    assert.ok(Array.isArray(schema.registers) && schema.registers.length > 0, `${moduleKey}: missing registers`);
+    assert.ok(Array.isArray(schema.forms) && schema.forms.length > 0, `${moduleKey}: missing form contract`);
+    assert.ok(Array.isArray(schema.workflow) && schema.workflow.length > 0, `${moduleKey}: missing workflow`);
+  }
+});
