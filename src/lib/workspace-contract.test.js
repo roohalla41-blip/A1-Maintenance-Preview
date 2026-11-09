@@ -33,7 +33,7 @@ test('only the three canonical exchange tiers are enumerable', () => {
 test('tier access is cumulative and unknown tiers fail back to Basic', () => {
   assert.equal(getExchangeTier('unknown').id, 'basic');
   assert.equal(canTierAccessNavKey('basic', 'dashboard'), true);
-  for (const coreKey of ['cash', 'bank', 'journal_entry', 'journal', 'general_ledger', 'chart_of_accounts', 'trial_balance']) {
+  for (const coreKey of ['cash', 'bank', 'journal_entry', 'journal', 'general_ledger', 'chart_of_accounts', 'trial_balance', 'income_expense']) {
     assert.equal(canTierAccessNavKey('basic', coreKey), true, `Basic tier is missing core accounting feature: ${coreKey}`);
   }
   assert.equal(canTierAccessNavKey('basic', 'treasury'), false);
