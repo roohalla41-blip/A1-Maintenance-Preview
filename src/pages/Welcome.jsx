@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { startPreviewSession } from '@/lib/previewDemo';
 import { Link } from 'react-router-dom';
 import { Shield, ArrowLeft, Store, UserCircle, Bot } from 'lucide-react';
 import ContactInfo from '@/components/sarraaf/ContactInfo';
@@ -223,18 +224,9 @@ export default function Welcome() {
             <span className="flex-1 text-sm font-extrabold text-amber-100">دستیار هوشمند، از من بپرس</span>
             <ArrowLeft className="h-5 w-5 shrink-0 text-amber-200 transition-transform group-hover:-translate-x-1" aria-hidden="true" />
           </button>
-          <Link to="/login?role=customer" className="pgm-btn pgm-btn-outline">
-            <UserCircle className="w-[18px] h-[18px]" />
-            ورود مشتری
-          </Link>
-          <Link to="/login?role=sarraaf" className="pgm-btn pgm-btn-primary">
-            <Store className="w-[18px] h-[18px]" />
-            ورود صراف
-          </Link>
-          <Link to="/preview-builder" className="pgm-btn pgm-btn-outline">
-            <Shield className="w-[18px] h-[18px]" />
-            ورود سازنده (آزمایشی)
-          </Link>
+          <button type="button" onClick={() => { startPreviewSession('customer'); window.location.assign(`${import.meta.env.BASE_URL}preview-customer`); }} className="pgm-btn pgm-btn-outline"><UserCircle className="w-[18px] h-[18px]" /> ورود مشتری آزمایشی</button>
+          <button type="button" onClick={() => { startPreviewSession('sarraaf'); window.location.assign(`${import.meta.env.BASE_URL}preview-sarraaf`); }} className="pgm-btn pgm-btn-primary"><Store className="w-[18px] h-[18px]" /> ورود صراف آزمایشی — Basic</button>
+          <button type="button" onClick={() => { startPreviewSession('creator'); window.location.assign(`${import.meta.env.BASE_URL}preview-builder`); }} className="pgm-btn pgm-btn-outline"><Shield className="w-[18px] h-[18px]" /> ورود سازنده آزمایشی</button>
           <div className="grid grid-cols-2 gap-2">
             <Link to="/register?tab=customer" className="pgm-btn pgm-btn-outline text-xs">
               ثبت‌نام مشتری
