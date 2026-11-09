@@ -5,6 +5,7 @@ name: Deploy isolated A1 maintenance preview
 # Deployment source remains isolated on a1-structure-copy; this workflow only publishes the existing preview.
 # Ledger validation and preview transfer safety fixes are included in this deployment.
 # Fail-closed preview isolation guard and regression contract test are included.
+# Cash and bank local-ledger entity wiring fixes are included.
 
 on:
   workflow_dispatch:
