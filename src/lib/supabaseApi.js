@@ -224,6 +224,10 @@ export function isCreatorOrAdmin() {
 // All operations are handled directly via the Supabase client.
 // Admin operations that need service_role will try the Edge Function fallback.
 export async function callSupabase(action, payload = {}) {
+  // Immutable preview isolation: never attempt auth, CRUD, keepalive, or Edge Function requests.
+  if (typeof window !== 'undefined' && window.__SUPABASE_CONFIG__?.previewOnly === true) {
+    return { success: false, previewOnly: true, error: 'preview_local_only', message: 'این عملیات فقط در داده‌های محلی نسخه آزمایشی قابل انجام است.' };
+  }
   // Handle logout via Supabase Auth directly
   if (action === 'logout') {
     try { await supabase.auth.signOut(); } catch { /* ignore */ }
