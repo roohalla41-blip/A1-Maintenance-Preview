@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/lib/AuthContext';
-import { useFeatures } from '@/lib/useSarraaf';
+import { useFeatures, useSarraafProfile } from '@/lib/useSarraaf';
 import { isFeatureEnabled, getFeatureStatus, getFeatureMessage } from '@/lib/features';
 import { isWorkspaceFeatureEnabled } from '@/lib/useWorkspaceModules';
 import useWorkspaceModules from '@/lib/useWorkspaceModules';
@@ -83,6 +83,7 @@ export default function WorkspaceModuleRouteGuard({ children }) {
   const { pathname } = useLocation();
   const { user } = useAuth();
   const { data: features } = useFeatures();
+  const { data: profile } = useSarraafProfile(user?.id);
   const { enabledModules } = useWorkspaceModules(user?.id);
   const featureKey = featureForPath(pathname);
 
@@ -90,7 +91,7 @@ export default function WorkspaceModuleRouteGuard({ children }) {
 
   // Enforce the selected product tier at the route boundary as well as in navigation.
   // This prevents direct URL entry from exposing pages excluded from the account's tier.
-  const tier = getExchangeTier(getTierForUser(user));
+  const tier = getExchangeTier(getTierForUser(user, profile));
   if (!canTierAccessNavKey(tier.id, featureKey)) return <TierAccessNotice tier={tier} />;
 
   if (!isWorkspaceFeatureEnabled(featureKey, enabledModules)) return <ModuleAccessNotice />;
