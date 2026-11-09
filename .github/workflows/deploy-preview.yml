@@ -4,6 +4,7 @@ name: Deploy isolated A1 maintenance preview
 # Deployment is triggered from the default branch; application source is always checked out from a1-structure-copy.
 # Deployment refresh: publish the newest validated preview source after isolated build checks.
 # Refresh requested after standardizing enterprise module workspaces and the cash subsystem skeleton.
+# Deployment source remains isolated on a1-structure-copy; this workflow file only triggers the existing preview publish.
 
 on:
   workflow_dispatch:
