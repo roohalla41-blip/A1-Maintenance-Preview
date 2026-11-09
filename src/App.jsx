@@ -15,6 +15,7 @@ import ProtectedRoute from '@/components/ProtectedRoute';
 import AdminRoute from '@/components/AdminRoute';
 import FeatureGate from '@/components/FeatureGate';
 import RouteTransition from '@/components/RouteTransition';
+import WorkspaceModuleRouteGuard from '@/components/sarraaf/WorkspaceModuleRouteGuard';
 
 // ── Recover from stale/missing split chunks without causing endless reloads ──
 const CHUNK_RETRY_KEY = 'app-chunk-retry-at';
@@ -136,7 +137,7 @@ const AppRoutes = () => {
         <Route path="/reset-password" element={<ResetPassword />} />
 
         {/* Public AI assistant route; homepage opens the same chat in a modal */}
-        <Route path="/assistant" element={<FeatureGate featureKey="assistant"><Assistant /></FeatureGate>} />
+        <Route path="/assistant" element={<WorkspaceModuleRouteGuard><FeatureGate featureKey="assistant"><Assistant /></FeatureGate></WorkspaceModuleRouteGuard>} />
 
         {/* Sarraaf Panel — gated by auth + role */}
         <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} allowedRoles={['creator', 'admin', 'sarraaf', 'employee']} />}>
@@ -212,7 +213,7 @@ const AppRoutes = () => {
 
         {/* Receipt — any authenticated user */}
         <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
-          <Route path="/receipt" element={<Receipt />} />
+          <Route path="/receipt" element={<WorkspaceModuleRouteGuard><Receipt /></WorkspaceModuleRouteGuard>} />
         </Route>
 
         <Route path="*" element={<PageNotFound />} />
