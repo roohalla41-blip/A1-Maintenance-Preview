@@ -2,23 +2,22 @@
 // Financial operations go directly to Supabase via ledgerApi (no localStorage).
 // Non-financial data (customers, agents, currencies) still uses offlineDB.
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { syncPendingWrites, getPendingCount } from './offlineQueue';
-import { createSupabaseEntity } from './supabaseApi';
+import { offlineDB, syncPendingWrites, getPendingCount } from './offlineQueue';
 import { generateUniqueInviteCode } from './referralSystem';
 import { trackOp, finishOp } from './syncStatus';
 import { postDocument, postTransfer, reverseDocument, editDocument, getBalances, listDocuments } from './ledgerApi';
 import { getMyExchange, listTransactions } from './supabaseApi';
 
 // Direct Supabase entity instances (no localStorage cache — always reads from server)
-const sbTransfers = createSupabaseEntity('Transfer');
-const sbCustomers = createSupabaseEntity('Customer');
-const sbAgents = createSupabaseEntity('Agent');
-const sbCurrencies = createSupabaseEntity('Currency');
-const sbBankAccounts = createSupabaseEntity('BankAccount');
-const sbSafes = createSupabaseEntity('Safe');
-const sbRateSettings = createSupabaseEntity('RateSetting');
-const sbFeatures = createSupabaseEntity('FeatureSetting');
-const sbSarraafProfile = createSupabaseEntity('SarraafProfile');
+const sbTransfers = offlineDB.Transfer;
+const sbCustomers = offlineDB.Customer;
+const sbAgents = offlineDB.Agent;
+const sbCurrencies = offlineDB.Currency;
+const sbBankAccounts = offlineDB.BankAccount;
+const sbSafes = offlineDB.Safe;
+const sbRateSettings = offlineDB.RateSetting;
+const sbFeatures = offlineDB.FeatureSetting;
+const sbSarraafProfile = offlineDB.SarraafProfile;
 
 // ── Queries ──
 export function useTransactions(filters = {}) {
