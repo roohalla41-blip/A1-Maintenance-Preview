@@ -12,6 +12,12 @@ export function startPreviewSession(role) {
   };
   const user = profiles[role];
   if (!user) throw new Error('Unknown preview role');
+  if (role === 'sarraaf') {
+    const signatureSource = `${user.id || ''}::${user.exchange_code || ''}`;
+    let signatureHash = 5381;
+    for (let i = 0; i < signatureSource.length; i++) signatureHash = ((signatureHash << 5) + signatureHash) + signatureSource.charCodeAt(i);
+    localStorage.setItem('cache_tenant_sig', `tsig_${Math.abs(signatureHash).toString(36)}`);
+  }
 
   // Seed isolated sample records once. All keys are preview-scoped and stay in this browser.
   if (role === 'sarraaf') {
