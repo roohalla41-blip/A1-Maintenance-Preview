@@ -33,10 +33,13 @@ export default function JournalEntry() {
   lines.forEach(l => {
     const cur = l.currency;
     if (!balances[cur]) balances[cur] = { debit: 0, credit: 0 };
-    if (l.side === 'debit') balances[cur].debit += l.amount || 0;
-    else balances[cur].credit += l.amount || 0;
+    const amount = Number(l.amount) || 0;
+    if (l.side === 'debit') balances[cur].debit += amount;
+    else balances[cur].credit += amount;
   });
-  const isBalanced = Object.values(balances).every(b => Math.abs(b.debit - b.credit) < 1);
+  // Match ledgerApi's per-currency tolerance (0.01); do not accept a
+  // journal that the posting layer would later reject.
+  const isBalanced = Object.values(balances).every(b => Math.abs(b.debit - b.credit) <= 0.01);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
