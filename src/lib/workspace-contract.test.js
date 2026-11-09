@@ -53,6 +53,7 @@ test('exchange role aliases are normalized consistently and unknown routes stay 
   assert.equal(canAccessRoute('exchange', '/builder'), false);
   assert.equal(canAccessRoute('employee', '/cash'), true);
   assert.equal(canAccessRoute('employee', '/bank'), false);
+  assert.equal(canAccessRoute('employee', '/settings'), false);
   assert.equal(canAccessRoute('customer', '/dashboard'), false);
   assert.equal(canAccessRoute('sarraaf', '/route-that-does-not-exist'), false);
   const items = [{ featureKey: 'dashboard' }, { featureKey: 'cash' }];
