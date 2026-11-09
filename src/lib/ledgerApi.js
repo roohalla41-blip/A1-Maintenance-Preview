@@ -107,6 +107,22 @@ export async function postDocument({ doc_type, currency, amount, fee, related_ty
   }));
 
   if (isPreviewOnly()) {
+    // Local preview accounting must reject unbalanced or malformed journals.
+    let debitBase = 0;
+    let creditBase = 0;
+    for (const [index, line] of rpcLines.entries()) {
+      const debit = Number(line.debit) || 0;
+      const credit = Number(line.credit) || 0;
+      if (debit < 0 || credit < 0 || (debit > 0 && credit > 0) || (debit === 0 && credit === 0)) {
+        throw new Error(`ردیف ${index + 1}: مبلغ بدهکار یا بستانکار معتبر نیست`);
+      }
+      const rate = Number(line.rate) > 0 ? Number(line.rate) : 1;
+      debitBase += debit * rate;
+      creditBase += credit * rate;
+    }
+    if (Math.abs(debitBase - creditBase) > 0.01) {
+      throw new Error('سند آزمایشی توازن ندارد؛ جمع بدهکار و بستانکار باید برابر باشد.');
+    }
     const tenant = getPreviewTenant();
     if (!tenant) throw new Error('نشست آزمایشی معتبر نیست');
     const now = new Date().toISOString();
