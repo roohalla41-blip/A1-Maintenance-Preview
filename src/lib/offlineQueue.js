@@ -588,6 +588,7 @@ export const offlineDB = {
   Agent: createOfflineEntity('Agent'),
   Currency: createOfflineEntity('Currency'),
   BankAccount: createOfflineEntity('BankAccount'),
+  Safe: createOfflineEntity('Safe'),
   RateSetting: createOfflineEntity('RateSetting'),
   FeatureSetting: createOfflineEntity('FeatureSetting'),
   SarraafProfile: createOfflineEntity('SarraafProfile'),
