@@ -93,7 +93,7 @@ export const EXCHANGE_TIERS = {
       'intercompany', 'multi_company', 'kyc', 'compliance', 'audit_log',
       'document_center', 'approvals', 'fx_exposure', 'tax', 'standards',
       'aml_screening', 'fx_revaluation', 'consolidation', 'internal_controls',
-      'data_governance', 'receipt',
+      'data_governance', 'income_expense', 'receipt',
     ],
     modules: ['all'],
   },
