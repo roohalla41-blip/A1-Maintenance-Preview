@@ -26,8 +26,8 @@ export const EXCHANGE_TIERS = {
     ],
     modules: ['dashboard', 'customers', 'trade', 'transfers', 'cash', 'currencies', 'reports', 'receipts', 'support', 'settings'],
   },
-  standard: {
-    id: 'standard',
+  professional: {
+    id: 'professional',
     label: 'متوسط',
     englishLabel: 'Professional',
     tagline: 'برای صرافی‌های در حال رشد و چندکاربره',
@@ -57,7 +57,7 @@ export const EXCHANGE_TIERS = {
   },
   enterprise: {
     id: 'enterprise',
-    label: 'حرفه‌ای',
+    label: 'سازمانی',
     englishLabel: 'Enterprise',
     tagline: 'برای صرافی‌های بزرگ، چندشعبه‌ای و سازمانی',
     description: 'مجموعه کامل امکانات مالی، کنترلی، تحلیلی و سازمانی برای ساختارهای پیچیده.',
@@ -95,9 +95,15 @@ export const EXCHANGE_TIERS = {
   },
 };
 
+// Backward-compatible alias for older preview accounts and UI code.
+// New code and newly saved values must use the canonical `professional` key.
+EXCHANGE_TIERS.standard = EXCHANGE_TIERS.professional;
+
 export const DEFAULT_EXCHANGE_TIER = 'basic';
 
 export function normalizeExchangeTier(value) {
+  if (value === 'standard' || value === 'pro') return 'professional';
+  if (value === 'special') return 'enterprise';
   return Object.prototype.hasOwnProperty.call(EXCHANGE_TIERS, value)
     ? value
     : DEFAULT_EXCHANGE_TIER;
