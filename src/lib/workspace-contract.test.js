@@ -18,6 +18,7 @@ import {
   getFeatureStatus,
   isFeatureEnabled,
 } from './features.js';
+import { MODULE_WORKSPACE_SCHEMAS } from './moduleWorkspaceSchemas.js';
 
 test('only the three canonical exchange tiers are enumerable', () => {
   assert.deepEqual(Object.keys(EXCHANGE_TIERS), ['basic', 'professional', 'enterprise']);
