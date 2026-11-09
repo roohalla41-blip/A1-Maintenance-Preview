@@ -15,7 +15,7 @@ const GROUPS = [
   ['گزارش‌ها، بودجه و تحلیل مالی', ['reports', 'profit_loss', 'cash_flow', 'budgets', 'cost_centers', 'fx_exposure', 'fx_revaluation', 'standards', 'consolidation']],
   ['سازمان، شعب و دارایی‌ها', ['agents', 'agency_network', 'multi_company', 'fixed_assets']],
   ['ریسک، انطباق و اسناد', ['kyc', 'compliance', 'aml_screening', 'internal_controls', 'data_governance', 'audit_log', 'document_center', 'approvals', 'tax']],
-  ['بازار و خدمات دیجیتال', ['sarraaf_market', 'online_products', 'payment_gateway', 'sarraaf_chat', 'chat_groups', 'backup', 'support', 'assistant']],
+  ['بازار و خدمات دیجیتال', ['sarraaf_market', 'online_products', 'payment_gateway', 'sarraaf_chat', 'chat_groups', 'backup', 'support', 'assistant', 'notifications']],
 ];
 
 export default function WorkspaceNavigation({ items, onNavigate }) {
