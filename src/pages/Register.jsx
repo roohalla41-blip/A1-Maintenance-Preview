@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useLocation, useSearchParams } from 'react-router-dom';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -20,6 +20,8 @@ import { Store, User, UserCircle, Phone, Lock, Mail, MapPin, Gift, Loader2, Arro
 export default function Register() {
   const { isAuthenticated, user, isLoadingAuth } = useAuth();
   const [searchParams] = useSearchParams();
+  const location = useLocation();
+  const emailRegistration = location.pathname === '/register/email';
   const VALID_TABS = ['sarraaf', 'customer', 'google'];
   const [tab, setTab] = useState(() => {
     const t = searchParams.get('tab');
@@ -79,6 +81,8 @@ export default function Register() {
     if (!username.trim()) return 'نام کاربری الزامی است';
     if (password.length < 8) return 'رمز عبور باید حداقل ۸ کاراکتر باشد';
     if (password !== confirmPassword) return 'تکرار رمز مطابقت ندارد';
+    if (!email.trim()) return 'ایمیل الزامی است';
+    if (!emailValid) return 'ایمیل نامعتبر است';
     const isSarraafForm = tab === 'sarraaf' || (tab === 'google' && emailRole === 'sarraaf');
     if (isSarraafForm) {
       if (!exchangeName.trim()) return 'نام صرافی الزامی است';
@@ -222,9 +226,10 @@ export default function Register() {
             </div>
           </div>
           <h1 className="text-xl font-bold text-foreground">
-            ثبت‌نام در حساب صراف
+            {emailRegistration ? 'ثبت‌نام با ایمیل' : 'ثبت‌نام در حساب صراف'}
           </h1>
           <p className="text-xs text-muted-foreground mt-1">سامانه تخصصی مدیریت صرافی</p>
+          {emailRegistration && <p className="text-xs text-primary mt-2">با ایمیل و رمز عبور حساب بسازید؛ نوع حساب را در پایین انتخاب کنید.</p>}
         </div>
 
         {/* Card */}
@@ -380,6 +385,7 @@ function Field({ icon: Icon, label, required, value, onChange, placeholder, type
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
           inputMode={inputMode}
+          required={required}
           className="pr-9 h-11"
         />
       </div>
