@@ -65,12 +65,16 @@ export default function Register() {
     }
   }, [tab]);
 
-  const emailValid = isValidEmailFormat(email) && isRealEmailProvider(email);
+  const emailValid = isValidEmailFormat(email);
   // ثبت‌نام صراف بدون مرحلهٔ تأیید ایمیل انجام می‌شود.
+  // The isolated preview creates local test accounts only; real email verification
+  // must be enabled after an approved production auth/email configuration.
   const SKIP_SARRAAF_EMAIL_VERIFICATION = true;
 
   const validate = () => {
     if (!fullName.trim()) return 'نام و نام خانوادگی الزامی است';
+    if (!email.trim()) return 'ایمیل الزامی است';
+    if (!emailValid) return 'فرمت ایمیل معتبر نیست';
     if (!mobile.trim()) return 'شماره موبایل الزامی است';
     if (!username.trim()) return 'نام کاربری الزامی است';
     if (password.length < 8) return 'رمز عبور باید حداقل ۸ کاراکتر باشد';
@@ -78,8 +82,7 @@ export default function Register() {
     const isSarraafForm = tab === 'sarraaf' || (tab === 'google' && emailRole === 'sarraaf');
     if (isSarraafForm) {
       if (!exchangeName.trim()) return 'نام صرافی الزامی است';
-      if (!SKIP_SARRAAF_EMAIL_VERIFICATION && !email.trim()) return 'ایمیل الزامی است';
-      if (email.trim() && !emailValid) return 'ایمیل نامعتبر است';
+
     }
     return null;
   };
@@ -257,7 +260,7 @@ export default function Register() {
                   <div className="flex items-center gap-2 text-sm text-primary bg-primary/10 border border-primary/20 rounded-lg px-3 py-2">
                     <Mail className="w-4 h-4" />
                     <span>{email}</span>
-                    <span className="text-xs text-primary/60">(تأیید شده با گوگل)</span>
+                    <span className="text-xs text-primary/60">(دریافت‌شده از گوگل)</span>
                   </div>
                   {emailRole === 'sarraaf' && (
                     <>
@@ -295,7 +298,7 @@ export default function Register() {
                 <Field icon={User} label="نام کاربری" required value={username} onChange={setUsername} placeholder="نام کاربری (یکتا)" />
                 <Field icon={Lock} label="رمز عبور" required type="password" value={password} onChange={setPassword} placeholder="حداقل ۸ کاراکتر" />
                 <Field icon={Lock} label="تکرار رمز عبور" required type="password" value={confirmPassword} onChange={setConfirmPassword} placeholder="تکرار رمز" />
-                <Field icon={Mail} label="ایمیل (اختیاری)" type="email" value={email} onChange={setEmail} placeholder="email@gmail.com" />
+                <Field icon={Mail} label="ایمیل برای ثبت‌نام و ورود" required type="email" value={email} onChange={setEmail} placeholder="email@gmail.com" />
 
                 {emailVerified ? (
                   <div className="flex items-center gap-2 text-sm text-success bg-success/10 border border-success/20 rounded-lg px-3 py-2">
