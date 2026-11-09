@@ -108,20 +108,23 @@ export async function postDocument({ doc_type, currency, amount, fee, related_ty
 
   if (isPreviewOnly()) {
     // Local preview accounting must reject unbalanced or malformed journals.
-    let debitBase = 0;
-    let creditBase = 0;
+    const totalsByCurrency = new Map();
     for (const [index, line] of rpcLines.entries()) {
       const debit = Number(line.debit) || 0;
       const credit = Number(line.credit) || 0;
       if (debit < 0 || credit < 0 || (debit > 0 && credit > 0) || (debit === 0 && credit === 0)) {
         throw new Error(`ردیف ${index + 1}: مبلغ بدهکار یا بستانکار معتبر نیست`);
       }
-      const rate = Number(line.rate) > 0 ? Number(line.rate) : 1;
-      debitBase += debit * rate;
-      creditBase += credit * rate;
+      const code = String(line.currency || currency || 'AFN').toUpperCase();
+      const total = totalsByCurrency.get(code) || { debit: 0, credit: 0 };
+      total.debit += debit;
+      total.credit += credit;
+      totalsByCurrency.set(code, total);
     }
-    if (Math.abs(debitBase - creditBase) > 0.01) {
-      throw new Error('سند آزمایشی توازن ندارد؛ جمع بدهکار و بستانکار باید برابر باشد.');
+    for (const [code, total] of totalsByCurrency) {
+      if (Math.abs(total.debit - total.credit) > 0.01) {
+        throw new Error(`سند آزمایشی در ارز ${code} توازن ندارد؛ جمع بدهکار و بستانکار آن ارز باید برابر باشد.`);
+      }
     }
     const tenant = getPreviewTenant();
     if (!tenant) throw new Error('نشست آزمایشی معتبر نیست');
