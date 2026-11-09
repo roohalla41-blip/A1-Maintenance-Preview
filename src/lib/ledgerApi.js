@@ -278,16 +278,35 @@ export async function postTransfer({ direction, sender_name, sender_phone, recei
 // ── Reverse Document (via Supabase RPC) ──
 export async function reverseDocument(document_id, reason, exchange_code) {
   if (isPreviewOnly()) {
+    const tenant = getPreviewTenant();
+    if (!tenant) throw new Error('نشست آزمایشی معتبر نیست');
     const docs = readPreviewRows('Transaction');
-    const index = docs.findIndex(row => String(row.id) === String(document_id));
+    const index = docs.findIndex(row => String(row.id) === String(document_id) && !row.deleted);
     if (index < 0) throw new Error('سند در داده‌های آزمایشی پیدا نشد');
-    docs[index] = { ...docs[index], deleted: true, deleted_date: new Date().toISOString(), delete_reason: reason || '' };
-    writePreviewRows('Transaction', docs);
-    const entries = readPreviewRows('LedgerEntry').map(row =>
-      String(row.document_id) === String(document_id) ? { ...row, deleted: true } : row
-    );
-    writePreviewRows('LedgerEntry', entries);
-    return { success: true, preview_only: true };
+    const original = docs[index];
+    if (original.reversed || original.reversal_document_id) throw new Error('این سند قبلاً برگشت شده است');
+    const sourceLines = readPreviewRows('LedgerEntry').filter(row => String(row.document_id) === String(document_id) && !row.deleted);
+    if (!sourceLines.length) throw new Error('ردیف‌های دفترکل سند برای برگشت موجود نیست');
+    const now = new Date().toISOString();
+    const reversalNo = nextPreviewNumber('Transaction', 'document_no', 'RV', 5);
+    const reversalId = previewId('preview-reversal');
+    const reversal = {
+      ...original, id: reversalId, doc_number: reversalNo, document_no: reversalNo,
+      doc_type: 'reversal', type: 'reversal', description: `برگشت سند ${original.document_no || original.doc_number || ''}: ${reason || ''}`,
+      reverse_of: original.id, reversal_reason: reason || '', created_at: now, created_date: now,
+      updated_at: now, deleted: false, reversed: false, reversal_document_id: null, preview_only: true,
+    };
+    const reversalLines = sourceLines.map((line, i) => ({
+      ...line, id: previewId('preview-ledger-reversal'), document_id: reversalId,
+      document_no: reversalNo, line_no: i + 1, debit: Number(line.credit) || 0,
+      credit: Number(line.debit) || 0, description: `برگشت: ${line.description || ''}`,
+      created_date: now, deleted: false,
+    }));
+    const nextDocs = [...docs];
+    nextDocs[index] = { ...original, reversed: true, reversal_document_id: reversalId, reversed_at: now, reverse_reason: reason || '' };
+    const nextEntries = [...reversalLines, ...readPreviewRows('LedgerEntry')];
+    writePreviewBatch({ Transaction: [reversal, ...nextDocs], LedgerEntry: nextEntries });
+    return { success: true, reversal_document_id: reversalId, reversal_document_no: reversalNo, preview_only: true };
   }
   try {
     const { data, error } = await supabase.rpc('reverse_document_transaction', {
@@ -318,26 +337,42 @@ export async function reverseDocument(document_id, reason, exchange_code) {
 // ── Edit Document (via Supabase RPC) ──
 export async function editDocument({ document_id, description, amount, currency, edit_note, new_lines, exchange_code }) {
   if (isPreviewOnly()) {
+    const tenant = getPreviewTenant();
+    if (!tenant) throw new Error('نشست آزمایشی معتبر نیست');
     const docs = readPreviewRows('Transaction');
-    const index = docs.findIndex(row => String(row.id) === String(document_id));
+    const index = docs.findIndex(row => String(row.id) === String(document_id) && !row.deleted);
     if (index < 0) throw new Error('سند در داده‌های آزمایشی پیدا نشد');
+    if (docs[index].reversed || docs[index].reversal_document_id) throw new Error('سند برگشت‌شده قابل ویرایش نیست');
+    if (amount !== undefined && (!Number.isFinite(Number(amount)) || Number(amount) < 0)) throw new Error('مبلغ سند معتبر نیست');
     const now = new Date().toISOString();
-    docs[index] = {
+    const nextDocs = [...docs];
+    nextDocs[index] = {
       ...docs[index],
       ...(description !== undefined ? { description } : {}),
       ...(amount !== undefined ? { amount: Number(amount) } : {}),
       ...(currency !== undefined ? { currency } : {}),
       edited: true, edited_date: now, edit_note: edit_note || '', updated_date: now,
     };
-    writePreviewRows('Transaction', docs);
+    const updates = { Transaction: nextDocs };
     if (Array.isArray(new_lines)) {
+      if (!new_lines.length) throw new Error('سند باید حداقل یک ردیف دفترکل داشته باشد');
+      const totals = new Map();
+      const normalized = new_lines.map((line, i) => {
+        const debit = Number(line.debit) || 0;
+        const credit = Number(line.credit) || 0;
+        if (debit < 0 || credit < 0 || (debit > 0 && credit > 0) || (debit === 0 && credit === 0)) {
+          throw new Error(`ردیف ${i + 1}: مبلغ بدهکار یا بستانکار معتبر نیست`);
+        }
+        const code = String(line.currency || currency || docs[index].currency || 'AFN').toUpperCase();
+        const total = totals.get(code) || { debit: 0, credit: 0 };
+        total.debit += debit; total.credit += credit; totals.set(code, total);
+        return { ...line, id: previewId('preview-ledger'), exchange_code: tenant.code, document_id, document_no: docs[index].document_no, line_no: i + 1, currency: code, debit, credit, created_date: now, deleted: false };
+      });
+      for (const [code, total] of totals) if (Math.abs(total.debit - total.credit) > 0.01) throw new Error(`سند در ارز ${code} توازن ندارد`);
       const retained = readPreviewRows('LedgerEntry').filter(row => String(row.document_id) !== String(document_id));
-      new_lines.forEach((line, i) => retained.unshift({
-        id: previewId('preview-ledger'), document_id, document_no: docs[index].document_no,
-        line_no: i + 1, ...line, created_date: now, deleted: false,
-      }));
-      writePreviewRows('LedgerEntry', retained);
+      updates.LedgerEntry = [...normalized, ...retained];
     }
+    writePreviewBatch(updates);
     return { success: true, preview_only: true };
   }
   try {
