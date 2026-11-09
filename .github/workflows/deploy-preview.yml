@@ -8,6 +8,7 @@ name: Deploy isolated A1 maintenance preview
 # Cash and bank local-ledger entity wiring fixes are included.
 # Safe offline entity and balanced FX journal builder with regression tests are included.
 # Remittance validation, idempotency and preview settlement guards are included.
+# Ledger edit validation now requires replacement lines when financial values change.
 
 on:
   workflow_dispatch:
