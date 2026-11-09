@@ -14,7 +14,7 @@ import { isLocalTestMode } from '@/lib/localTestMode';
 import { isValidEmailFormat, isRealEmailProvider, signUpSarraaf, getVerificationErrorMessage, markCodeSent } from '@/lib/emailVerification';
 import { supabase } from '@/lib/supabaseClient';
 import { useAuth } from '@/lib/AuthContext';
-import { HOME_BY_ROLE } from '@/lib/rbac';
+import { HOME_BY_ROLE, normalizeRole } from '@/lib/rbac';
 import { Store, User, UserCircle, Phone, Lock, Mail, MapPin, Gift, Loader2, ArrowLeft, ShieldCheck } from 'lucide-react';
 
 export default function Register() {
@@ -51,7 +51,7 @@ export default function Register() {
 
   useEffect(() => {
     if (!isLoadingAuth && isAuthenticated && user) {
-      const home = HOME_BY_ROLE[user.role] || '/';
+      const home = HOME_BY_ROLE[normalizeRole(user.role)] || '/';
       window.location.href = home;
     }
   }, [isAuthenticated, user, isLoadingAuth]);
