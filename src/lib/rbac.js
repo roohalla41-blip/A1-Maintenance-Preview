@@ -255,6 +255,7 @@ export function getAllowedNavItems(role, allItems) {
 
 // لیست کارت‌های داشبورد مجاز برای نقش
 export function getAllowedDashboardLinks(role, allLinks) {
+  role = normalizeRole(role);
   const allowed = SARRAAF_DASHBOARD_LINKS_BY_ROLE[role];
   if (allowed === 'all') return allLinks;
   return allLinks.filter(link => {
