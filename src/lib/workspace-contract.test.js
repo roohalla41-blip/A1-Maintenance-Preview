@@ -56,6 +56,8 @@ test('exchange role aliases are normalized consistently and unknown routes stay 
   assert.equal(getRoleLevel('exchange'), getRoleLevel('sarraaf'));
   assert.equal(HOME_BY_ROLE.exchange, '/dashboard');
   assert.equal(canAccessRoute('exchange', '/dashboard'), true);
+  assert.equal(canAccessRoute('sarraaf', '/transfers/send'), true);
+  assert.equal(canAccessRoute('sarraaf', '/transfers/wrong-direction'), false);
   assert.equal(canAccessRoute('exchange', '/builder'), false);
   assert.equal(canAccessRoute('employee', '/cash'), true);
   assert.equal(canAccessRoute('employee', '/bank'), false);
