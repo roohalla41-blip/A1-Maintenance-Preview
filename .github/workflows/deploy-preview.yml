@@ -6,6 +6,7 @@ name: Deploy isolated A1 maintenance preview
 # Ledger validation and preview transfer safety fixes are included in this deployment.
 # Fail-closed preview isolation guard and regression contract test are included.
 # Cash and bank local-ledger entity wiring fixes are included.
+# Safe offline entity and balanced FX journal builder with regression tests are included.
 
 on:
   workflow_dispatch:
