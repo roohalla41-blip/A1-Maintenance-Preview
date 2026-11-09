@@ -37,6 +37,7 @@ const ROUTE_FEATURES = [
   ['/sarraaf-chat', 'sarraaf_chat'],
   ['/backup', 'backup'],
   ['/support', 'support'],
+  ['/assistant', 'assistant'],
   ['/debtors', 'debtors'],
   ['/notifications', 'notifications'],
   ['/settings', 'settings'],
