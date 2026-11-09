@@ -82,7 +82,6 @@ export const ROUTE_PERMISSIONS = {
   '/transfer-book': ['creator', 'admin', 'sarraaf', 'employee'],
   '/convert': ['creator', 'admin', 'sarraaf', 'employee'],
   '/support': ['creator', 'admin', 'sarraaf', 'employee'],
-  '/assistant': ['creator', 'admin', 'sarraaf', 'employee'],
 
   // ── پنل صراف — اجتماعی/بازار (admin + creator + sarraaf) ──
   '/sarraaf-market': ['creator', 'admin', 'sarraaf'],
@@ -216,7 +215,7 @@ export function canAccessRoute(role, path) {
     return role === 'customer';
   }
   // مسیرهای عمومی (بدون احراز هویت)
-  if (['/', '/login', '/register', '/forgot-password', '/reset-password', '/setup-database'].includes(path)) {
+  if (['/', '/login', '/register', '/forgot-password', '/reset-password', '/setup-database', '/assistant'].includes(path)) {
     return true;
   }
   // پیش‌فرض: مسیر ناشناخته — دسترسی مجاز نیست
