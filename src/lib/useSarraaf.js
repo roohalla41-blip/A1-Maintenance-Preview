@@ -244,6 +244,11 @@ export function useExecuteTransfer() {
       if (transfer.status === 'paid' || transfer.status === 'cancelled') {
         throw new Error('این حواله قبلاً اجرا شده است');
       }
+      // A preview transfer currently has no balanced settlement journal.
+      // Refuse to mark it paid until the corresponding ledger posting exists.
+      if (typeof window !== 'undefined' && window.__SUPABASE_CONFIG__?.previewOnly === true) {
+        throw new Error('تسویهٔ حواله در محیط آزمایشی هنوز به سند حسابداری و دفترکل متصل نشده است؛ وضعیت حواله تغییر نکرد.');
+      }
       trackOp();
       try {
         // Update transfer status via direct CRUD
