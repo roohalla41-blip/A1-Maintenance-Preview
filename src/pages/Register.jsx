@@ -81,8 +81,6 @@ export default function Register() {
     if (!username.trim()) return 'نام کاربری الزامی است';
     if (password.length < 8) return 'رمز عبور باید حداقل ۸ کاراکتر باشد';
     if (password !== confirmPassword) return 'تکرار رمز مطابقت ندارد';
-    if (!email.trim()) return 'ایمیل الزامی است';
-    if (!emailValid) return 'ایمیل نامعتبر است';
     const isSarraafForm = tab === 'sarraaf' || (tab === 'google' && emailRole === 'sarraaf');
     if (isSarraafForm) {
       if (!exchangeName.trim()) return 'نام صرافی الزامی است';
