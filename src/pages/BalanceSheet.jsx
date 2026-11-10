@@ -71,8 +71,16 @@ export default function BalanceSheet() {
     account[code] = (account[code] || 0) + (Number(row.balance) || 0);
     agentTotalsByAccount.set(accountId, account);
   }
-  const totalAgents = [...agentTotalsByAccount.values()]
-    .reduce((sum, amounts) => sum + toAfnTotal(amounts, rs, curs), 0);
+  const agentReceivablesByCurrency = {};
+  const agentPayablesByCurrency = {};
+  for (const amounts of agentTotalsByAccount.values()) {
+    for (const [code, value] of Object.entries(amounts)) {
+      if (value > 0) agentReceivablesByCurrency[code] = (agentReceivablesByCurrency[code] || 0) + value;
+      if (value < 0) agentPayablesByCurrency[code] = (agentPayablesByCurrency[code] || 0) + Math.abs(value);
+    }
+  }
+  const totalAgentReceivables = toAfnTotal(agentReceivablesByCurrency, rs, curs);
+  const totalAgentPayables = toAfnTotal(agentPayablesByCurrency, rs, curs);
 
   // getBalances() in isolated preview returns debit-credit; legacy server views
   // expose net_balance with the opposite sign convention (credit-debit).
@@ -101,8 +109,8 @@ export default function BalanceSheet() {
     return toAfnTotal(byCurrency, rs, curs);
   }, [customerBalancesData, rs, curs]);
 
-  const totalAssets = totalCash + totalBanks + totalAgents + customerReceivables;
-  const totalLiabilities = customerLiabilities;
+  const totalAssets = totalCash + totalBanks + totalAgentReceivables + customerReceivables;
+  const totalLiabilities = customerLiabilities + totalAgentPayables;
   // Until equity/capital accounts are implemented in the chart of accounts,
   // this is a derived balancing figure, not a verified retained-earnings balance.
   const equity = totalAssets - totalLiabilities;
@@ -150,7 +158,8 @@ export default function BalanceSheet() {
             <CardContent className="p-4">
               <h3 className="text-sm font-semibold mb-2 text-destructive">بدهی‌ها</h3>
               <div className="space-y-1">
-                <div className="flex justify-between text-sm"><span>بدهی به مشتریان</span><span className="font-mono">{formatNumber(customerLiabilities)}</span></div>
+                <div className="flex justify-between text-sm"><span>بدهی به مشتریان</span><span className="font-mono">{formatNumber(customerLiabilities)} AFN</span></div>
+                <div className="flex justify-between text-sm"><span>بدهی به نمایندگان</span><span className="font-mono">{formatNumber(totalAgentPayables)} AFN</span></div>
                 <div className="flex justify-between text-sm font-bold border-t pt-1 mt-1"><span>جمع بدهی‌ها</span><span className="font-mono">{formatNumber(totalLiabilities)}</span></div>
               </div>
             </CardContent>
