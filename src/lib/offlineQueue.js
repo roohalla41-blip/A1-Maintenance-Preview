@@ -22,12 +22,12 @@ const CACHE_TENANT_KEY = 'cache_tenant_sig';
 //   Determines whether to use local cache only (no server calls).
 //   Note: An auth_token (HMAC from Supabase backend) does NOT trigger local-only mode.
 //   The token is sent with each request so the backend can authenticate the user.
-function isLocalOnlyMode() {
+export function isLocalOnlyMode(config = typeof window !== 'undefined' ? window.__SUPABASE_CONFIG__ : null, location = typeof window !== 'undefined' ? window.location : null) {
   try {
     // The isolated GitHub Pages preview is permanently local-only for every
     // role, including the creator demo account. Never attempt Supabase CRUD
     // or queue synchronization from this environment.
-    if (isIsolatedPreview()) return true;
+    if (isIsolatedPreview(config, location)) return true;
     // Local test mode: always use local cache, never call server
     if (isLocalTestMode()) return true;
     // Only locally-registered or cached-credential users use local cache exclusively
