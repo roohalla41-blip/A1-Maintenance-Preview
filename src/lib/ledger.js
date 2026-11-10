@@ -332,12 +332,22 @@ export function trialBalanceBase(txs, rateSettings, currencies) {
   const balances = {};
   for (const t of txs) {
     if (t.deleted) continue;
-    const cur = t.currency || 'AFN';
+    if (Array.isArray(t.lines) && t.lines.length > 0) {
+      for (const line of t.lines) {
+        const cur = String(line.currency || t.currency || 'AFN').toUpperCase();
+        if (!balances[cur]) balances[cur] = { debit: 0, credit: 0 };
+        balances[cur].debit += Number(line.debit) || 0;
+        balances[cur].credit += Number(line.credit) || 0;
+      }
+      continue;
+    }
+    // Backward compatibility for legacy transaction-shaped rows.
+    const cur = String(t.currency || 'AFN').toUpperCase();
     if (!balances[cur]) balances[cur] = { debit: 0, credit: 0 };
-    if (t.customer_side === 'debit') balances[cur].debit += t.amount || 0;
-    if (t.customer_side === 'credit') balances[cur].credit += t.amount || 0;
-    if (t.counter_side === 'debit') balances[cur].debit += t.amount || 0;
-    if (t.counter_side === 'credit') balances[cur].credit += t.amount || 0;
+    if (t.customer_side === 'debit') balances[cur].debit += Number(t.amount) || 0;
+    if (t.customer_side === 'credit') balances[cur].credit += Number(t.amount) || 0;
+    if (t.counter_side === 'debit') balances[cur].debit += Number(t.amount) || 0;
+    if (t.counter_side === 'credit') balances[cur].credit += Number(t.amount) || 0;
   }
   let totalDebit = 0, totalCredit = 0;
   for (const [cur, b] of Object.entries(balances)) {
@@ -369,10 +379,15 @@ export function trialBalanceBase(txs, rateSettings, currencies) {
 export function documentBaseBalances(lines) {
   const byCurrency = {};
   for (const l of lines) {
-    const cur = l.currency || 'AFN';
+    const cur = String(l.currency || 'AFN').toUpperCase();
     if (!byCurrency[cur]) byCurrency[cur] = { debit: 0, credit: 0 };
-    if (l.customer_side === 'debit' || l.counter_side === 'debit') byCurrency[cur].debit += l.amount || 0;
-    if (l.customer_side === 'credit' || l.counter_side === 'credit') byCurrency[cur].credit += l.amount || 0;
+    if (l.debit !== undefined || l.credit !== undefined) {
+      byCurrency[cur].debit += Number(l.debit) || 0;
+      byCurrency[cur].credit += Number(l.credit) || 0;
+    } else {
+      if (l.customer_side === 'debit' || l.counter_side === 'debit') byCurrency[cur].debit += Number(l.amount) || 0;
+      if (l.customer_side === 'credit' || l.counter_side === 'credit') byCurrency[cur].credit += Number(l.amount) || 0;
+    }
   }
   return byCurrency;
 }
