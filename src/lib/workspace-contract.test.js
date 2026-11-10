@@ -24,6 +24,7 @@ import { MODULE_WORKSPACE_SCHEMAS } from './moduleWorkspaceSchemas.js';
 import { isWorkspaceFeatureEnabled } from './useWorkspaceModules.js';
 import { isIsolatedPreview, isPreviewLocalOnly } from './previewIsolation.js';
 import { buildFxExchangeLines } from './accountingLineBuilders.js';
+import { trialBalanceBase } from './ledger.js';
 
 test('only the three canonical exchange tiers are enumerable', () => {
   assert.deepEqual(Object.keys(EXCHANGE_TIERS), ['basic', 'professional', 'enterprise']);
@@ -146,4 +147,14 @@ test('isolated preview forces every demo role into local-only data mode', () => 
   assert.equal(isPreviewLocalOnly({ previewOnly: true }, location), true);
   assert.equal(isPreviewLocalOnly({}, location), true);
   assert.equal(isPreviewLocalOnly({ previewOnly: false }, { hostname: 'example.com', pathname: '/' }), false);
+});
+
+test('trial balance cannot hide a currency imbalance behind converted totals', () => {
+  const result = trialBalanceBase([
+    { currency: 'USD', amount: 10, customer_side: 'debit', counter_side: 'none' },
+    { currency: 'AFN', amount: 10, customer_side: 'none', counter_side: 'credit' },
+  ], { usd_afn: '1' }, []);
+  assert.equal(result.isBalanced, false);
+  assert.equal(result.balances.USD.debit, 10);
+  assert.equal(result.balances.AFN.credit, 10);
 });
