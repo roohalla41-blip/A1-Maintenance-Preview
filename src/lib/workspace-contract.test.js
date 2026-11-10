@@ -23,6 +23,7 @@ import {
 import { MODULE_WORKSPACE_SCHEMAS } from './moduleWorkspaceSchemas.js';
 import { isWorkspaceFeatureEnabled } from './useWorkspaceModules.js';
 import { isIsolatedPreview } from './previewIsolation.js';
+import { isLocalOnlyMode } from './offlineQueue.js';
 import { buildFxExchangeLines } from './accountingLineBuilders.js';
 
 test('only the three canonical exchange tiers are enumerable', () => {
@@ -135,4 +136,12 @@ test('cross-currency journal builder rejects invalid amounts and identical curre
     from_currency: 'AFN', from_amount: 10,
     to_currency: 'AFN', to_amount: 10,
   }));
+});
+
+
+test('isolated preview forces every demo role into local-only data mode', () => {
+  const location = { hostname: 'roohalla41-blip.github.io', pathname: '/A1-Maintenance-Preview/' };
+  assert.equal(isLocalOnlyMode({ previewOnly: true }, location), true);
+  assert.equal(isLocalOnlyMode({}, location), true);
+  assert.equal(isLocalOnlyMode({ previewOnly: false }, { hostname: 'example.com', pathname: '/' }), false);
 });
