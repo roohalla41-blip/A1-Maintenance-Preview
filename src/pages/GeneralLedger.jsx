@@ -244,16 +244,10 @@ export default function GeneralLedger() {
     await editMut.mutateAsync({
       id: editTx.id,
       data: {
-        date: editForm.date,
-        type: editForm.type,
-        currency: editForm.currency,
-        amount: Number(editForm.amount) || 0,
-        customer_side: editForm.customer_side,
+        // Financial amounts, currency, and account sides are immutable here.
+        // A financial correction must use a reversal and a new balanced voucher.
         description: editForm.description,
-        customer_name: editForm.customer_name,
-        customer_phone: editForm.customer_phone,
         edit_note: editNote,
-        edited_by_name: user?.full_name || '',
       },
     });
     setEditTx(null);
@@ -569,16 +563,16 @@ export default function GeneralLedger() {
             <form onSubmit={handleEdit} className="space-y-3">
               <div className="flex items-start gap-2 p-2 rounded-lg bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 text-xs">
                 <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
-                <p>این سند ویرایش خواهد شد، اما نسخه اصلی در دیتابیس حفظ می‌شود. این یک سند رسمی است و در آینده قابل مراجعه خواهد بود.</p>
+                <p>در این بخش فقط شرح و یادداشت قابل ویرایش است. اصلاح مبلغ یا ارز باید با برگشت سند و ثبت سند جدید و متوازن انجام شود؛ سابقه سند اصلی حفظ می‌شود.</p>
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <div>
                   <Label>تاریخ</Label>
-                  <Input value={editForm.date} onChange={e => setEditForm({ ...editForm, date: e.target.value })} required />
+                  <Input value={editForm.date} disabled />
                 </div>
                 <div>
                   <Label>نوع</Label>
-                  <Select value={editForm.type} onValueChange={v => setEditForm({ ...editForm, type: v })}>
+                  <Select value={editForm.type} disabled>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>{Object.entries(TX_TYPE_LABELS).map(([k, v]) => <SelectItem key={k} value={k}>{v}</SelectItem>)}</SelectContent>
                   </Select>
@@ -587,19 +581,19 @@ export default function GeneralLedger() {
               <div className="grid grid-cols-2 gap-2">
                 <div>
                   <Label>ارز</Label>
-                  <Select value={editForm.currency} onValueChange={v => setEditForm({ ...editForm, currency: v })}>
+                  <Select value={editForm.currency} disabled>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent><SelectItem value="AFN">AFN</SelectItem><SelectItem value="USD">USD</SelectItem><SelectItem value="IRT">IRT</SelectItem></SelectContent>
                   </Select>
                 </div>
                 <div>
                   <Label>مبلغ</Label>
-                  <AmountInput value={editForm.amount} onChange={v => setEditForm({ ...editForm, amount: v })} />
+                  <Input value={String(editForm.amount || 0)} disabled />
                 </div>
               </div>
               <div>
                 <Label>سمت مشتری</Label>
-                <Select value={editForm.customer_side} onValueChange={v => setEditForm({ ...editForm, customer_side: v })}>
+                <Select value={editForm.customer_side} disabled>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="none">—</SelectItem>
@@ -611,11 +605,11 @@ export default function GeneralLedger() {
               <div className="grid grid-cols-2 gap-2">
                 <div>
                   <Label>نام مشتری</Label>
-                  <Input value={editForm.customer_name || ''} onChange={e => setEditForm({ ...editForm, customer_name: e.target.value })} />
+                  <Input value={editForm.customer_name || ''} disabled />
                 </div>
                 <div>
                   <Label>موبایل</Label>
-                  <Input value={editForm.customer_phone || ''} onChange={e => setEditForm({ ...editForm, customer_phone: e.target.value })} inputMode="numeric" />
+                  <Input value={editForm.customer_phone || ''} disabled />
                 </div>
               </div>
               <div>
