@@ -149,3 +149,17 @@ export function saveExchangeTier(userId, tier) {
     // Browser storage is optional in preview environments.
   }
 }
+
+// Resolve the preview workspace tier from an explicit test override or an approved grant.
+// A legacy persisted "basic" value must never mask a newer creator-approved grant.
+export function resolvePreviewWorkspaceTier(override, grant, today) {
+  const validTier = (value) => Object.prototype.hasOwnProperty.call(EXCHANGE_TIERS, value);
+  if (validTier(override)) return override;
+  const grantIsActive = grant?.status === 'active'
+    && typeof grant.startDate === 'string'
+    && typeof grant.endDate === 'string'
+    && grant.startDate <= today
+    && grant.endDate >= today
+    && validTier(grant.tier);
+  return grantIsActive ? grant.tier : DEFAULT_EXCHANGE_TIER;
+}
