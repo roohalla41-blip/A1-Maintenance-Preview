@@ -490,7 +490,18 @@ export async function getBalances(balance_type, params = {}) {
 
 // ── List Documents (with ledger lines) ──
 export async function listDocuments(filters = {}, sort, limit) {
-  return listTransactions(filters, sort, limit);
+  const documents = await listTransactions(filters, sort, limit);
+  if (!isPreviewOnly()) return documents;
+
+  // In the isolated preview, attach the locally posted ledger rows so
+  // journals, trial balance, and reconciliation inspect the same source data.
+  const entries = readPreviewRows('LedgerEntry').filter(row => !row.deleted);
+  return documents.map(document => ({
+    ...document,
+    lines: entries
+      .filter(line => String(line.document_id) === String(document.id))
+      .sort((a, b) => Number(a.line_no || 0) - Number(b.line_no || 0)),
+  }));
 }
 
 // ── Balance helpers ──
