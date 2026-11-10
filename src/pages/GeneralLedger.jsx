@@ -124,7 +124,7 @@ export default function GeneralLedger() {
     const created = await createCustomerMut.mutateAsync(customerForm);
     setAddForm(prev => ({
       ...prev,
-      customer_id: created?.id || '',
+      customer_id: created?.id ? String(created.id) : '',
       customer_name: customerForm.name,
       customer_phone: customerForm.phone,
       description: prev.description || `تحویل وجه به ${customerForm.name}${customerForm.phone ? `\nشماره موبایل: ${customerForm.phone}` : ''}`,
@@ -216,7 +216,7 @@ export default function GeneralLedger() {
   const selectExistingCustomer = (c) => {
     setAddForm(prev => ({
       ...prev,
-      customer_id: c.id,
+      customer_id: String(c.id),
       customer_name: c.name,
       customer_phone: c.phone || '',
       description: prev.description || `تحویل وجه به ${c.name}${c.phone ? `\nشماره موبایل: ${c.phone}` : ''}`,
