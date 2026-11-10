@@ -6,7 +6,7 @@ import { offlineDB, syncPendingWrites, getPendingCount } from './offlineQueue';
 import { generateUniqueInviteCode } from './referralSystem';
 import { trackOp, finishOp } from './syncStatus';
 import { postDocument, postTransfer, reverseDocument, editDocument, getBalances, listDocuments } from './ledgerApi';
-import { getMyExchange, listTransactions } from './supabaseApi';
+import { getMyExchange } from './supabaseApi';
 import { isIsolatedPreview } from './previewIsolation';
 
 // Direct Supabase entity instances (no localStorage cache — always reads from server)
