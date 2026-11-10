@@ -122,7 +122,11 @@ export default function Cash() {
 
   const handleTransfer = async (e) => {
     e.preventDefault();
-    if (!amount || amount <= 0) return;
+    const numericAmount = Number(amount);
+    if (!Number.isFinite(numericAmount) || numericAmount <= 0) {
+      toast({ title: 'مبلغ نامعتبر است', description: 'مبلغ انتقال باید عددی معتبر و بیشتر از صفر باشد.', variant: 'destructive' });
+      return;
+    }
     if (fromType === 'bank' && !fromBankId) {
       toast({ title: 'خطا', description: 'حساب بانکی مبدأ را انتخاب کنید', variant: 'destructive' });
       return;
@@ -150,6 +154,22 @@ export default function Cash() {
     // Preview-side safeguard: never allow an internal transfer to overdraw its source.
     // The final production implementation must also enforce this atomically in the posting layer.
     const sourceId = String(fromType === 'bank' ? fromBankId : fromSafeId);
+    const destinationId = String(toType === 'bank' ? toBankId : toSafeId);
+    const sourceAccount = fromType === 'bank'
+      ? (bankAccounts || []).find(account => String(account.id) === sourceId)
+      : safeList.find(account => String(account.id) === sourceId);
+    const destinationAccount = toType === 'bank'
+      ? (bankAccounts || []).find(account => String(account.id) === destinationId)
+      : safeList.find(account => String(account.id) === destinationId);
+    if (!sourceAccount || !destinationAccount) {
+      toast({ title: 'حساب نامعتبر است', description: 'حساب مبدأ یا مقصد دیگر در دسترس نیست؛ دوباره انتخاب کنید.', variant: 'destructive' });
+      return;
+    }
+    if (String(sourceAccount.currency || '').toUpperCase() !== String(currency).toUpperCase()
+      || String(destinationAccount.currency || '').toUpperCase() !== String(currency).toUpperCase()) {
+      toast({ title: 'ارز حساب‌ها مطابقت ندارد', description: 'ارز هر دو حساب باید با ارز انتقال یکسان باشد.', variant: 'destructive' });
+      return;
+    }
     const sourceRows = fromType === 'bank' ? (bankBalancesData || []) : (treasuryBalances || []);
     const sourceBalanceRow = sourceRows.find(row =>
       String(row.account_id) === sourceId && String(row.currency || '').toUpperCase() === String(currency).toUpperCase()
@@ -168,15 +188,16 @@ export default function Cash() {
 
     const lines = buildTransferLines({
       from_type: fromType, from_id: sourceId,
-      to_type: toType, to_id: toType === 'bank' ? toBankId : toSafeId,
-      currency, amount,
+      to_type: toType, to_id: destinationId,
+      currency, amount: numericAmount,
     });
     try {
       await postMut.mutateAsync({
         doc_type: 'internal_transfer',
         currency,
-        amount,
+        amount: numericAmount,
         description: description || 'انتقال داخلی',
+        client_operation_id: globalThis.crypto?.randomUUID?.() || `cash-transfer-${Date.now()}`,
         lines,
       });
       toast({ title: 'ثبت شد' });
