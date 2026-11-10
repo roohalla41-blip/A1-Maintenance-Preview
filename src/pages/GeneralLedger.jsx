@@ -294,6 +294,31 @@ export default function GeneralLedger() {
           </div>
         </div>
       )}
+      {trial && (
+        <div className={`mb-4 rounded-lg border p-3 ${trial.isBalanced ? 'border-success/40 bg-success/5' : 'border-destructive/40 bg-destructive/5'}`}>
+          <div className="mb-2 flex items-center gap-2 text-sm font-semibold">
+            <AlertTriangle className="h-4 w-4" />
+            {trial.isBalanced ? 'کنترل توازن مستقل ارزها: موفق' : 'هشدار: اختلاف بدهکار و بستانکار در یک یا چند ارز'}
+          </div>
+          <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+            {Object.entries(trial.balances || {}).map(([code, balance]) => {
+              const difference = balance.debit - balance.credit;
+              const balanced = Math.abs(difference) <= 0.01;
+              return (
+                <div key={code} className="rounded-md bg-background/70 p-2 text-xs">
+                  <div className="mb-1 flex justify-between font-semibold">
+                    <span>{code}</span>
+                    <span className={balanced ? 'text-success' : 'text-destructive'}>{balanced ? 'متوازن' : 'اختلاف'}</span>
+                  </div>
+                  <p>بدهکار: {formatNumber(balance.debit, 2)}</p>
+                  <p>بستانکار: {formatNumber(balance.credit, 2)}</p>
+                  <p>اختلاف: {formatNumber(difference, 2)}</p>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Filters */}
       <div className="flex gap-2 mb-3 flex-wrap">
