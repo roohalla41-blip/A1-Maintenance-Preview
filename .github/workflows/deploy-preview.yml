@@ -10,6 +10,7 @@ name: Deploy isolated A1 maintenance preview
 # Remittance validation, idempotency and preview settlement guards are included.
 # Ledger edit validation now requires replacement lines when financial values change.
 # Local cash receipt and payment forms now post balanced ledger documents.
+# All preview demo roles now use local-only entity CRUD; regression contract covers this isolation.
 
 on:
   workflow_dispatch:
