@@ -106,7 +106,6 @@ export default function BalanceSheet() {
   // Until equity/capital accounts are implemented in the chart of accounts,
   // this is a derived balancing figure, not a verified retained-earnings balance.
   const equity = totalAssets - totalLiabilities;
-  const isBalanced = Math.abs(totalAssets - (totalLiabilities + equity)) < 1;
 
   const getBankTotal = bankId => bankTotalsByAccount.get(String(bankId)) || {};
   const getAgentTotal = agentId => agentTotalsByAccount.get(String(agentId)) || {};
@@ -123,9 +122,9 @@ export default function BalanceSheet() {
       />
       {isLoading ? <LoadingState /> : (
         <div className="space-y-4">
-          <div className={`flex items-center gap-2 p-3 rounded-lg ${isBalanced ? 'bg-success/10 text-success' : 'bg-destructive/10 text-destructive'}`}>
-            {isBalanced ? <CheckCircle2 className="w-5 h-5" /> : <AlertCircle className="w-5 h-5" />}
-            <span className="text-sm font-medium">{isBalanced ? 'ترازنامه متوازن است' : 'ترازنامه ناتراز است — بررسی کنید'}</span>
+          <div className="flex items-center gap-2 rounded-lg border border-warning/40 bg-warning/10 p-3 text-sm">
+            <AlertCircle className="h-5 w-5 shrink-0" />
+            <span>این گزارش فعلاً نمای اولیهٔ دارایی‌ها و بدهی‌های مشتریان است؛ تا تکمیل حساب‌های سرمایه، درآمد، هزینه و سود انباشته، ترازنامهٔ رسمی و تأییدشده محسوب نمی‌شود.</span>
           </div>
 
           <Card>
