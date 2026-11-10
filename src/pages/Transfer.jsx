@@ -63,6 +63,9 @@ export default function Transfer() {
   return (
     <>
       <PageHeader title={isSend ? 'حواله ارسال' : 'حواله دریافت'} icon={Send} />
+      <div className="mb-3 rounded-lg border border-amber-300/60 bg-amber-50/70 p-3 text-sm text-amber-950 dark:border-amber-800/60 dark:bg-amber-950/20 dark:text-amber-100">
+        <strong>ثبت آزمایشی حواله:</strong> این مرحله فقط مشخصات حواله را در دفتر حواله ثبت می‌کند؛ تا زمان تکمیل سند افتتاح حواله و حساب واسط، ماندهٔ مشتری، نماینده و صندوق تغییر نمی‌کند. تسویه نیز تا ثبت سند متوازن غیرفعال است.
+      </div>
       <form onSubmit={handleSubmit} className="space-y-4 max-w-md">
         <Field label="مشتری" required>
           <Select value={customer} onValueChange={setCustomer}>
