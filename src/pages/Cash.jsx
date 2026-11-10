@@ -100,6 +100,7 @@ export default function Cash() {
               related_id: created.id,
               related_name: safeForm.name,
               description: `افتتاح صندوق ${safeForm.name}`,
+              client_operation_id: `safe-opening-${created.id}`,
               lines,
             });
           } catch (openingError) {
