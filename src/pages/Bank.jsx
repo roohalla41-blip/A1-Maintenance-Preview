@@ -104,7 +104,7 @@ export default function Bank() {
     const rows = (bankBalancesData || []).filter(row => String(row.account_id) === String(bankId));
     return rows.reduce((amounts, row) => {
       const code = String(row.currency || 'AFN').toUpperCase();
-      amounts[code] = (amounts[code] || 0) + (Number(row.balance) || 0);
+      amounts[code] = (amounts[code] || 0) + (Number(row.balance ?? row.current_balance) || 0);
       return amounts;
     }, {});
   };
