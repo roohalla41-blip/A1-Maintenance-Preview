@@ -12,6 +12,7 @@ import { toast } from '@/components/ui/use-toast';
 import { AmountInput } from '@/components/sarraaf/Fields';
 import { BookOpen, Search, CheckCircle, FileSpreadsheet } from 'lucide-react';
 import DesktopTransferTable from '@/components/sarraaf/DesktopTransferTable';
+import { isIsolatedPreview } from '@/lib/previewIsolation';
 
 const exportExcel = (transfers) => {
   if (!transfers || transfers.length === 0) return;
@@ -31,6 +32,7 @@ const exportExcel = (transfers) => {
 export default function TransferBook() {
   const { data: transfers, isLoading } = useTransfers();
   const execMut = useExecuteTransfer();
+  const previewOnly = isIsolatedPreview();
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [execDialog, setExecDialog] = useState(null);
@@ -138,9 +140,16 @@ export default function TransferBook() {
               </Select>
             </div>
           </div>
+          {previewOnly && (
+            <div className="rounded-lg border border-warning/40 bg-warning/10 p-3 text-xs leading-6">
+              تسویهٔ حواله در نسخهٔ آزمایشی تا تکمیل حساب واسط، سند ثبت حواله و ثبت پرداخت/دریافت متوازن غیرفعال است. این محدودیت مانع تغییر اشتباه وضعیت حواله یا موجودی صندوق می‌شود.
+            </div>
+          )}
           <DialogFooter>
             <Button variant="outline" onClick={() => setExecDialog(null)}>انصراف</Button>
-            <Button onClick={handleExecute} disabled={execMut.isPending}>اجرا</Button>
+            <Button onClick={handleExecute} disabled={execMut.isPending || previewOnly}>
+              {previewOnly ? 'تسویه در حال تکمیل' : 'اجرا'}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
