@@ -186,10 +186,11 @@ function BankMovementWorkspace({ section }) {
 
   const selectedAccount = accounts.find(account => String(account.id) === String(accountId));
   const selectedCustomer = customers.find(customer => String(customer.id) === String(customerId));
-  const availableBalance = Number((balances || []).find(row =>
-    String(row.account_id) === String(accountId)
+  const availableBalanceRow = (balances || []).find(row =>
+    String(row.account_id ?? row.bank_id) === String(accountId)
     && String(row.currency || 'AFN').toUpperCase() === String(currency).toUpperCase()
-  )?.balance) || 0;
+  );
+  const availableBalance = Number(availableBalanceRow?.balance ?? availableBalanceRow?.current_balance) || 0;
 
   const handleSubmit = async event => {
     event.preventDefault();
