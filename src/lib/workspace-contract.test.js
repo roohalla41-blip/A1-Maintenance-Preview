@@ -98,9 +98,12 @@ test('workspace module switches hide module routes without disabling core naviga
   assert.equal(isWorkspaceFeatureEnabled('income_expense', { accounting: false }), false);
 });
 
-test('preview host remains isolated even when runtime config is missing', () => {
+test('preview hosts remain isolated even when runtime config is missing', () => {
   assert.equal(isIsolatedPreview({}, { hostname: 'roohalla41-blip.github.io', pathname: '/A1-Maintenance-Preview/' }), true);
   assert.equal(isIsolatedPreview({}, { hostname: 'roohalla41-blip.github.io', pathname: '/another-project/' }), false);
+  assert.equal(isIsolatedPreview({}, { hostname: 'timely-frangollo-ef7fde.netlify.app', pathname: '/' }), true);
+  assert.equal(isIsolatedPreview({}, { hostname: 'main--timely-frangollo-ef7fde.netlify.app', pathname: '/' }), true);
+  assert.equal(isIsolatedPreview({}, { hostname: 'unrelated-site.netlify.app', pathname: '/' }), false);
   assert.equal(isIsolatedPreview({ previewOnly: true }, { hostname: 'example.com', pathname: '/' }), true);
 });
 
