@@ -144,9 +144,10 @@ export default function BalanceSheet() {
                   const total = toAfnTotal(getBankTotal(b.id), rs, curs);
                   return <div key={b.id} className="flex justify-between text-sm"><span>{b.bank_name}</span><span className="font-mono">{formatNumber(total)} AFN</span></div>;
                 })}
+                <div className="flex justify-between text-sm"><span>طلب از نمایندگان</span><span className="font-mono">{formatNumber(totalAgentReceivables)} AFN</span></div>
                 {(agents || []).map(a => {
                   const total = toAfnTotal(getAgentTotal(a.id), rs, curs);
-                  return <div key={a.id} className="flex justify-between text-sm"><span>{a.name}</span><span className="font-mono">{formatNumber(total)} AFN</span></div>;
+                  return <div key={a.id} className="flex justify-between text-xs text-muted-foreground"><span>ماندهٔ {a.name}</span><span className="font-mono">{formatNumber(total)} AFN</span></div>;
                 })}
                 <div className="flex justify-between text-sm"><span>طلب از مشتریان</span><span className="font-mono">{formatNumber(customerReceivables)} AFN</span></div>
                 <div className="flex justify-between text-sm font-bold border-t pt-1 mt-1"><span>جمع دارایی‌ها</span><span className="font-mono">{formatNumber(totalAssets)}</span></div>
