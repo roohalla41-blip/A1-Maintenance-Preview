@@ -118,6 +118,9 @@ export default function ProfitLoss() {
         <EmptyState icon={TrendingUp} title="داده‌ای موجود نیست" />
       ) : (
         <div className="space-y-4 profit-loss-report">
+          <div className="rounded-lg border border-amber-300/60 bg-amber-50/70 p-3 text-sm text-amber-950 dark:border-amber-800/60 dark:bg-amber-950/20 dark:text-amber-100">
+            <strong>گزارش موقت و برآوردی:</strong> محاسبه فعلی بر پایه کارمزدهای ثبت‌شده و اختلاف نرخ با نرخ روز انجام می‌شود؛ هنوز جایگزین گزارش سود و زیان تحقق‌یافته بر مبنای حساب‌های رسمی درآمد، هزینه و دفترکل نیست. برای تصمیم‌گیری مالی نهایی به این ارقام اتکا نکنید.
+          </div>
           {/* Summary cards */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <StatCard label="سود کل" value={formatNumber(report.total)} sub="AFN" icon={TrendingUp} gradient="from-success to-success/80" />
