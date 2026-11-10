@@ -25,7 +25,7 @@ export function useTransactions(filters = {}) {
   return useQuery({
     queryKey: ['transactions', filters],
     queryFn: async () => {
-      const list = await listTransactions({}, '-id', 500);
+      const list = await listDocuments({}, '-id', 500);
       let filtered = list;
       if (filters.customer_id) filtered = filtered.filter(t => String(t.customer_id) === String(filters.customer_id));
       if (filters.currency) filtered = filtered.filter(t => t.currency === filters.currency);
