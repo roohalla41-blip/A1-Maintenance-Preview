@@ -4,7 +4,7 @@ import { PageHeader, LoadingState } from '@/components/sarraaf/Pieces';
 import { formatNumber } from '@/lib/sarraaf';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Scale, Printer, CheckCircle2, AlertCircle, FileSpreadsheet } from 'lucide-react';
+import { Scale, Printer, AlertCircle, FileSpreadsheet } from 'lucide-react';
 
 // Convert multi-currency balances to AFN using daily rates
 function toAfnTotal(balances, rateSettings, currencies) {
