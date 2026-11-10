@@ -131,7 +131,7 @@ export default function Bank() {
       {activeSection !== 'overview' && <BankMovementWorkspace section={activeSection} />}
       {isLoading ? <LoadingState /> : (
         <div className="grid grid-cols-1 gap-1 lg:grid-cols-2 lg:gap-2">
-          {(txs || []).filter(transaction => transaction.counter_type === 'bank').slice(0, 20).map(transaction => (
+          {(txs || []).filter(transaction => transaction.counter_type === 'bank' || (transaction.lines || []).some(line => line.account_type === 'bank')).slice(0, 20).map(transaction => (
             <TransactionRow key={transaction.id} tx={transaction} labels={TX_TYPE_LABELS} />
           ))}
         </div>
