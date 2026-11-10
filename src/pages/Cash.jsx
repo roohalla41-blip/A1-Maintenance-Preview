@@ -49,7 +49,7 @@ export default function Cash() {
     balances[b.currency] = (balances[b.currency] || 0) + (Number(b.balance) || 0);
     if (b.account_id !== undefined && b.account_id !== null) safeBalances[String(b.account_id)] = b.balance;
   }
-  const cashTxs = (txs || []).filter(t => t.counter_type === 'cash').slice(0, 20);
+  const cashTxs = (txs || []).filter(t => t.counter_type === 'cash' || (t.lines || []).some(line => line.account_type === 'cash')).slice(0, 20);
   const safeList = safes || [];
 
   const openSafeDialog = (safe = null) => {
