@@ -128,6 +128,21 @@ export function canTierAccessNavKey(tier, featureKey) {
 }
 
 export function getTierForUser(user, profile) {
+  // In the isolated preview, creator grants and explicit tier-test overrides
+  // are the source of truth. This also protects direct URL navigation, not only menus.
+  try {
+    if (user?.role === 'sarraaf' && typeof window !== 'undefined'
+      && window.__SUPABASE_CONFIG__?.previewOnly === true && typeof localStorage !== 'undefined') {
+      const override = localStorage.getItem('exchange_workspace_tier_override_preview-sarraaf-001');
+      let saved = {};
+      try { saved = JSON.parse(localStorage.getItem('hesab_preview_demo_state_v1') || '{}'); } catch { saved = {}; }
+      const today = new Date().toISOString().slice(0, 10);
+      return resolvePreviewWorkspaceTier(override, saved.grant, today);
+    }
+  } catch {
+    // Browser storage and preview configuration are optional.
+  }
+
   let localTier = null;
   try {
     if (user?.id && typeof localStorage !== 'undefined') {
