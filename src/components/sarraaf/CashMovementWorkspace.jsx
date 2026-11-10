@@ -125,7 +125,11 @@ export default function CashMovementWorkspace({ section }) {
         </Field>
 
         <Field label="صندوق" required>
-          <Select value={safeId} onValueChange={setSafeId}>
+          <Select value={safeId} onValueChange={value => {
+            setSafeId(value);
+            const nextSafe = safes.find(item => String(item.id) === String(value));
+            setCurrency(String(nextSafe?.currency || 'AFN').toUpperCase());
+          }}>
             <SelectTrigger><SelectValue placeholder="انتخاب صندوق" /></SelectTrigger>
             <SelectContent>
               {safes.filter(safe => safe.active !== false).map(safe => (
@@ -139,7 +143,7 @@ export default function CashMovementWorkspace({ section }) {
 
         <div className="grid gap-3 sm:grid-cols-2">
           <Field label="ارز" required>
-            <CurrencySelect value={currency} onChange={setCurrency} currencies={currencies} />
+            <CurrencySelect value={currency} onChange={setCurrency} currencies={currencies} disabled={!!selectedSafe} />
           </Field>
           <Field label="مبلغ" required>
             <AmountInput value={amount} onChange={setAmount} />
