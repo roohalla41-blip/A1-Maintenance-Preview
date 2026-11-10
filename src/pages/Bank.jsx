@@ -24,7 +24,6 @@ export default function Bank() {
   const { data: bankBalancesData } = useBankBalances();
   const createMut = useCreateBankAccount();
   const postMut = usePostDocument();
-  const { data: customers = [] } = useCustomers();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('overview');
   const [form, setForm] = useState(emptyForm);
