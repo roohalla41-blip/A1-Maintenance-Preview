@@ -449,12 +449,12 @@ export default function GeneralLedger() {
               </div>
               {customers && customers.length > 0 && (
                 <Select value={addForm.customer_id} onValueChange={(v) => {
-                  const c = customers.find(c => c.id === v);
+                  const c = customers.find(c => String(c.id) === String(v));
                   if (c) selectExistingCustomer(c);
                 }}>
                   <SelectTrigger><SelectValue placeholder="انتخاب از مشتریان موجود" /></SelectTrigger>
                   <SelectContent>
-                    {customers.map(c => <SelectItem key={c.id} value={c.id}>{c.name} {c.phone ? `• ${c.phone}` : ''}</SelectItem>)}
+                    {customers.map(c => <SelectItem key={c.id} value={String(c.id)}>{c.name} {c.phone ? `• ${c.phone}` : ''}</SelectItem>)}
                   </SelectContent>
                 </Select>
               )}
@@ -464,6 +464,34 @@ export default function GeneralLedger() {
                   {addForm.customer_phone && <div><span className="text-muted-foreground">موبایل: </span>{addForm.customer_phone}</div>}
                 </div>
               )}
+            </div>
+
+            <div className="space-y-2 rounded-lg border p-3">
+              <Label className="text-sm font-semibold">حساب مقابل سند</Label>
+              <Select value={addForm.counter_type} onValueChange={value => setAddForm(current => ({ ...current, counter_type: value, counter_id: '' }))}>
+                <SelectTrigger><SelectValue placeholder="نوع حساب مقابل" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="cash">صندوق</SelectItem>
+                  <SelectItem value="bank">بانک</SelectItem>
+                  <SelectItem value="agent">نماینده</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select value={String(addForm.counter_id || '')} onValueChange={value => setAddForm(current => ({ ...current, counter_id: value }))}>
+                <SelectTrigger><SelectValue placeholder="انتخاب حساب مقابل" /></SelectTrigger>
+                <SelectContent>
+                  {(addForm.counter_type === 'cash'
+                    ? safes.filter(item => item.active !== false && (!item.currency || item.currency === addForm.currency))
+                    : addForm.counter_type === 'bank'
+                      ? bankAccounts.filter(item => !item.currency || item.currency === addForm.currency)
+                      : agents
+                  ).map(item => (
+                    <SelectItem key={item.id} value={String(item.id)}>
+                      {item.bank_name || item.name || item.full_name || item.phone || String(item.id)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">سمت حساب مقابل به‌صورت خودکار مخالف سمت مشتری ثبت می‌شود تا سند تراز بماند.</p>
             </div>
 
             <div>
