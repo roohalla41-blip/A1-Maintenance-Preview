@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import CashControlWorkspace from '@/components/sarraaf/CashControlWorkspace';
 import CashBlueprintWorkspace from '@/components/sarraaf/CashBlueprintWorkspace';
 import CashMovementWorkspace from '@/components/sarraaf/CashMovementWorkspace';
-import { useTransactions, useBankAccounts, useSafes, useCreateSafe, useUpdateSafe, useCurrencies, usePostDocument } from '@/lib/useSarraaf';
+import { useTransactions, useBankAccounts, useSafes, useCreateSafe, useUpdateSafe, useCurrencies, usePostDocument, useBankBalances } from '@/lib/useSarraaf';
 import { PageHeader, BalanceCard, TransactionRow, EmptyState, LoadingState } from '@/components/sarraaf/Pieces';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -42,6 +42,7 @@ export default function Cash() {
   const [safeForm, setSafeForm] = useState({ name: '', currency: 'AFN', opening_balance: 0 });
 
   const { data: treasuryBalances } = useTreasuryBalances();
+  const { data: bankBalancesData } = useBankBalances();
   const balances = {};
   const safeBalances = {};
   for (const b of (treasuryBalances || [])) {
@@ -145,8 +146,27 @@ export default function Cash() {
       toast({ title: 'خطا', description: 'حساب مبدأ و مقصد نمی‌توانند یکسان باشند', variant: 'destructive' });
       return;
     }
+    // Preview-side safeguard: never allow an internal transfer to overdraw its source.
+    // The final production implementation must also enforce this atomically in the posting layer.
+    const sourceId = String(fromType === 'bank' ? fromBankId : fromSafeId);
+    const sourceRows = fromType === 'bank' ? (bankBalancesData || []) : (treasuryBalances || []);
+    const sourceBalanceRow = sourceRows.find(row =>
+      String(row.account_id) === sourceId && String(row.currency || '').toUpperCase() === String(currency).toUpperCase()
+    );
+    const availableBalance = Number(sourceBalanceRow?.balance);
+    if (!Number.isFinite(availableBalance) || availableBalance < Number(amount)) {
+      toast({
+        title: 'موجودی کافی نیست',
+        description: sourceBalanceRow
+          ? `موجودی قابل‌استفاده مبدأ در ارز ${currency} برابر ${availableBalance.toLocaleString('en-US')} است.`
+          : `برای حساب مبدأ در ارز ${currency} ماندهٔ قابل‌استفاده‌ای پیدا نشد.`,
+        variant: 'destructive',
+      });
+      return;
+    }
+
     const lines = buildTransferLines({
-      from_type: fromType, from_id: fromType === 'bank' ? fromBankId : fromSafeId,
+      from_type: fromType, from_id: sourceId,
       to_type: toType, to_id: toType === 'bank' ? toBankId : toSafeId,
       currency, amount,
     });
