@@ -356,7 +356,13 @@ export function trialBalanceBase(txs, rateSettings, currencies) {
       totalCredit += b.credit * afnRate;
     }
   }
-  return { balances, totalDebit, totalCredit, isBalanced: Math.abs(totalDebit - totalCredit) < 1 };
+  // A multi-currency trial balance must balance independently per currency.
+  // Converted AFN totals are presentation values and must not hide an imbalance
+  // when opposite currency differences happen to offset each other.
+  const isBalanced = Object.values(balances).every(
+    (balance) => Math.abs(balance.debit - balance.credit) <= 0.01,
+  );
+  return { balances, totalDebit, totalCredit, isBalanced };
 }
 
 // Document-level balance
