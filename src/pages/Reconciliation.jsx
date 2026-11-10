@@ -16,8 +16,9 @@ export default function Reconciliation() {
   const [physical, setPhysical] = useState({});
 
   const bookBalances = {};
-  for (const b of (treasuryData || [])) {
-    bookBalances[b.currency] = b.balance;
+  for (const row of (treasuryData || [])) {
+    const code = String(row.currency || 'AFN').toUpperCase();
+    bookBalances[code] = (bookBalances[code] || 0) + (Number(row.balance) || 0);
   }
   const currencies = Object.keys(bookBalances);
 
@@ -34,7 +35,7 @@ export default function Reconciliation() {
     for (const doc of documents) {
       if (!doc.lines || doc.lines.length < 2) continue;
       const balances = documentBaseBalances(doc.lines);
-      const hasImbalance = Object.values(balances).some(b => Math.abs(b.debit - b.credit) > 0.5);
+      const hasImbalance = Object.values(balances).some(b => Math.abs(b.debit - b.credit) > 0.01);
       if (hasImbalance) {
         result.push({ docNo: doc.doc_number, lines: doc.lines, balances });
       }
