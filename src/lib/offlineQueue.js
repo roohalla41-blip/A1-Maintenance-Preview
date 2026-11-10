@@ -72,18 +72,44 @@ function computeTenantSignature(userId, exchangeCode) {
   return `tsig_${Math.abs(hash).toString(36)}`;
 }
 
-// Called on login — stores the authenticated user's tenant signature
+// Move tenant-scoped cache and pending writes out of the active namespace
+// without deleting them. Archived records are retained for later recovery.
+function archiveTenantData(currentSig) {
+  const keysToArchive = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (key && (key.startsWith(CACHE_PREFIX) || key === QUEUE_KEY)) {
+      keysToArchive.push(key);
+    }
+  }
+  keysToArchive.forEach((key) => {
+    const raw = localStorage.getItem(key);
+    if (raw === null) return;
+    const base = `archived_${currentSig}_${key}`;
+    let archiveKey = base;
+    let suffix = 1;
+    while (localStorage.getItem(archiveKey) !== null) {
+      archiveKey = `${base}_${suffix++}`;
+    }
+    localStorage.setItem(archiveKey, raw);
+    localStorage.removeItem(key);
+  });
+}
+
+// Called on login — isolate the previous tenant before switching signatures.
 export function setCacheTenant(user) {
   try {
     const sig = computeTenantSignature(user?.id, user?.exchange_code);
+    const storedSig = localStorage.getItem(CACHE_TENANT_KEY);
+    if (storedSig !== sig) archiveTenantData(sig);
     localStorage.setItem(CACHE_TENANT_KEY, sig);
+    notifyListeners();
   } catch {
-    // ignore
+    // Preserve data and do not attempt remote synchronization on storage errors.
   }
 }
 
 // Validates that the current authenticated user matches the cache's tenant.
-// If mismatch (e.g. exchange_code was manually changed), clears all cache data.
 function validateCacheTenant() {
   try {
     const raw = localStorage.getItem('auth_user') || localStorage.getItem('sdk_user_cache');
@@ -93,29 +119,8 @@ function validateCacheTenant() {
     const storedSig = localStorage.getItem(CACHE_TENANT_KEY);
     if (currentSig === storedSig) return true;
 
-    // Mismatch — quarantine the previous tenant's cache and pending queue.
-    // Never silently delete financial/offline data during an account switch.
-    const keysToArchive = [];
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
-      if (key && (key.startsWith(CACHE_PREFIX) || key === QUEUE_KEY)) {
-        keysToArchive.push(key);
-      }
-    }
-    keysToArchive.forEach((key) => {
-      const raw = localStorage.getItem(key);
-      if (raw === null) return;
-      const base = `archived_${currentSig}_${key}`;
-      let archiveKey = base;
-      let suffix = 1;
-      while (localStorage.getItem(archiveKey) !== null) {
-        archiveKey = `${base}_${suffix++}`;
-      }
-      localStorage.setItem(archiveKey, raw);
-      localStorage.removeItem(key);
-    });
-    // Set new sig so future calls don't re-trigger. Archived data remains
-    // isolated and is not read by the active tenant's cache.
+    // Mismatch — quarantine rather than delete financial/offline data.
+    archiveTenantData(currentSig);
     localStorage.setItem(CACHE_TENANT_KEY, currentSig);
     notifyListeners();
     return false;
