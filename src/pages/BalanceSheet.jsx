@@ -46,61 +46,70 @@ export default function BalanceSheet() {
   const curs = currencies || [];
 
   const cash = {};
-  for (const b of (treasuryData || [])) {
-    cash[b.currency] = b.balance;
+  for (const row of (treasuryData || [])) {
+    const code = String(row.currency || 'AFN').toUpperCase();
+    cash[code] = (cash[code] || 0) + (Number(row.balance) || 0);
   }
   const totalCash = toAfnTotal(cash, rs, curs);
 
-  const totalBanks = (bankBalancesData || []).reduce((s, b) => {
-    const bal = { [b.currency]: b.current_balance || 0 };
-    return s + toAfnTotal(bal, rs, curs);
-  }, 0);
+  const bankTotalsByAccount = new Map();
+  for (const row of (bankBalancesData || [])) {
+    const accountId = String(row.account_id ?? row.bank_id ?? '');
+    const code = String(row.currency || 'AFN').toUpperCase();
+    const account = bankTotalsByAccount.get(accountId) || {};
+    account[code] = (account[code] || 0) + (Number(row.balance ?? row.current_balance) || 0);
+    bankTotalsByAccount.set(accountId, account);
+  }
+  const totalBanks = [...bankTotalsByAccount.values()]
+    .reduce((sum, amounts) => sum + toAfnTotal(amounts, rs, curs), 0);
 
-  const totalAgents = (agentBalancesData || []).reduce((s, a) => {
-    const bal = { [a.currency || 'AFN']: a.balance || 0 };
-    return s + toAfnTotal(bal, rs, curs);
-  }, 0);
+  const agentTotalsByAccount = new Map();
+  for (const row of (agentBalancesData || [])) {
+    const accountId = String(row.account_id ?? row.agent_id ?? '');
+    const code = String(row.currency || 'AFN').toUpperCase();
+    const account = agentTotalsByAccount.get(accountId) || {};
+    account[code] = (account[code] || 0) + (Number(row.balance) || 0);
+    agentTotalsByAccount.set(accountId, account);
+  }
+  const totalAgents = [...agentTotalsByAccount.values()]
+    .reduce((sum, amounts) => sum + toAfnTotal(amounts, rs, curs), 0);
 
-  // Liabilities: customer credit balances (money we owe customers)
+  // getBalances() in isolated preview returns debit-credit; legacy server views
+  // expose net_balance with the opposite sign convention (credit-debit).
+  const normalizedCustomerRows = (customerBalancesData || []).map(row => ({
+    currency: String(row.balance_currency || row.currency || 'AFN').toUpperCase(),
+    netBalance: row.net_balance !== undefined && row.net_balance !== null
+      ? Number(row.net_balance) || 0
+      : -(Number(row.balance) || 0),
+  }));
+
+  // Positive net balance is a liability (credit owed to the customer).
   const customerLiabilities = useMemo(() => {
-    if (!customerBalancesData) return 0;
-    let total = 0;
-    for (const b of customerBalancesData) {
-      if ((b.net_balance || 0) > 0) {
-        const creditBal = { [b.balance_currency || 'AFN']: b.net_balance };
-        total += toAfnTotal(creditBal, rs, curs);
-      }
+    const byCurrency = {};
+    for (const row of normalizedCustomerRows) {
+      if (row.netBalance > 0) byCurrency[row.currency] = (byCurrency[row.currency] || 0) + row.netBalance;
     }
-    return total;
+    return toAfnTotal(byCurrency, rs, curs);
   }, [customerBalancesData, rs, curs]);
 
-  // Customer receivables (money customers owe us)
+  // Negative net balance is a receivable (debit owed by the customer).
   const customerReceivables = useMemo(() => {
-    if (!customerBalancesData) return 0;
-    let total = 0;
-    for (const b of customerBalancesData) {
-      if ((b.net_balance || 0) < 0) {
-        const debitBal = { [b.balance_currency || 'AFN']: Math.abs(b.net_balance) };
-        total += toAfnTotal(debitBal, rs, curs);
-      }
+    const byCurrency = {};
+    for (const row of normalizedCustomerRows) {
+      if (row.netBalance < 0) byCurrency[row.currency] = (byCurrency[row.currency] || 0) + Math.abs(row.netBalance);
     }
-    return total;
+    return toAfnTotal(byCurrency, rs, curs);
   }, [customerBalancesData, rs, curs]);
 
   const totalAssets = totalCash + totalBanks + totalAgents + customerReceivables;
   const totalLiabilities = customerLiabilities;
+  // Until equity/capital accounts are implemented in the chart of accounts,
+  // this is a derived balancing figure, not a verified retained-earnings balance.
   const equity = totalAssets - totalLiabilities;
   const isBalanced = Math.abs(totalAssets - (totalLiabilities + equity)) < 1;
 
-  const getBankTotal = (bankId) => {
-    const b = (bankBalancesData || []).find(x => String(x.bank_id) === String(bankId));
-    return b ? { [b.currency]: b.current_balance || 0 } : {};
-  };
-
-  const getAgentTotal = (agentId) => {
-    const a = (agentBalancesData || []).find(x => String(x.agent_id) === String(agentId));
-    return a ? { [a.currency || 'AFN']: a.balance || 0 } : {};
-  };
+  const getBankTotal = bankId => bankTotalsByAccount.get(String(bankId)) || {};
+  const getAgentTotal = agentId => agentTotalsByAccount.get(String(agentId)) || {};
 
   return (
     <>
@@ -125,15 +134,14 @@ export default function BalanceSheet() {
               <div className="space-y-1">
                 <div className="flex justify-between text-sm"><span>صندوق</span><span className="font-mono">{formatNumber(totalCash)}</span></div>
                 {(bankAccounts || []).map(b => {
-                  const bal = getBankTotal(b.id);
-                  const total = Object.values(bal).reduce((s, v) => s + (v || 0), 0);
-                  return <div key={b.id} className="flex justify-between text-sm"><span>{b.bank_name}</span><span className="font-mono">{formatNumber(total)}</span></div>;
+                  const total = toAfnTotal(getBankTotal(b.id), rs, curs);
+                  return <div key={b.id} className="flex justify-between text-sm"><span>{b.bank_name}</span><span className="font-mono">{formatNumber(total)} AFN</span></div>;
                 })}
                 {(agents || []).map(a => {
-                  const bal = getAgentTotal(a.id);
-                  const total = Object.values(bal).reduce((s, v) => s + (v || 0), 0);
-                  return <div key={a.id} className="flex justify-between text-sm"><span>{a.name}</span><span className="font-mono">{formatNumber(total)}</span></div>;
+                  const total = toAfnTotal(getAgentTotal(a.id), rs, curs);
+                  return <div key={a.id} className="flex justify-between text-sm"><span>{a.name}</span><span className="font-mono">{formatNumber(total)} AFN</span></div>;
                 })}
+                <div className="flex justify-between text-sm"><span>طلب از مشتریان</span><span className="font-mono">{formatNumber(customerReceivables)} AFN</span></div>
                 <div className="flex justify-between text-sm font-bold border-t pt-1 mt-1"><span>جمع دارایی‌ها</span><span className="font-mono">{formatNumber(totalAssets)}</span></div>
               </div>
             </CardContent>
@@ -153,9 +161,9 @@ export default function BalanceSheet() {
             <CardContent className="p-4">
               <h3 className="text-sm font-semibold mb-2 text-success">سرمایه و سود/زیان</h3>
               <div className="space-y-1">
-                <div className="flex justify-between text-sm"><span>طلب از مشتریان</span><span className="font-mono">{formatNumber(customerReceivables)}</span></div>
-                <div className="flex justify-between text-sm"><span>مانده حساب (دارایی - بدهی)</span><span className="font-mono">{formatNumber(equity)}</span></div>
-                <div className="flex justify-between text-sm font-bold border-t pt-1 mt-1"><span>جمع سرمایه</span><span className="font-mono">{formatNumber(customerReceivables + equity)}</span></div>
+                <div className="flex justify-between text-sm"><span>سرمایه و ماندهٔ محاسباتی (موقت)</span><span className="font-mono">{formatNumber(equity)} AFN</span></div>
+                <p className="text-xs text-muted-foreground">این رقم تا زمان تکمیل حساب‌های سرمایه، درآمد، هزینه و سود انباشته، ماندهٔ محاسباتی است و نباید به‌عنوان سرمایهٔ تأییدشده تلقی شود.</p>
+                <div className="flex justify-between text-sm font-bold border-t pt-1 mt-1"><span>جمع سرمایهٔ محاسباتی</span><span className="font-mono">{formatNumber(equity)} AFN</span></div>
               </div>
             </CardContent>
           </Card>
@@ -163,8 +171,8 @@ export default function BalanceSheet() {
           <Card>
             <CardContent className="p-4">
               <div className="flex justify-between text-sm font-bold">
-                <span>جمع بدهی‌ها + سرمایه</span>
-                <span className="font-mono">{formatNumber(totalLiabilities + customerReceivables + equity)}</span>
+                <span>جمع بدهی‌ها + سرمایهٔ محاسباتی</span>
+                <span className="font-mono">{formatNumber(totalLiabilities + equity)} AFN</span>
               </div>
               <div className="flex justify-between text-sm font-bold mt-1">
                 <span>جمع دارایی‌ها</span>
