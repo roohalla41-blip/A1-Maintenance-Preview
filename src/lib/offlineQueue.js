@@ -12,6 +12,7 @@ import { isLocalTestMode } from './localTestMode';
 import { setPendingCount, setSyncing } from './syncStatus';
 import { isOfflineQueueFull } from './offlineLimits';
 import { isCreatorUser } from './creatorAuth';
+import { isIsolatedPreview } from './previewIsolation';
 
 const QUEUE_KEY = 'pending_writes_v2';
 const CACHE_PREFIX = 'cache_v2_';
@@ -23,6 +24,10 @@ const CACHE_TENANT_KEY = 'cache_tenant_sig';
 //   The token is sent with each request so the backend can authenticate the user.
 function isLocalOnlyMode() {
   try {
+    // The isolated GitHub Pages preview is permanently local-only for every
+    // role, including the creator demo account. Never attempt Supabase CRUD
+    // or queue synchronization from this environment.
+    if (isIsolatedPreview()) return true;
     // Local test mode: always use local cache, never call server
     if (isLocalTestMode()) return true;
     // Only locally-registered or cached-credential users use local cache exclusively
