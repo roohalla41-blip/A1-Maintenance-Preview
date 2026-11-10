@@ -32,11 +32,15 @@ export default function CustomerDetail() {
 
   const customer = (customers || []).find(c => String(c.id) === String(id));
   const customerBalanceRows = (customerBalancesData || []).filter(row =>
-    String(row.account_id) === String(id) && row.account_type === 'customer'
+    String(row.account_id ?? row.customer_id) === String(id)
+    && (!row.account_type || row.account_type === 'customer')
   );
   const balances = customerBalanceRows.reduce((result, row) => {
-    const code = String(row.currency || 'AFN').toUpperCase();
-    result[code] = (result[code] || 0) + (Number(row.balance) || 0);
+    const code = String(row.currency || row.balance_currency || 'AFN').toUpperCase();
+    const amount = row.balance !== undefined && row.balance !== null
+      ? Number(row.balance) || 0
+      : Number(row.net_balance) || 0;
+    result[code] = (result[code] || 0) + amount;
     return result;
   }, {});
 
