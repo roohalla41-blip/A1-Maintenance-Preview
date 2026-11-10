@@ -8,6 +8,7 @@ import {
   Receipt, Scale, Search, Send, Settings, ShieldCheck, ShoppingBag, Users, Wallet, X
 } from 'lucide-react';
 import { readPreviewState, writePreviewState, clearPreviewSession, hasPreviewSession } from '@/lib/previewDemo';
+import { resolvePreviewWorkspaceTier } from '@/lib/exchangeTiers';
 
 const plans = [
   { id: 'basic', name: 'Basic', title: 'معمولی' },
@@ -111,7 +112,7 @@ export default function PreviewRoleDashboard({ role = 'sarraaf' }) {
   const allowed = hasPreviewSession(role);
   const [requestedTier, setRequestedTier] = useState('professional');
   const [testTier, setTestTier] = useState(() => {
-    try { return localStorage.getItem('exchange_workspace_tier_preview-sarraaf-001') || 'basic'; } catch { return 'basic'; }
+    try { return localStorage.getItem('exchange_workspace_tier_override_preview-sarraaf-001') || null; } catch { return null; }
   });
   const [note, setNote] = useState('');
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -121,8 +122,8 @@ export default function PreviewRoleDashboard({ role = 'sarraaf' }) {
   const isCustomer = role === 'customer';
   const grant = state.grant;
   const today = new Date().toISOString().slice(0, 10);
-  const activeGrant = useMemo(() => grant && grant.startDate <= today && grant.endDate >= today, [grant, today]);
-  const tier = testTier || (activeGrant ? grant.tier : 'basic');
+  const activeGrant = useMemo(() => grant && grant.status === 'active' && grant.startDate <= today && grant.endDate >= today, [grant, today]);
+  const tier = resolvePreviewWorkspaceTier(testTier, activeGrant ? grant : null, today);
   const tierName = plans.find(p => p.id === tier)?.name || 'Basic';
   const selected = allItems.find(x => x[0] === selectedModule) || allItems[0];
   const SelectedIcon = selected[3];
@@ -138,18 +139,26 @@ export default function PreviewRoleDashboard({ role = 'sarraaf' }) {
   };
   const logout = () => { clearPreviewSession(); navigate('/', { replace: true }); };
   const changeTestTier = (nextTier) => {
-    if (!['basic', 'professional', 'enterprise'].includes(nextTier)) return;
-    setTestTier(nextTier);
+    if (nextTier !== 'auto' && !['basic', 'professional', 'enterprise'].includes(nextTier)) return;
+    const override = nextTier === 'auto' ? null : nextTier;
+    setTestTier(override);
     try {
-      localStorage.setItem('exchange_workspace_tier_preview-sarraaf-001', nextTier);
+      if (override) localStorage.setItem('exchange_workspace_tier_override_preview-sarraaf-001', override);
+      else localStorage.removeItem('exchange_workspace_tier_override_preview-sarraaf-001');
       const user = JSON.parse(localStorage.getItem('auth_user') || 'null');
       if (user?.role === 'sarraaf') {
-        user.workspace_tier = nextTier;
+        if (override) user.workspace_tier = override;
+        else delete user.workspace_tier;
         localStorage.setItem('auth_user', JSON.stringify(user));
       }
       const key = 'cache_v2_SarraafProfile_PREVIEW-EX-001';
       const rows = JSON.parse(localStorage.getItem(key) || '[]');
-      if (rows[0]) localStorage.setItem(key, JSON.stringify([{ ...rows[0], workspace_tier: nextTier, plan: nextTier }, ...rows.slice(1)]));
+      if (rows[0]) {
+        const updated = { ...rows[0] };
+        if (override) { updated.workspace_tier = override; updated.plan = override; }
+        else { delete updated.workspace_tier; delete updated.plan; }
+        localStorage.setItem(key, JSON.stringify([updated, ...rows.slice(1)]));
+      }
       // Refresh cached profile/module queries so tier changes apply immediately
       // without requiring the user to sign out or reload the preview.
       queryClientInstance.invalidateQueries();
@@ -172,7 +181,7 @@ export default function PreviewRoleDashboard({ role = 'sarraaf' }) {
   };
 
   return <main dir="rtl" className="min-h-screen bg-slate-950 text-slate-100">
-    <header className="sticky top-0 z-30 border-b border-slate-800 bg-slate-950/95 px-4 py-3 backdrop-blur"><div className="mx-auto flex max-w-[1500px] items-center justify-between gap-3"><div className="flex items-center gap-3"><button className="rounded-lg border border-slate-700 p-2 lg:hidden" onClick={()=>setMenuOpen(!menuOpen)} aria-label="منو"><Menu className="h-5 w-5"/></button><div><div className="flex items-center gap-2 text-xs text-amber-300"><ShieldCheck className="h-4 w-4"/> محیط آزمایشی مستقل</div><h1 className="mt-1 text-lg font-bold">صرافی آزمایشی</h1></div></div><div className="flex items-center gap-2"><label className="flex items-center gap-2 rounded-lg border border-amber-400/30 bg-amber-400/10 px-2 py-1 text-xs text-amber-100"><span>آزمایش سطح</span><select aria-label="انتخاب سطح آزمایشی" value={tier} onChange={e=>changeTestTier(e.target.value)} className="rounded bg-slate-900 px-2 py-1 text-amber-100"><option value="basic">Basic</option><option value="professional">Professional</option><option value="enterprise">Enterprise</option></select></label><span className="hidden rounded-lg border border-slate-700 px-3 py-2 text-xs sm:inline">سطح {tierName}</span><button onClick={logout} className="rounded-lg border border-slate-700 p-2" aria-label="خروج"><LogOut className="h-4 w-4"/></button></div></div></header>
+    <header className="sticky top-0 z-30 border-b border-slate-800 bg-slate-950/95 px-4 py-3 backdrop-blur"><div className="mx-auto flex max-w-[1500px] items-center justify-between gap-3"><div className="flex items-center gap-3"><button className="rounded-lg border border-slate-700 p-2 lg:hidden" onClick={()=>setMenuOpen(!menuOpen)} aria-label="منو"><Menu className="h-5 w-5"/></button><div><div className="flex items-center gap-2 text-xs text-amber-300"><ShieldCheck className="h-4 w-4"/> محیط آزمایشی مستقل</div><h1 className="mt-1 text-lg font-bold">صرافی آزمایشی</h1></div></div><div className="flex items-center gap-2"><label className="flex items-center gap-2 rounded-lg border border-amber-400/30 bg-amber-400/10 px-2 py-1 text-xs text-amber-100"><span>آزمایش سطح</span><select aria-label="انتخاب سطح آزمایشی" value={testTier || 'auto'} onChange={e=>changeTestTier(e.target.value)} className="rounded bg-slate-900 px-2 py-1 text-amber-100"><option value="auto">طبق اشتراک تأییدشده</option><option value="basic">Basic</option><option value="professional">Professional</option><option value="enterprise">Enterprise</option></select></label><span className="hidden rounded-lg border border-slate-700 px-3 py-2 text-xs sm:inline">سطح {tierName}</span><button onClick={logout} className="rounded-lg border border-slate-700 p-2" aria-label="خروج"><LogOut className="h-4 w-4"/></button></div></div></header>
     <div className="mx-auto flex max-w-[1500px]">
       <aside className={`fixed inset-y-[61px] right-0 z-20 w-80 overflow-y-auto border-l border-slate-800 bg-slate-950 p-4 lg:sticky lg:top-[61px] lg:block lg:h-[calc(100vh-61px)] lg:translate-x-0 ${menuOpen?'translate-x-0':'translate-x-full'}`}>
         <button onClick={()=>setActiveTab('dashboard')} className="mb-3 flex w-full items-center gap-2 rounded-lg bg-slate-900 p-3 text-sm font-semibold"><LayoutDashboard className="h-4 w-4 text-amber-300"/> داشبورد صرافی</button>
