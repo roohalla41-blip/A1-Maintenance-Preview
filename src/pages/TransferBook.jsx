@@ -51,8 +51,8 @@ export default function TransferBook() {
 
   const handleExecute = async () => {
     if (!execDialog) return;
-    const lines = await buildTransferExecute(execDialog, payCurrency, payAmount, payCounter);
     try {
+      const lines = await buildTransferExecute(execDialog, payCurrency, payAmount, payCounter);
       await execMut.mutateAsync({ transfer: execDialog, lines, payCurrency, payAmount, payCounter });
       toast({ title: 'اجرای حواله', description: 'حواله با موفقیت اجرا شد' });
       setExecDialog(null);
