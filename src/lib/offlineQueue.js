@@ -520,7 +520,11 @@ export async function syncPendingWrites() {
   for (let i = 0; i < queue.length; i++) {
     const item = queue[i];
     const sdkEntity = createSupabaseEntity(item.entity);
-    if (!sdkEntity) { continue; }
+    if (!sdkEntity) {
+      // Keep the operation queued if its entity adapter is unavailable.
+      failed.push({ ...item });
+      continue;
+    }
 
     try {
       if (item.operation === 'create') {
@@ -544,10 +548,14 @@ export async function syncPendingWrites() {
       }
       // Success — don't add to failed
     } catch (e) {
-      const attempts = (item.attempts || 0) + 1;
-      if (attempts < MAX_RETRY) {
-        failed.push({ ...item, attempts });
-      }
+      const attempts = Math.min((item.attempts || 0) + 1, MAX_RETRY);
+      // Never discard a pending financial/data operation after a retry limit.
+      // Keep it visible in the queue for diagnosis and a later retry.
+      failed.push({
+        ...item,
+        attempts,
+        last_error: String(e?.message || e || 'sync_failed').slice(0, 500),
+      });
     }
   }
 
