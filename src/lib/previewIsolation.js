@@ -13,3 +13,10 @@ export function isIsolatedPreview(
   return hostname === 'roohalla41-blip.github.io'
     && pathname.startsWith('/A1-Maintenance-Preview');
 }
+
+// Shared pure predicate used by the offline data layer and contract tests.
+// Kept separate from offlineQueue.js so Node can test isolation without loading
+// browser/Supabase-dependent modules.
+export function isPreviewLocalOnly(config, location) {
+  return isIsolatedPreview(config, location);
+}
