@@ -41,7 +41,9 @@ export function isLocalOnlyMode(config = typeof window !== 'undefined' ? window.
     }
     return false;
   } catch {
-    return false;
+    // Fail closed: if mode detection fails, do not risk sending local data
+    // to a remote service. This is safer for both Preview and offline sessions.
+    return true;
   }
 }
 
@@ -91,16 +93,29 @@ function validateCacheTenant() {
     const storedSig = localStorage.getItem(CACHE_TENANT_KEY);
     if (currentSig === storedSig) return true;
 
-    // Mismatch — clear all cache data (but not the tenant sig itself)
-    const keysToRemove = [];
+    // Mismatch — quarantine the previous tenant's cache and pending queue.
+    // Never silently delete financial/offline data during an account switch.
+    const keysToArchive = [];
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
       if (key && (key.startsWith(CACHE_PREFIX) || key === QUEUE_KEY)) {
-        keysToRemove.push(key);
+        keysToArchive.push(key);
       }
     }
-    keysToRemove.forEach(k => localStorage.removeItem(k));
-    // Set new sig so future calls don't re-trigger
+    keysToArchive.forEach((key) => {
+      const raw = localStorage.getItem(key);
+      if (raw === null) return;
+      const base = `archived_${currentSig}_${key}`;
+      let archiveKey = base;
+      let suffix = 1;
+      while (localStorage.getItem(archiveKey) !== null) {
+        archiveKey = `${base}_${suffix++}`;
+      }
+      localStorage.setItem(archiveKey, raw);
+      localStorage.removeItem(key);
+    });
+    // Set new sig so future calls don't re-trigger. Archived data remains
+    // isolated and is not read by the active tenant's cache.
     localStorage.setItem(CACHE_TENANT_KEY, currentSig);
     notifyListeners();
     return false;
