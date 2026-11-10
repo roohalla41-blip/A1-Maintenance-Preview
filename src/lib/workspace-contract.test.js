@@ -6,6 +6,7 @@ import {
   getExchangeTier,
   canTierAccessNavKey,
   getTierForUser,
+  resolvePreviewWorkspaceTier,
 } from './exchangeTiers.js';
 import {
   normalizeRole,
@@ -157,4 +158,14 @@ test('trial balance cannot hide a currency imbalance behind converted totals', (
   assert.equal(result.isBalanced, false);
   assert.equal(result.balances.USD.debit, 10);
   assert.equal(result.balances.AFN.credit, 10);
+});
+
+test('approved preview grants determine the workspace tier unless an explicit test override exists', () => {
+  const today = '2026-11-10';
+  const grant = { tier: 'enterprise', startDate: '2026-11-01', endDate: '2027-10-31', status: 'active' };
+  assert.equal(resolvePreviewWorkspaceTier(null, grant, today), 'enterprise');
+  assert.equal(resolvePreviewWorkspaceTier('basic', grant, today), 'basic');
+  assert.equal(resolvePreviewWorkspaceTier(null, { ...grant, endDate: '2026-11-09' }, today), 'basic');
+  assert.equal(resolvePreviewWorkspaceTier(null, { ...grant, status: 'revoked' }, today), 'basic');
+  assert.equal(resolvePreviewWorkspaceTier(null, { ...grant, tier: 'unknown' }, today), 'basic');
 });
