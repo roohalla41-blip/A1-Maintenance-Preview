@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
-import { useBankAccounts, useCreateBankAccount, useCurrencies, useBankBalances, useTransactions, usePostDocument } from '@/lib/useSarraaf';
+import { useBankAccounts, useCreateBankAccount, useCurrencies, useBankBalances, useTransactions, usePostDocument, useCustomers } from '@/lib/useSarraaf';
 import { PageHeader, BalanceCard, TransactionRow, LoadingState } from '@/components/sarraaf/Pieces';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { AmountInput, CurrencySelect } from '@/components/sarraaf/Fields';
+import { AmountInput, CurrencySelect, Field } from '@/components/sarraaf/Fields';
 import { TX_TYPE_LABELS } from '@/lib/sarraaf';
+import { buildDadogereftLines } from '@/lib/ledgerApi';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Landmark, Plus, Loader2 } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
 
@@ -22,7 +24,9 @@ export default function Bank() {
   const { data: bankBalancesData } = useBankBalances();
   const createMut = useCreateBankAccount();
   const postMut = usePostDocument();
+  const { data: customers = [] } = useCustomers();
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState('overview');
   const [form, setForm] = useState(emptyForm);
 
   const handleSubmit = async event => {
@@ -120,6 +124,12 @@ export default function Bank() {
           ))
         )}
       </div>
+      <div className="mb-4 flex flex-wrap gap-2">
+        <Button size="sm" variant={activeSection === 'overview' ? 'default' : 'outline'} onClick={() => setActiveSection('overview')}>نمای کلی</Button>
+        <Button size="sm" variant={activeSection === 'receipts' ? 'default' : 'outline'} onClick={() => setActiveSection('receipts')}>واریز از مشتری</Button>
+        <Button size="sm" variant={activeSection === 'payments' ? 'default' : 'outline'} onClick={() => setActiveSection('payments')}>پرداخت به مشتری</Button>
+      </div>
+      {activeSection !== 'overview' && <BankMovementWorkspace section={activeSection} />}
       {isLoading ? <LoadingState /> : (
         <div className="grid grid-cols-1 gap-1 lg:grid-cols-2 lg:gap-2">
           {(txs || []).filter(transaction => transaction.counter_type === 'bank').slice(0, 20).map(transaction => (
@@ -162,3 +172,116 @@ export default function Bank() {
     </>
   );
 }
+function BankMovementWorkspace({ section }) {
+  const isReceipt = section === 'receipts';
+  const { data: accounts = [] } = useBankAccounts();
+  const { data: customers = [] } = useCustomers();
+  const { data: currencies = [] } = useCurrencies();
+  const { data: balances = [] } = useBankBalances();
+  const postMutation = usePostDocument();
+  const [accountId, setAccountId] = useState('');
+  const [customerId, setCustomerId] = useState('');
+  const [currency, setCurrency] = useState('AFN');
+  const [amount, setAmount] = useState(0);
+  const [description, setDescription] = useState('');
+
+  const selectedAccount = accounts.find(account => String(account.id) === String(accountId));
+  const selectedCustomer = customers.find(customer => String(customer.id) === String(customerId));
+  const availableBalance = Number((balances || []).find(row =>
+    String(row.account_id) === String(accountId)
+    && String(row.currency || 'AFN').toUpperCase() === String(currency).toUpperCase()
+  )?.balance) || 0;
+
+  const handleSubmit = async event => {
+    event.preventDefault();
+    const numericAmount = Number(amount);
+    if (!selectedAccount || !selectedCustomer) {
+      toast({ title: 'اطلاعات ناقص است', description: 'حساب بانکی و مشتری را انتخاب کنید.', variant: 'destructive' });
+      return;
+    }
+    if (!Number.isFinite(numericAmount) || numericAmount <= 0) {
+      toast({ title: 'مبلغ نامعتبر است', description: 'مبلغ باید بیشتر از صفر باشد.', variant: 'destructive' });
+      return;
+    }
+    if (String(selectedAccount.currency || 'AFN').toUpperCase() !== String(currency).toUpperCase()) {
+      toast({ title: 'ارز حساب مطابقت ندارد', description: `ارز حساب بانکی ${selectedAccount.currency || 'AFN'} است.`, variant: 'destructive' });
+      return;
+    }
+    if (!isReceipt && numericAmount > availableBalance + 0.000001) {
+      toast({ title: 'موجودی کافی نیست', description: `مانده حساب بانکی ${availableBalance.toLocaleString()} ${currency} است.`, variant: 'destructive' });
+      return;
+    }
+
+    const lines = buildDadogereftLines({
+      customer_id: selectedCustomer.id,
+      customer_name: selectedCustomer.name || selectedCustomer.full_name || 'مشتری',
+      direction: isReceipt ? 'in' : 'out',
+      currency,
+      amount: numericAmount,
+      counter_type: 'bank',
+      counter_id: selectedAccount.id,
+    });
+    try {
+      const result = await postMutation.mutateAsync({
+        doc_type: isReceipt ? 'bank_receipt' : 'bank_payment',
+        currency,
+        amount: numericAmount,
+        related_type: 'customer',
+        related_id: selectedCustomer.id,
+        related_name: selectedCustomer.name || selectedCustomer.full_name || 'مشتری',
+        description: description.trim() || (isReceipt ? 'واریز مشتری به حساب بانکی' : 'پرداخت بانکی به مشتری'),
+        client_operation_id: `bank-${section}-${selectedCustomer.id}-${selectedAccount.id}-${Date.now()}`,
+        lines,
+      });
+      toast({ title: isReceipt ? 'واریز ثبت شد' : 'پرداخت بانکی ثبت شد', description: `شماره سند: ${result.document_no || result.doc_number || 'ثبت محلی'}` });
+      setAmount(0);
+      setDescription('');
+    } catch (error) {
+      toast({ title: 'ثبت عملیات ناموفق بود', description: error.message, variant: 'destructive' });
+    }
+  };
+
+  return (
+    <section className="mb-4 rounded-2xl border bg-card p-4" dir="rtl">
+      <h2 className="mb-3 font-bold">{isReceipt ? 'واریز مشتری به بانک' : 'پرداخت بانکی به مشتری'}</h2>
+      <form onSubmit={handleSubmit} className="max-w-2xl space-y-3">
+        <Field label="حساب بانکی" required>
+          <Select value={accountId} onValueChange={value => {
+            setAccountId(value);
+            const account = accounts.find(item => String(item.id) === String(value));
+            setCurrency(String(account?.currency || 'AFN').toUpperCase());
+          }}>
+            <SelectTrigger><SelectValue placeholder="انتخاب حساب بانکی" /></SelectTrigger>
+            <SelectContent>
+              {accounts.map(account => <SelectItem key={account.id} value={String(account.id)}>{account.bank_name} — {account.currency}</SelectItem>)}
+            </SelectContent>
+          </Select>
+        </Field>
+        <Field label="مشتری" required>
+          <Select value={customerId} onValueChange={setCustomerId}>
+            <SelectTrigger><SelectValue placeholder="انتخاب مشتری" /></SelectTrigger>
+            <SelectContent>
+              {customers.map(customer => <SelectItem key={customer.id} value={String(customer.id)}>{customer.name || customer.full_name || customer.phone || String(customer.id)}</SelectItem>)}
+            </SelectContent>
+          </Select>
+        </Field>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <Field label="ارز">
+            <CurrencySelect value={currency} onChange={setCurrency} currencies={currencies} disabled={!!selectedAccount} />
+          </Field>
+          <Field label="مبلغ" required>
+            <AmountInput value={amount} onChange={setAmount} />
+          </Field>
+        </div>
+        {!isReceipt && <p className="rounded-lg border bg-muted/40 p-3 text-sm">مانده قابل‌استفاده: <b>{availableBalance.toLocaleString()} {currency}</b></p>}
+        <Field label="شرح عملیات">
+          <Input value={description} onChange={event => setDescription(event.target.value)} placeholder="توضیحات اختیاری" />
+        </Field>
+        <Button type="submit" className="w-full" disabled={postMutation.isPending || !accountId || !customerId || Number(amount) <= 0 || (!isReceipt && Number(amount) > availableBalance + 0.000001)}>
+          {postMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : isReceipt ? 'ثبت واریز و صدور سند' : 'ثبت پرداخت و صدور سند'}
+        </Button>
+      </form>
+    </section>
+  );
+}
+
