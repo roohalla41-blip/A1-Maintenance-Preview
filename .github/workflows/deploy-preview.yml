@@ -68,3 +68,5 @@ jobs:
       - name: Publish live preview
         id: deployment
         uses: actions/deploy-pages@v4
+
+# Preview contract test rerun after isolating the pure local-only guard.
