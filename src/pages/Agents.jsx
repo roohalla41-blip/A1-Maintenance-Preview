@@ -28,10 +28,13 @@ export default function Agents() {
     setDialogOpen(false);
   };
 
-  const getAgentBal = (agentId) => {
-    const b = (agentBalancesData || []).find(x => String(x.agent_id) === String(agentId));
-    return b ? { [b.currency || 'AFN']: b.balance || 0 } : {};
-  };
+  const getAgentBal = agentId => (agentBalancesData || [])
+    .filter(row => String(row.account_id ?? row.agent_id) === String(agentId))
+    .reduce((amounts, row) => {
+      const code = String(row.currency || 'AFN').toUpperCase();
+      amounts[code] = (amounts[code] || 0) + (Number(row.balance) || 0);
+      return amounts;
+    }, {});
 
   return (
     <>
