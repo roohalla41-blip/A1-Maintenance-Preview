@@ -1,7 +1,19 @@
-# حساب صراف — Preview Environment
+# حساب صراف — وضعیت محیط آزمایشی
 
-This file records the isolated Cloudflare Pages preview environment.
+این مخزن، محیط آزمایشی مستقل پروژهٔ حساب صراف است؛ نسخهٔ زندهٔ A1 نیست.
 
-- Preview project: `hisabsarraf-preview`
-- Source branch: `release/restore-build`
-- Production domain and user data are not changed by this preview setup.
+- مخزن: `roohalla41-blip/A1-Maintenance-Preview`
+- شاخهٔ کاری: `a1-structure-copy`
+- حالت اجرا: محلی و آفلاین از نظر پایگاه‌داده
+- اتصال Supabase: غیرفعال و ممنوع
+- پیکربندی runtime: `url: null`, `key: null`, `previewOnly: true`
+- داده‌ها: فقط داده‌های ساختگی/آزمایشی مرورگر
+- استقرار: تا تکمیل ساختار و اجازهٔ صریح، انجام نمی‌شود
+
+## مرز حفاظت از A1
+
+هیچ فایل، شاخه، تنظیم، سرویس، پایگاه‌داده، کاربر یا تراکنش نسخهٔ زندهٔ A1 نباید در این محیط تغییر کند یا با داده‌های آزمایشی مخلوط شود.
+
+## نقطهٔ ادامهٔ کار
+
+ادامهٔ کار از آخرین وضعیت موجود انجام می‌شود؛ مراحل تکمیل‌شده دوباره از صفر اجرا نمی‌شوند. اولویت فعلی، تکمیل و ممیزی ساختار ماژول‌ها و گردش‌کارهای حسابداری در همین محیط مستقل است.
