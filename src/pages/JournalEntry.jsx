@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { useCustomers, useBankAccounts, useAgents, useSafes, usePostDocument } from '@/lib/useSarraaf';
+import { useCustomers, useBankAccounts, useAgents, useSafes, useCurrencies, usePostDocument } from '@/lib/useSarraaf';
 import { PageHeader } from '@/components/sarraaf/Pieces';
 import { AmountInput, CurrencySelect } from '@/components/sarraaf/Fields';
 import { Button } from '@/components/ui/button';
