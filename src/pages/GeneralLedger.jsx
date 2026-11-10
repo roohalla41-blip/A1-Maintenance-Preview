@@ -1,9 +1,9 @@
 import React, { useState, useMemo } from 'react';
-import { useTransactions, useCurrencies, useRateSettings, useCustomers, useEditTransaction, useSoftDeleteTransaction, useCreateCustomer, usePostDocument } from '@/lib/useSarraaf';
+import { useTransactions, useCurrencies, useRateSettings, useCustomers, useSafes, useBankAccounts, useAgents, useEditTransaction, useSoftDeleteTransaction, useCreateCustomer, usePostDocument } from '@/lib/useSarraaf';
 import { useAuth } from '@/lib/AuthContext';
 import { PageHeader, LoadingState, EmptyState, StatusBadge } from '@/components/sarraaf/Pieces';
 import { trialBalanceBase } from '@/lib/ledger';
-import { formatDate, formatNumber, TX_TYPE_LABELS, todayJalali, nextDocumentNo } from '@/lib/sarraaf';
+import { formatDate, formatNumber, TX_TYPE_LABELS, todayJalali } from '@/lib/sarraaf';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -27,6 +27,9 @@ export default function GeneralLedger() {
   const { data: currencies } = useCurrencies();
   const { data: rateSettings } = useRateSettings();
   const { data: customers } = useCustomers();
+  const { data: safes = [] } = useSafes();
+  const { data: bankAccounts = [] } = useBankAccounts();
+  const { data: agents = [] } = useAgents();
   const editMut = useEditTransaction();
   const deleteMut = useSoftDeleteTransaction();
   const createCustomerMut = useCreateCustomer();
@@ -50,6 +53,8 @@ export default function GeneralLedger() {
     customer_id: '',
     customer_name: '',
     customer_phone: '',
+    counter_type: 'cash',
+    counter_id: '',
   });
 
   // Edit dialog
@@ -132,33 +137,80 @@ export default function GeneralLedger() {
   // ── Add transaction ──
   const handleAddTx = async (e) => {
     e.preventDefault();
-    const docNo = await nextDocumentNo('DV');
-    const lines = [{
-      date: addForm.date,
-      document_no: docNo,
-      type: addForm.type,
-      currency: addForm.currency,
-      amount: Number(addForm.amount) || 0,
-      customer_side: addForm.customer_side,
-      customer_id: addForm.customer_id || undefined,
-      customer_name: addForm.customer_name || undefined,
-      customer_phone: addForm.customer_phone || undefined,
-      description: addForm.description || undefined,
-    }];
-    await postDocMut.mutateAsync(lines);
-    setAddOpen(false);
-    setAddForm({
-      date: todayJalali(),
-      type: 'manual',
-      currency: 'AFN',
-      amount: 0,
-      customer_side: 'none',
-      description: '',
-      customer_id: '',
-      customer_name: '',
-      customer_phone: '',
-    });
-    toast({ title: 'موفق', description: 'سند ثبت شد' });
+    const amount = Number(addForm.amount);
+    if (!addForm.customer_id || !addForm.counter_id || !['debit', 'credit'].includes(addForm.customer_side)
+      || !Number.isFinite(amount) || amount <= 0) {
+      toast({ title: 'اطلاعات سند ناقص است', description: 'مشتری، حساب مقابل، سمت بدهکار/بستانکار و مبلغ معتبر را مشخص کنید.', variant: 'destructive' });
+      return;
+    }
+
+    const counterOptions = addForm.counter_type === 'cash'
+      ? safes
+      : addForm.counter_type === 'bank' ? bankAccounts : agents;
+    const counter = counterOptions.find(item => String(item.id) === String(addForm.counter_id));
+    if (!counter) {
+      toast({ title: 'حساب مقابل معتبر نیست', description: 'حساب صندوق، بانک یا نماینده را دوباره انتخاب کنید.', variant: 'destructive' });
+      return;
+    }
+    if (counter.currency && String(counter.currency).toUpperCase() !== String(addForm.currency).toUpperCase()) {
+      toast({ title: 'ارز حساب مطابقت ندارد', description: `ارز حساب مقابل ${counter.currency} است.`, variant: 'destructive' });
+      return;
+    }
+
+    const counterSide = addForm.customer_side === 'debit' ? 'credit' : 'debit';
+    const lines = [
+      {
+        account_type: 'customer',
+        account_id: String(addForm.customer_id),
+        account_name: addForm.customer_name || 'مشتری',
+        currency: addForm.currency,
+        debit: addForm.customer_side === 'debit' ? amount : 0,
+        credit: addForm.customer_side === 'credit' ? amount : 0,
+        description: addForm.description || 'ثبت در دفتر مشتری',
+        line_no: 1,
+      },
+      {
+        account_type: addForm.counter_type,
+        account_id: String(addForm.counter_id),
+        account_name: counter.bank_name || counter.name || counter.full_name || 'حساب مقابل',
+        currency: addForm.currency,
+        debit: counterSide === 'debit' ? amount : 0,
+        credit: counterSide === 'credit' ? amount : 0,
+        description: addForm.description || 'حساب مقابل سند',
+        line_no: 2,
+      },
+    ];
+
+    try {
+      await postDocMut.mutateAsync({
+        doc_type: addForm.type || 'manual',
+        currency: addForm.currency,
+        amount,
+        related_type: 'customer',
+        related_id: addForm.customer_id,
+        related_name: addForm.customer_name || '',
+        description: addForm.description || 'سند دفتر کل',
+        lines,
+        client_operation_id: globalThis.crypto?.randomUUID?.() || `general-ledger-${Date.now()}`,
+      });
+      setAddOpen(false);
+      setAddForm({
+        date: todayJalali(),
+        type: 'manual',
+        currency: 'AFN',
+        amount: 0,
+        customer_side: 'none',
+        description: '',
+        customer_id: '',
+        customer_name: '',
+        customer_phone: '',
+        counter_type: 'cash',
+        counter_id: '',
+      });
+      toast({ title: 'موفق', description: 'سند متوازن در دفترکل ثبت شد' });
+    } catch (error) {
+      toast({ title: 'ثبت سند ناموفق بود', description: error.message, variant: 'destructive' });
+    }
   };
 
   const selectExistingCustomer = (c) => {
