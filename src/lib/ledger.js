@@ -397,8 +397,10 @@ export function computeProfit(txs, rateSettings, currencies) {
   let totalFee = 0;
   let totalRateDiff = 0;
   for (const t of txs) {
-    // Skip deleted or cancelled transactions
-    if (t.deleted || t.cancelled) continue;
+    // Exclude deleted/cancelled documents, reversed originals, and reversal
+    // documents themselves so a reversed fee is never counted as profit twice.
+    if (t.deleted || t.cancelled || t.reversed || t.reversal_document_id
+      || t.type === 'reversal' || t.doc_type === 'reversal' || t.reverse_of) continue;
 
     // Fees
     if (t.fee && t.fee > 0) {
@@ -450,8 +452,10 @@ export function computeProfitDetailed(txs, rateSettings, currencies) {
   };
 
   for (const t of txs) {
-    // Skip deleted or cancelled transactions
-    if (t.deleted || t.cancelled) continue;
+    // Exclude deleted/cancelled documents, reversed originals, and reversal
+    // documents themselves so a reversed fee is never counted as profit twice.
+    if (t.deleted || t.cancelled || t.reversed || t.reversal_document_id
+      || t.type === 'reversal' || t.doc_type === 'reversal' || t.reverse_of) continue;
 
     let feeAfn = 0;
     let rateDiffAfn = 0;
