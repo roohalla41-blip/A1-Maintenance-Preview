@@ -30,12 +30,15 @@ export default function CustomerDetail() {
   const [form, setForm] = useState({});
   const updateMut = useUpdateCustomer();
 
-  const customer = (customers || []).find(c => c.id === id);
-  const custBalanceRow = (customerBalancesData || []).find(b => String(b.customer_id) === String(id));
-  const balances = {};
-  if (custBalanceRow) {
-    balances[custBalanceRow.balance_currency || 'AFN'] = custBalanceRow.net_balance || 0;
-  }
+  const customer = (customers || []).find(c => String(c.id) === String(id));
+  const customerBalanceRows = (customerBalancesData || []).filter(row =>
+    String(row.account_id) === String(id) && row.account_type === 'customer'
+  );
+  const balances = customerBalanceRows.reduce((result, row) => {
+    const code = String(row.currency || 'AFN').toUpperCase();
+    result[code] = (result[code] || 0) + (Number(row.balance) || 0);
+    return result;
+  }, {});
 
   if (!customers) return <LoadingState />;
   if (!customer) return <EmptyState title="مشتری یافت نشد" />;
