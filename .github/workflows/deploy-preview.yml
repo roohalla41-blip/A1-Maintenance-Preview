@@ -1,17 +1,15 @@
 name: Deploy isolated A1 maintenance preview
 # Rebuild the preview from the latest validated a1-structure-copy commit.
 # Mobile and desktop navigation now share the same grouped accounting modules.
-# Deployment is triggered from the default branch; application source is always checked out from a1-structure-copy.
-# Deployment refresh: publish the newest validated preview source after isolated build checks.
+# This workflow deploys ONLY the isolated maintenance-preview repository.
+# It never deploys or writes to the live A1 project or its database.
 # Refresh requested after standardizing enterprise module workspaces and the cash subsystem skeleton.
 
 on:
   workflow_dispatch:
   push:
     branches:
-      - main
-    paths:
-      - .github/workflows/deploy-preview.yml
+      - a1-structure-copy
 
 permissions:
   contents: read
