@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { pingSupabase, countTables, hasSupabaseSession } from '@/lib/supabaseHealth';
+import { isIsolatedPreview } from '@/lib/previewIsolation';
 import {
   Database, CheckCircle2, XCircle, HardDrive, Table, Activity,
   Server, Cloud, AlertTriangle, Loader2, RefreshCw, Box, Clock
@@ -89,18 +90,26 @@ export default function SystemOverview() {
 
     async function loadData() {
       setLoading(true);
-      // 1. تست اتصال — مستقیم به Supabase (بدون توابع Base44)
-      const ping = await pingSupabase();
-      if (!cancelled) {
-        setConnectionStatus(ping.connected ? 'connected' : 'disconnected');
-        setConnectionError(ping.error);
-      }
-
-      // 1b. بررسی وضعیت احراز هویت — نشست Supabase Auth یا توکن قدیمی
-      const hasSession = await hasSupabaseSession();
-      if (!cancelled) {
-        const hasToken = !!localStorage.getItem('auth_token');
-        setAuthMode(hasSession || hasToken ? 'supabase' : 'local');
+      // Isolated preview: never ping or count production tables; report local-only truth.
+      const previewOnly = isIsolatedPreview();
+      if (previewOnly) {
+        if (!cancelled) {
+          setConnectionStatus('preview');
+          setConnectionError(null);
+          setAuthMode('local');
+          setEntityCounts({});
+        }
+      } else {
+        const ping = await pingSupabase();
+        if (!cancelled) {
+          setConnectionStatus(ping.connected ? 'connected' : 'disconnected');
+          setConnectionError(ping.error);
+        }
+        const hasSession = await hasSupabaseSession();
+        if (!cancelled) {
+          const hasToken = !!localStorage.getItem('auth_token');
+          setAuthMode(hasSession || hasToken ? 'supabase' : 'local');
+        }
       }
 
       // 1c. تعداد عملیات در انتظار همگام‌سازی
@@ -111,9 +120,11 @@ export default function SystemOverview() {
         if (!cancelled) setSyncPending(0);
       }
 
-      // 2. شمارش رکوردهای هر جدول — مستقیم از Supabase (فقط count، بدون بارگذاری رکوردها)
-      const counts = await countTables(ALL_ENTITIES.map(e => ({ name: e.name, table: e.table || e.name })));
-      if (!cancelled) setEntityCounts(counts);
+      // 2. Count database records only outside the isolated preview.
+      if (!previewOnly) {
+        const counts = await countTables(ALL_ENTITIES.map(e => ({ name: e.name, table: e.table || e.name })));
+        if (!cancelled) setEntityCounts(counts);
+      }
 
       // 3. فضای ذخیره‌سازی
       if (!cancelled) setStorageInfo(getStorageInfo());
@@ -170,12 +181,14 @@ export default function SystemOverview() {
             <div className="flex items-center gap-3">
               <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
                 connectionStatus === 'connected' ? 'bg-green-100' :
-                connectionStatus === 'disconnected' ? 'bg-red-100' : 'bg-muted'
+                connectionStatus === 'disconnected' ? 'bg-red-100' : connectionStatus === 'preview' ? 'bg-amber-100' : 'bg-muted'
               }`}>
                 {connectionStatus === 'checking' ? (
                   <Loader2 className="w-5 h-5 text-muted-foreground animate-spin" />
                 ) : connectionStatus === 'connected' ? (
                   <CheckCircle2 className="w-5 h-5 text-green-600" />
+                ) : connectionStatus === 'preview' ? (
+                  <AlertTriangle className="w-5 h-5 text-amber-600" />
                 ) : (
                   <XCircle className="w-5 h-5 text-red-600" />
                 )}
@@ -184,6 +197,7 @@ export default function SystemOverview() {
                 <p className="text-sm font-bold">اتصال به Supabase</p>
                 <p className="text-xs text-muted-foreground">
                   {connectionStatus === 'connected' ? 'برقرار است ✓' :
+                   connectionStatus === 'preview' ? 'عمداً متصل نیست — محیط محلی' :
                    connectionStatus === 'disconnected' ? 'قطع شده' :
                    'در حال بررسی...'}
                 </p>
@@ -203,7 +217,7 @@ export default function SystemOverview() {
               <Cloud className="w-4 h-4 mx-auto text-green-500 mb-1" />
               <p className="text-[10px] text-muted-foreground">دیتابیس</p>
               <p className={`text-xs font-bold ${connectionStatus === 'connected' ? 'text-green-600' : 'text-red-600'}`}>
-                {connectionStatus === 'connected' ? 'آنلاین' : 'آفلاین'}
+                {connectionStatus === 'connected' ? 'آنلاین' : connectionStatus === 'preview' ? 'آزمایشی' : 'آفلاین'}
               </p>
             </div>
             <div>
@@ -269,12 +283,12 @@ export default function SystemOverview() {
               <h4 className="text-sm font-bold">آمار رکوردها</h4>
             </div>
             <span className="text-xs font-bold text-primary bg-primary/10 px-2 py-1 rounded-full">
-              مجموع: {toFaNum(totalRecords)} رکورد
+              {isIsolatedPreview() ? 'آمار دیتابیس در پیش‌نمایش در دسترس نیست' : `مجموع: ${toFaNum(totalRecords)} رکورد`}
             </span>
           </div>
 
           <div className="grid grid-cols-2 gap-2">
-            {ALL_ENTITIES.map(entity => {
+            {!isIsolatedPreview() && ALL_ENTITIES.map(entity => {
               const count = entityCounts[entity.name] || 0;
               return (
                 <div
@@ -290,6 +304,7 @@ export default function SystemOverview() {
                 </div>
               );
             })}
+            {isIsolatedPreview() && <p className="col-span-2 rounded-lg border border-dashed p-4 text-center text-xs text-muted-foreground">برای حفاظت از داده‌ها، شمارش جدول‌های پایگاه داده در این محیط انجام نمی‌شود.</p>}
           </div>
         </CardContent>
       </Card>
