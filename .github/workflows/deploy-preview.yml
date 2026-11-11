@@ -9,7 +9,9 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - a1-structure-copy
+      - main
+    paths:
+      - .github/workflows/deploy-preview.yml
 
 permissions:
   contents: read
