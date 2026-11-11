@@ -103,36 +103,21 @@ const TAB_GROUPS = [
     value: 'plans',
     description: 'سهمیه و امکانات پلن',
   },
-  {
-    label: 'قیمت‌گذاری',
-    icon: CreditCard,
-    value: 'pricing',
-    description: 'قیمت پلن‌ها',
-  },
+
   {
     label: 'اعلان‌ها',
     icon: Bell,
     value: 'notif',
     description: 'مدیریت اعلان‌ها',
   },
-  {
-    label: 'چت',
-    icon: MessageSquare,
-    value: 'chat',
-    description: 'مدیریت چت و گروه‌ها',
-  },
+
   {
     label: 'پرداخت',
     icon: Wallet,
     value: 'payments',
     description: 'روش‌های پرداخت',
   },
-  {
-    label: 'برداشت‌ها',
-    icon: CreditCard,
-    value: 'withdrawals',
-    description: 'تأیید/رد برداشت کیف پول',
-  },
+
   {
     label: 'نسخه',
     icon: Upload,
@@ -145,18 +130,7 @@ const TAB_GROUPS = [
     value: 'backup',
     description: 'پشتیبان اضطراری پروژه',
   },
-  {
-    label: 'پشتیبان v2',
-    icon: AlertTriangle,
-    value: 'backup_v2',
-    description: 'نسخه اضطراری کامل (۲۸ بخش)',
-  },
-  {
-    label: 'سه گانه',
-    icon: Download,
-    value: 'triple_backup',
-    description: 'PDF + ZIP + Supabase',
-  },
+
   {
     label: 'کمک‌سازنده',
     icon: UserCog,
@@ -164,16 +138,10 @@ const TAB_GROUPS = [
     description: 'مدیریت دسترسی کمک‌سازنده‌ها',
   },
   {
-    label: 'تأیید ایمیل',
+    label: 'تأیید و دوره آزمایشی',
     icon: Mail,
-    value: 'email_verify',
-    description: 'درخواست‌های تأیید دستی ایمیل',
-  },
-  {
-    label: 'آزمایش',
-    icon: Clock,
-    value: 'trial',
-    description: 'مدیریت دوره آزمایشی صرافان',
+    value: 'verification',
+    description: 'تأیید هویت و دوره آزمایشی صرافان',
   },
   {
     label: 'چیدمان موبایل',
@@ -188,34 +156,10 @@ const TAB_GROUPS = [
     description: 'پیش‌نمایش امن نسخه پیشنهادی در محیط مستقل',
   },
   {
-    label: 'هوش مثنوی',
-    icon: Bot,
-    value: 'masnavi_ai',
-    description: 'دستیار هوشمند آزمایشی',
-  },
-  {
-    label: 'UC پابجی',
-    icon: Gamepad2,
-    value: 'uc_manager',
-    description: 'مدیریت UC پابجی موبایل',
-  },
-  {
-    label: 'شارژ و بسته',
-    icon: Zap,
-    value: 'recharge',
-    description: 'خرید شارژ و بسته اینترنت (افغان۵)',
-  },
-  {
-    label: 'افغان۵',
-    icon: Globe,
-    value: 'afghan5',
-    description: 'مدیریت حساب و بسته‌های افغان۵',
-  },
-  {
-    label: 'فروشندگان',
+    label: 'خدمات و فروشندگان',
     icon: Store,
-    value: 'sellers',
-    description: 'مدیریت فروشندگان و سفارش‌ها',
+    value: 'services',
+    description: 'مدیریت خدمات دیجیتال، شارژ و شبکه فروشندگان',
   },
   {
     label: 'آزمایش فروش',
@@ -224,17 +168,12 @@ const TAB_GROUPS = [
     description: 'محیط آزمایشی محلی فروش شارژ و خدمات',
   },
   {
-    label: 'بررسی سوپابیس',
+    label: 'امنیت و ممیزی',
     icon: Database,
-    value: 'supabase_audit',
-    description: 'گزارش امن ساختار و RLS سوپابیس',
+    value: 'audit',
+    description: 'گزارش امن ساختار پایگاه داده و سیاست‌های دسترسی',
   },
-  {
-    label: 'دیتابیس زنده',
-    icon: Database,
-    value: 'db_explorer',
-    description: 'مرور و مدیریت زنده ردیف‌های جدول‌ها',
-  },
+
 ];
 
 export default function BuilderPanel() {
@@ -370,12 +309,11 @@ export default function BuilderPanel() {
         {/* سیستم — نمای کلی، اتصال، آمار */}
         <TabsContent value="system">
           <div className="space-y-4">
-            <AccountRecoveryManager />
-            <KeepaliveStatus />
             <SystemOverview />
+            <KeepaliveStatus />
+            <AccountRecoveryManager />
             <OrphanCustomerManager />
-            <LegacyDataMigrator />
-            <SqlMigrationHelper />
+            <p className="text-xs text-muted-foreground">ابزارهای مهاجرت و اجرای SQL از مرکز کنترل روزمره برداشته شده‌اند تا تغییرات حساس داده فقط از مسیر نگهداریِ کنترل‌شده انجام شود.</p>
           </div>
         </TabsContent>
 
@@ -436,23 +374,28 @@ export default function BuilderPanel() {
           <div className="space-y-4">
             <PaidSystemToggle />
             <PlanFeatureManager />
+            <PlanPricingManager />
           </div>
         </TabsContent>
 
         {/* قیمت‌گذاری */}
-        <TabsContent value="pricing"><PlanPricingManager /></TabsContent>
+        
 
         {/* اعلان‌ها */}
-        <TabsContent value="notif"><NotificationManager /></TabsContent>
+        <TabsContent value="notif">
+          <div className="space-y-4"><NotificationManager /><ChatManagement /></div>
+        </TabsContent>
 
         {/* چت */}
-        <TabsContent value="chat"><ChatManagement /></TabsContent>
+        
 
         {/* پرداخت */}
-        <TabsContent value="payments"><PaymentMethodsManager /></TabsContent>
+        <TabsContent value="payments">
+          <div className="space-y-4"><PaymentMethodsManager /><WithdrawalManagement /></div>
+        </TabsContent>
 
         {/* برداشت‌ها */}
-        <TabsContent value="withdrawals"><WithdrawalManagement /></TabsContent>
+        
 
         {/* نسخه */}
         <TabsContent value="version">
@@ -465,17 +408,12 @@ export default function BuilderPanel() {
 
         {/* پشتیبان اضطراری */}
         <TabsContent value="backup">
-          <EmergencyBackup />
-        </TabsContent>
-
-        {/* پشتیبان اضطراری v2 — Snapshot کامل وضعیت پروژه */}
-        <TabsContent value="backup_v2">
-          <EmergencyBackupV2 />
-        </TabsContent>
-
-        {/* پشتیبان سه‌گانه — PDF + ZIP + Supabase */}
-        <TabsContent value="triple_backup">
-          <TripleBackup />
+          <div className="space-y-4">
+            <Card><CardContent className="p-3"><h3 className="font-semibold text-sm">مرکز پشتیبان‌گیری و بازیابی</h3><p className="mt-1 text-xs text-muted-foreground">ابزارهای پشتیبان در یک محل جمع شده‌اند؛ پیش از هر بازیابی، نسخه و مقصد باید بررسی شود.</p></CardContent></Card>
+            <EmergencyBackup />
+            <EmergencyBackupV2 />
+            <TripleBackup />
+          </div>
         </TabsContent>
 
         {/* کمک‌سازنده‌ها — فقط سازنده اصلی */}
@@ -486,13 +424,8 @@ export default function BuilderPanel() {
         )}
 
         {/* تأیید دستی ایمیل */}
-        <TabsContent value="email_verify">
-          <ManualVerificationManager />
-        </TabsContent>
-
-        {/* مدیریت دوره آزمایشی */}
-        <TabsContent value="trial">
-          <TrialManager />
+        <TabsContent value="verification">
+          <div className="space-y-4"><ManualVerificationManager /><TrialManager /></div>
         </TabsContent>
 
         {/* پیش‌نمایش چیدمان موبایل */}
@@ -508,30 +441,16 @@ export default function BuilderPanel() {
         )}
 
         {/* هوش مثنوی — دستیار هوشمند آزمایشی */}
-        <TabsContent value="masnavi_ai">
-          <React.Suspense fallback={<div className="flex items-center justify-center min-h-[40vh]"><div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>}>
-            <Assistant />
-          </React.Suspense>
-        </TabsContent>
+        
 
-        {/* مدیریت UC پابجی موبایل */}
-        <TabsContent value="uc_manager">
-          <UCManager />
-        </TabsContent>
-
-        {/* شارژ و بسته اینترنت — افغان۵ */}
-        <TabsContent value="recharge">
-          <RechargeManager />
-        </TabsContent>
-
-        {/* مدیریت افغان۵ — نشانی حساب، بسته‌ها و سفارش‌ها */}
-        <TabsContent value="afghan5">
-          <Afghan5Manager />
-        </TabsContent>
-
-        {/* مدیریت فروشندگان — نقش‌ها، سفارش‌ها، قیمت‌گذاری */}
-        <TabsContent value="sellers">
-          <SellerManager />
+        {/* مدیریت یکپارچه خدمات و فروشندگان */}
+        <TabsContent value="services">
+          <div className="space-y-4">
+            <SellerManager />
+            <RechargeManager />
+            <Afghan5Manager />
+            <UCManager />
+          </div>
         </TabsContent>
 
         {/* محیط آزمایشی فروش شارژ و خدمات دیجیتال — فقط سازندهٔ اصلی */}
@@ -545,15 +464,8 @@ export default function BuilderPanel() {
 
         {/* بررسی امن سوپابیس — فقط سازنده/مدیر */}
         {isFullCreator && (
-          <TabsContent value="supabase_audit">
+          <TabsContent value="audit">
             <SupabaseAuditManager />
-          </TabsContent>
-        )}
-
-        {/* دیتابیس زنده — فقط سازندهٔ اصلی */}
-        {isFullCreator && (
-          <TabsContent value="db_explorer">
-            <LiveDatabaseExplorer />
           </TabsContent>
         )}
 
