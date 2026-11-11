@@ -73,3 +73,4 @@ jobs:
 # Preview contract test rerun after isolating the pure local-only guard.
 # Creator control-center cleanup, preview-lab retention, and truthful local-only status are ready.
 # Creator panel deployment uses the isolated branch; build is required, legacy Node test resolution is non-blocking.
+# Creator demo entry now opens the real creator control center with its preview-only session.
