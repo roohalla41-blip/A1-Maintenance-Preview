@@ -158,16 +158,16 @@ export default function SystemOverview() {
       </div>
 
       {/* وضعیت اپلیکیشن */}
-      <Card className="border-green-200 bg-green-50/50">
+      <Card className={isIsolatedPreview() ? 'border-amber-300 bg-amber-50/50' : 'border-green-200 bg-green-50/50'}>
         <CardContent className="p-4">
           <div className="flex items-start gap-3">
-            <div className="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center shrink-0">
-              <CheckCircle2 className="w-5 h-5 text-green-600" />
+            <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${isIsolatedPreview() ? 'bg-amber-100' : 'bg-green-100'}`}>
+              {isIsolatedPreview() ? <AlertTriangle className="w-5 h-5 text-amber-600" /> : <CheckCircle2 className="w-5 h-5 text-green-600" />}
             </div>
             <div className="flex-1">
-              <p className="text-sm font-bold text-green-900">اتصال به Supabase</p>
-              <p className="text-xs text-green-700 mt-1">
-                تمام داده‌ها به‌صورت آنلاین در Supabase ذخیره و پردازش می‌شوند.
+              <p className={`text-sm font-bold ${isIsolatedPreview() ? 'text-amber-900' : 'text-green-900'}`}>{isIsolatedPreview() ? 'محیط آزمایشی مستقل' : 'اتصال به Supabase'}</p>
+              <p className={`text-xs mt-1 ${isIsolatedPreview() ? 'text-amber-800' : 'text-green-700'}`}>
+                {isIsolatedPreview() ? 'این محیط به پایگاه داده اصلی متصل نیست؛ اطلاعات فقط محلی و آزمایشی است.' : 'تمام داده‌ها به‌صورت آنلاین در Supabase ذخیره و پردازش می‌شوند.'}
               </p>
             </div>
           </div>
@@ -208,7 +208,7 @@ export default function SystemOverview() {
             </div>
             <div className="text-left">
               <p className="text-xs text-muted-foreground">پلن</p>
-              <p className="text-sm font-bold text-green-600">رایگان (Free Tier)</p>
+              <p className="text-sm font-bold text-green-600">{isIsolatedPreview() ? "محیط آزمایشی" : "رایگان (Free Tier)"}</p>
             </div>
           </div>
 
@@ -216,7 +216,7 @@ export default function SystemOverview() {
             <div>
               <Cloud className="w-4 h-4 mx-auto text-green-500 mb-1" />
               <p className="text-[10px] text-muted-foreground">دیتابیس</p>
-              <p className={`text-xs font-bold ${connectionStatus === 'connected' ? 'text-green-600' : 'text-red-600'}`}>
+              <p className={`text-xs font-bold ${connectionStatus === 'connected' ? 'text-green-600' : connectionStatus === 'preview' ? 'text-amber-600' : 'text-red-600'}`}>
                 {connectionStatus === 'connected' ? 'آنلاین' : connectionStatus === 'preview' ? 'آزمایشی' : 'آفلاین'}
               </p>
             </div>
