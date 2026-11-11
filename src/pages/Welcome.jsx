@@ -226,7 +226,7 @@ export default function Welcome() {
           </button>
           <button type="button" onClick={() => { startPreviewSession('customer'); window.location.assign(`${import.meta.env.BASE_URL}preview-customer`); }} className="pgm-btn pgm-btn-outline"><UserCircle className="w-[18px] h-[18px]" /> ورود مشتری آزمایشی</button>
           <button type="button" onClick={() => { startPreviewSession('sarraaf'); window.location.assign(`${import.meta.env.BASE_URL}preview-sarraaf`); }} className="pgm-btn pgm-btn-primary"><Store className="w-[18px] h-[18px]" /> ورود صراف آزمایشی — Basic</button>
-          <button type="button" onClick={() => { startPreviewSession('creator'); window.location.assign(`${import.meta.env.BASE_URL}preview-builder`); }} className="pgm-btn pgm-btn-outline"><Shield className="w-[18px] h-[18px]" /> ورود سازنده آزمایشی</button>
+          <button type="button" onClick={() => { startPreviewSession('creator'); window.location.assign(`${import.meta.env.BASE_URL}builder`); }} className="pgm-btn pgm-btn-outline"><Shield className="w-[18px] h-[18px]" /> ورود سازنده آزمایشی — مرکز کنترل</button>
           <div className="grid grid-cols-2 gap-2">
             <Link to="/register?tab=customer" className="pgm-btn pgm-btn-outline text-xs">
               ثبت‌نام مشتری
