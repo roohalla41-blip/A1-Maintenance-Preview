@@ -8,8 +8,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
-  Shield, Layers3, Users, CreditCard, Lock, Bell, MessageSquare,
-  Server, Wallet, Crown, Upload, LogOut, Download, AlertTriangle, UserCog, Clock, Eye, Mail, Smartphone, Gamepad2, Zap, Globe, Store, FlaskConical, Database, Bot
+  Shield, Layers3, Users, Lock, Bell,
+  Server, Wallet, Crown, Upload, LogOut, Download, UserCog, Clock, Eye, Mail, Smartphone, Store, FlaskConical, Database
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -281,11 +281,14 @@ export default function BuilderPanel() {
           </Button>
         }
       />
+      <div className="mb-3 rounded-lg border border-primary/15 bg-primary/5 px-3 py-2 text-xs leading-6 text-muted-foreground">
+        مرکز مدیریت کل پلتفرم است؛ اطلاعات کاربران و مشتریان در بخش کاربران حفظ می‌شود. ابزارهای مهاجرت و مرور مستقیم دیتابیس از منوی روزمره برداشته شده‌اند و آزمایشگاه‌های مستقل همچنان در دسترس‌اند.
+      </div>
 
       <Tabs defaultValue="system">
         <TabsList className="flex overflow-x-auto scrollbar-thin w-full gap-0.5 justify-start sm:justify-around">
           {TAB_GROUPS.filter(group => {
-            if (group.value === 'creator_preview') return isFullCreator;
+            if (group.value === 'creator_preview' || group.value === 'audit') return isFullCreator;
             if (isFullCreator) return true;
             if (group.value === 'co_creators') return false; // co-creators can't manage other co-creators
             if (!allowedTabs) return true;
