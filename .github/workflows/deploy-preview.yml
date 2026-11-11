@@ -70,3 +70,4 @@ jobs:
         uses: actions/deploy-pages@v4
 
 # Preview contract test rerun after isolating the pure local-only guard.
+# Creator control-center cleanup, preview-lab retention, and truthful local-only status are ready.
