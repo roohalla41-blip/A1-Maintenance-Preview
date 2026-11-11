@@ -71,3 +71,4 @@ jobs:
 
 # Preview contract test rerun after isolating the pure local-only guard.
 # Creator control-center cleanup, preview-lab retention, and truthful local-only status are ready.
+# Node ESM import path corrected so workspace contract tests can run before publishing.
