@@ -3,12 +3,18 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Activity, CheckCircle2, XCircle, Loader2 } from 'lucide-react';
 import { pingSupabase } from '@/lib/supabaseHealth';
+import { isIsolatedPreview } from '@/lib/previewIsolation';
 
 export default function KeepaliveStatus() {
   const [result, setResult] = useState(null);
   const [pinging, setPinging] = useState(false);
 
   const runPing = useCallback(async () => {
+    if (isIsolatedPreview()) {
+      setResult({ previewOnly: true, at: new Date() });
+      setPinging(false);
+      return;
+    }
     setPinging(true);
     const res = await pingSupabase();
     setResult({ ...res, at: new Date() });
@@ -23,15 +29,17 @@ export default function KeepaliveStatus() {
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <Activity className="w-4 h-4 text-primary" />
-            <h3 className="text-sm font-semibold">وضعیت Keep-Alive سرور</h3>
+            <h3 className="text-sm font-semibold">وضعیت اتصال و سلامت سرور</h3>
           </div>
-          <Button variant="default" size="sm" onClick={runPing} disabled={pinging} className="gap-1.5 h-7 text-xs">
+          {!isIsolatedPreview() && <Button variant="default" size="sm" onClick={runPing} disabled={pinging} className="gap-1.5 h-7 text-xs">
             {pinging ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Activity className="w-3.5 h-3.5" />}
             {pinging ? 'در حال پینگ...' : 'پینگ دستی'}
-          </Button>
+          </Button>}
         </div>
 
-        {!result ? (
+        {isIsolatedPreview() ? (
+          <div className="rounded-lg border border-amber-300 bg-amber-50/60 p-3 text-xs leading-6 text-amber-900">این محیط عمداً به سرور و دیتابیس متصل نیست. هیچ پینگ یا درخواست شبکه‌ای ارسال نمی‌شود؛ سلامت اتصال واقعی پس از آماده‌شدن دیتابیس آزمایشی مستقل قابل بررسی است.</div>
+        ) : !result ? (
           <div className="flex items-center gap-2 text-xs text-muted-foreground py-3">
             <Loader2 className="w-4 h-4 animate-spin" />
             در حال بررسی اتصال به Supabase...
