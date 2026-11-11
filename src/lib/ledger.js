@@ -1,5 +1,5 @@
 // ledger.js — double-entry document builders and ledger engine
-import { nextDocumentNo, stampDocumentNo, nextTransferNo, todayJalali } from './sarraaf';
+import { nextDocumentNo, stampDocumentNo, nextTransferNo, todayJalali } from './sarraaf.js';
 
 // ── Builders: each returns an array of Transaction lines ──
 
