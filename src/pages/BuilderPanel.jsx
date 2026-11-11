@@ -24,7 +24,6 @@ import PaymentMethodsManager from '@/components/sarraaf/PaymentMethodsManager';
 import SystemOverview from '@/components/sarraaf/SystemOverview';
 import WorkspaceArchitecturePanel from '@/components/sarraaf/WorkspaceArchitecturePanel';
 import OrphanCustomerManager from '@/components/sarraaf/OrphanCustomerManager';
-import SqlMigrationHelper from '@/components/sarraaf/SqlMigrationHelper';
 import VersionManager from '@/components/sarraaf/VersionManager';
 import ContactSettingsManager from '@/components/sarraaf/ContactSettingsManager';
 import AppIconDownloader from '@/components/sarraaf/AppIconDownloader';
@@ -35,20 +34,16 @@ import KeepaliveStatus from '@/components/sarraaf/KeepaliveStatus';
 import WithdrawalManagement from '@/components/sarraaf/WithdrawalManagement';
 import CoCreatorManager from '@/components/sarraaf/CoCreatorManager';
 import ManualVerificationManager from '@/components/sarraaf/ManualVerificationManager';
-import LegacyDataMigrator from '@/components/sarraaf/LegacyDataMigrator';
 import AccountRecoveryManager from '@/components/sarraaf/AccountRecoveryManager';
 import TrialManager from '@/components/sarraaf/TrialManager';
 import MobileLayoutPreview from '@/components/sarraaf/MobileLayoutPreview';
 import CreatorPreviewLab from '@/components/sarraaf/CreatorPreviewLab';
-import { lazy } from 'react';
-const Assistant = lazy(() => import('@/pages/Assistant'));
 import UCManager from '@/components/sarraaf/UCManager';
 import RechargeManager from '@/components/sarraaf/RechargeManager';
 import Afghan5Manager from '@/components/sarraaf/Afghan5Manager';
 import SellerManager from '@/components/sarraaf/SellerManager';
 import SandboxPanel from '@/components/sandbox/SandboxPanel';
 import SupabaseAuditManager from '@/components/sarraaf/SupabaseAuditManager';
-import LiveDatabaseExplorer from '@/components/sarraaf/LiveDatabaseExplorer';
 import { SandboxProvider } from '@/components/sandbox/SandboxProvider';
 import { checkBuilderAccess, startBuilderSession } from '@/lib/builderAccess';
 import { useToast } from '@/components/ui/use-toast';
@@ -68,19 +63,19 @@ const STATUS_COLORS = {
 // گروه‌بندی تب‌ها بر اساس نقش
 const TAB_GROUPS = [
   {
-    label: 'سیستم',
+    label: 'مرکز کنترل',
     icon: Server,
     value: 'system',
-    description: 'نمای کلی، اتصال و آمار',
+    description: 'وضعیت کل پلتفرم و مدیریت مرکزی',
   },
   {
-    label: 'نقشه ساختار',
+    label: 'معماری سامانه',
     icon: Layers3,
     value: 'architecture',
     description: 'نقشه پنل‌ها و دامنه‌های سامانه',
   },
   {
-    label: 'بخش‌ها',
+    label: 'ماژول‌ها',
     icon: Shield,
     value: 'features',
     description: 'مدیریت فعال‌سازی بخش‌ها',
@@ -98,41 +93,41 @@ const TAB_GROUPS = [
     description: 'مجوزهای نقش‌ها',
   },
   {
-    label: 'پلن‌ها',
+    label: 'اشتراک و قیمت',
     icon: Crown,
     value: 'plans',
-    description: 'سهمیه و امکانات پلن',
+    description: 'سطوح، امکانات و قیمت‌گذاری',
   },
 
   {
-    label: 'اعلان‌ها',
+    label: 'ارتباطات',
     icon: Bell,
     value: 'notif',
-    description: 'مدیریت اعلان‌ها',
+    description: 'اعلان‌ها و گفت‌وگوی کاربران',
   },
 
   {
-    label: 'پرداخت',
+    label: 'پرداخت و برداشت',
     icon: Wallet,
     value: 'payments',
-    description: 'روش‌های پرداخت',
+    description: 'روش‌های پرداخت و درخواست برداشت',
   },
 
   {
-    label: 'نسخه',
+    label: 'نسخه و انتشار',
     icon: Upload,
     value: 'version',
     description: 'مدیریت نسخه برنامه',
   },
   {
-    label: 'پشتیبان',
+    label: 'پشتیبان و بازیابی',
     icon: Download,
     value: 'backup',
     description: 'پشتیبان اضطراری پروژه',
   },
 
   {
-    label: 'کمک‌سازنده',
+    label: 'مدیران همکار',
     icon: UserCog,
     value: 'co_creators',
     description: 'مدیریت دسترسی کمک‌سازنده‌ها',
@@ -144,16 +139,16 @@ const TAB_GROUPS = [
     description: 'تأیید هویت و دوره آزمایشی صرافان',
   },
   {
-    label: 'چیدمان موبایل',
+    label: 'پیش‌نمایش موبایل',
     icon: Smartphone,
     value: 'layout_preview',
     description: 'پیش‌نمایش چیدمان موبایل',
   },
   {
-    label: 'آزمایشگاه توسعه',
+    label: 'آزمایشگاه نسخه',
     icon: FlaskConical,
     value: 'creator_preview',
-    description: 'پیش‌نمایش امن نسخه پیشنهادی در محیط مستقل',
+    description: 'محیط امن برای مقایسه و آزمایش نسخه پیشنهادی',
   },
   {
     label: 'خدمات و فروشندگان',
@@ -162,13 +157,13 @@ const TAB_GROUPS = [
     description: 'مدیریت خدمات دیجیتال، شارژ و شبکه فروشندگان',
   },
   {
-    label: 'آزمایش فروش',
+    label: 'آزمایشگاه نقش و فروش',
     icon: FlaskConical,
     value: 'sandbox',
-    description: 'محیط آزمایشی محلی فروش شارژ و خدمات',
+    description: 'آزمون محلی مشتری، صراف، فروشنده و سفارش‌ها',
   },
   {
-    label: 'امنیت و ممیزی',
+    label: 'امنیت و حسابرسی',
     icon: Database,
     value: 'audit',
     description: 'گزارش امن ساختار پایگاه داده و سیاست‌های دسترسی',
@@ -271,7 +266,7 @@ export default function BuilderPanel() {
   return (
     <>
       <PageHeader
-        title="پنل سازنده حساب صراف"
+        title="مرکز کنترل سازنده حساب صراف"
         subtitle={isFullCreator ? user?.full_name : `کمک‌سازنده: ${accessInfo?.name || user?.full_name || ''}`}
         icon={Shield}
         actions={
