@@ -146,10 +146,10 @@ const TAB_GROUPS = [
     description: 'پیش‌نمایش چیدمان موبایل',
   },
   {
-    label: 'ساختار حسابداری',
+    label: 'اسکلت حسابداری',
     icon: Layers3,
     value: 'accounting_structure',
-    description: 'چیدمان تخصصی دسکتاپ و موبایل پنل صراف',
+    description: 'ساختار کاری حسابداری صرافی با چیدمان لپ‌تاپ و گوشی',
   },
   {
     label: 'آزمایشگاه نسخه',
@@ -438,7 +438,7 @@ export default function BuilderPanel() {
           <MobileLayoutPreview />
         </TabsContent>
 
-        {/* اسکلت مستقل ساختار حسابداری؛ فقط رابط کاربری و داده نمونه */}
+        {/* اسکلت حسابداری داخل پنل سازنده؛ فقط رابط کاربری و داده نمونه */}
         {isFullCreator && (
           <TabsContent value="accounting_structure">
             <AccountingStructurePreview />
