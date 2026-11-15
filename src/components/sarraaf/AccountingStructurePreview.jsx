@@ -137,6 +137,36 @@ export default function AccountingStructurePreview() {
     setNotice(label + ' فقط در همین اسکلت و به‌صورت محلی نمایش داده شد؛ هیچ سند یا اطلاعات واقعی ثبت نشد.');
   };
 
+  const saveDraft = () => {
+    if (!selectedModule || !draft.title.trim()) { setNotice('عنوان یا شرح اصلی را وارد کنید.'); return; }
+    const id = editingId || `LOCAL-${Date.now()}`;
+    const item = { ...draft, id, module: selectedModule.name, group: active, savedAt: new Date().toISOString() };
+    setRecords(current => ({ ...current, [active]: [...(current[active] || []).filter(row => row.id !== id), item] }));
+    setDraft({ title: '', party: '', currency: 'USD', amount: '', date: '', status: 'ثبت موقت', notes: '' });
+    setEditingId(null);
+    setNotice('اطلاعات در حافظه همین مرورگر ذخیره شد؛ به سرور یا دیتابیس ارسال نشد.');
+  };
+  const editRecord = (row) => {
+    setSelectedModule({ name: row.module, detail: 'ویرایش اطلاعات ذخیره‌شده محلی' });
+    setDraft({ title: row.title || '', party: row.party || '', currency: row.currency || 'USD', amount: row.amount || '', date: row.date || '', status: row.status || 'ثبت موقت', notes: row.notes || '' });
+    setEditingId(row.id);
+    setNotice('حالت ویرایش فعال شد.');
+  };
+  const deleteRecord = (id) => {
+    setRecords(current => ({ ...current, [active]: (current[active] || []).filter(row => row.id !== id) }));
+    setNotice('رکورد فقط از حافظه محلی مرورگر حذف شد.');
+  };
+  const exportLocal = () => {
+    const blob = new Blob([JSON.stringify(records, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = 'hisabsarraf-demo-local-backup.json'; a.click();
+    URL.revokeObjectURL(url);
+  };
+  const clearLocal = () => {
+    if (!window.confirm('تمام داده‌های آزمایشی ذخیره‌شده در این مرورگر پاک شود؟')) return;
+    setRecords({}); setNotice('داده‌های آزمایشی محلی پاک شد.');
+  };
+
   return <div dir="rtl" className="space-y-4">
     <section className="rounded-2xl border bg-card p-4">
       <div className="flex flex-wrap items-start justify-between gap-3">
@@ -187,13 +217,18 @@ export default function AccountingStructurePreview() {
         </aside>
         <main className="min-w-0 flex-1 space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-2"><div><div className="text-[10px] text-muted-foreground">دفتر صرافی / ساختار کاری</div><h3 className="mt-1 text-lg font-bold">{activeGroup.title}</h3><p className="mt-1 text-xs text-muted-foreground">{activeGroup.subtitle}</p></div><button type="button" onClick={() => simulateAction('فرم ' + activeGroup.modules[0][0])} className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-2 text-xs text-primary-foreground"><Plus className="h-4 w-4" />عملیات جدید</button></div>
-          <WorkspaceContent group={activeGroup} selectedModule={selectedModule} onSelectModule={chooseModule} onAction={simulateAction} notice={notice} />
+          <WorkspaceContent group={activeGroup} selectedModule={selectedModule} onSelectModule={chooseModule} onAction={simulateAction} notice={notice} records={records[active] || []} draft={draft} setDraft={setDraft} onSave={saveDraft} onEdit={editRecord} onDelete={deleteRecord} editingId={editingId} onExport={exportLocal} />
         </main>
       </div>}
       <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t pt-3 text-[10px] text-muted-foreground"><span>اسکلت رابط کاربری · اطلاعات غیرواقعی</span><span className="flex items-center gap-1"><CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />عدم اتصال به پایگاه داده</span></div>
     </div>
 
-    <div className="flex flex-wrap gap-2"><button type="button" onClick={exportLocal} className="rounded-lg border px-3 py-2 text-xs">خروجی پشتیبان محلی</button><button type="button" onClick={clearLocal} className="rounded-lg border px-3 py-2 text-xs">پاک‌کردن داده‌های آزمایشی</button><span className="self-center text-[10px] text-muted-foreground">{Object.values(records).reduce((n, rows) => n + rows.length, 0)} رکورد ذخیره‌شده در این مرورگر</span></div>\n    <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+    <div className="flex flex-wrap gap-2"><button type="button" onClick={exportLocal} className="rounded-lg border px-3 py-2 text-xs">خروجی پشتیبان محلی</button><button type="button" onClick={clearLocal} className="rounded-lg border px-3 py-2 text-xs">پاک‌کردن داده‌های آزمایشی</button><span className="self-center text-[10px] text-muted-foreground">{Object.values(records).reduce((n, rows) => n + rows.length, 0)} رکورد ذخیره‌شده در این مرورگر</span></div>\n    <div className="flex flex-wrap items-center gap-2">
+      <button type="button" onClick={exportLocal} className="rounded-lg border px-3 py-2 text-xs">خروجی پشتیبان محلی</button>
+      <button type="button" onClick={clearLocal} className="rounded-lg border px-3 py-2 text-xs">پاک‌کردن داده‌های آزمایشی</button>
+      <span className="text-[10px] text-muted-foreground">{Object.values(records).reduce((n, rows) => n + rows.length, 0)} رکورد ذخیره‌شده در این مرورگر</span>
+    </div>
+    <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
       {[
         [Scale, 'حسابداری دوطرفه', 'ثبت بدهکار و بستانکار و کنترل توازن سند'],
         [History, 'ردپای حسابرسی', 'ثبت کاربر، زمان، اصلاح و برگشت عملیات'],
