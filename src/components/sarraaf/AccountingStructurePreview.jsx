@@ -133,6 +133,8 @@ export default function AccountingStructurePreview() {
     setSelectedModule(module);
     setNotice(''); 
   };
+
+  const simulateAction = (label) => setNotice(label + ' فقط در همین صفحه شبیه‌سازی شد؛ هیچ اطلاعاتی به سرور ارسال نشد.');
   const saveDraft = () => {
     if (!selectedModule || !draft.title.trim()) { setNotice('عنوان یا شرح اصلی را وارد کنید.'); return; }
     const id = editingId || `LOCAL-${Date.now()}`;
