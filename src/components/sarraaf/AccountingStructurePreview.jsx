@@ -133,6 +133,13 @@ export default function AccountingStructurePreview() {
     setSelectedModule(module);
     setNotice(''); 
   };
+  const openModuleForm = (name) => {
+    const module = activeGroup.modules.find(item => item[0] === name) || activeGroup.modules[0];
+    setSelectedModule({ name: module[0], detail: module[1] });
+    setDraft({ title: module[0], party: '', currency: 'USD', amount: '', date: '', status: 'ثبت موقت', notes: '' });
+    setEditingId(null);
+    setNotice('فرم آزمایشی آماده ورود اطلاعات است.');
+  };
 
   const simulateAction = (label) => setNotice(label + ' فقط در همین صفحه شبیه‌سازی شد؛ هیچ اطلاعاتی به سرور ارسال نشد.');
   const saveDraft = () => {
@@ -204,6 +211,7 @@ export default function AccountingStructurePreview() {
         <div className="flex gap-2 overflow-x-auto pb-1">
           {filteredGroups.map(group => { const Icon = group.icon; return <button key={group.id} type="button" onClick={() => chooseGroup(group.id)} className={'shrink-0 rounded-xl border px-3 py-2 text-[10px] ' + (active === group.id ? 'border-primary bg-primary text-primary-foreground' : 'bg-background')}><Icon className="mx-auto mb-1 h-4 w-4" />{group.title}</button>; })}
         </div>
+        <button type="button" onClick={() => openModuleForm(activeGroup.modules[0][0])} className="w-full rounded-lg bg-primary px-3 py-2 text-xs text-primary-foreground">عملیات جدید</button>
         <WorkspaceContent group={activeGroup} selectedModule={selectedModule} onSelectModule={chooseModule} onAction={simulateAction} notice={notice} records={records[active] || []} draft={draft} setDraft={setDraft} onSave={saveDraft} onEdit={editRecord} onDelete={deleteRecord} editingId={editingId} onExport={exportLocal} onClear={clearLocal} />
       </div> : <div className="flex gap-4 pt-1">
         <aside className="w-60 shrink-0 border-l pl-3">
@@ -214,7 +222,7 @@ export default function AccountingStructurePreview() {
           <div className="mt-4 rounded-xl border bg-muted/30 p-3"><div className="flex items-center gap-2 text-xs font-semibold"><Scale className="h-4 w-4 text-emerald-600" />کنترل حسابداری</div><p className="mt-2 text-[10px] leading-5 text-muted-foreground">هر عملیات فقط یک‌بار ثبت می‌شود؛ سند متناظر باید بدهکار و بستانکار برابر داشته باشد.</p></div>
         </aside>
         <main className="min-w-0 flex-1 space-y-4">
-          <div className="flex flex-wrap items-center justify-between gap-2"><div><div className="text-[10px] text-muted-foreground">دفتر صرافی / ساختار کاری</div><h3 className="mt-1 text-lg font-bold">{activeGroup.title}</h3><p className="mt-1 text-xs text-muted-foreground">{activeGroup.subtitle}</p></div><button type="button" onClick={() => openDemoForm(activeGroup.modules[0][0])} className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-2 text-xs text-primary-foreground"><Plus className="h-4 w-4" />عملیات جدید</button></div>
+          <div className="flex flex-wrap items-center justify-between gap-2"><div><div className="text-[10px] text-muted-foreground">دفتر صرافی / ساختار کاری</div><h3 className="mt-1 text-lg font-bold">{activeGroup.title}</h3><p className="mt-1 text-xs text-muted-foreground">{activeGroup.subtitle}</p></div><button type="button" onClick={() => openModuleForm(activeGroup.modules[0][0])} className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-2 text-xs text-primary-foreground"><Plus className="h-4 w-4" />عملیات جدید</button></div>
           <WorkspaceContent group={activeGroup} selectedModule={selectedModule} onSelectModule={chooseModule} onAction={simulateAction} notice={notice} records={records[active] || []} draft={draft} setDraft={setDraft} onSave={saveDraft} onEdit={editRecord} onDelete={deleteRecord} editingId={editingId} onExport={exportLocal} />
         </main>
       </div>}
