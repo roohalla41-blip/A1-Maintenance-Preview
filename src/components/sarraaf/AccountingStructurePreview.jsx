@@ -113,7 +113,6 @@ export default function AccountingStructurePreview() {
         </aside>
         <main className="min-w-0 flex-1 space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-2"><div><div className="text-[10px] text-muted-foreground">پنل صراف / ساختار پیشنهادی</div><h3 className="mt-1 text-lg font-bold">{activeGroup.title}</h3><p className="mt-1 text-xs text-muted-foreground">{activeGroup.subtitle}</p></div><button type="button" onClick={() => setNotice('فرم «' + activeGroup.modules[0] + '» در مرحله طراحی رابط کاربری قرار دارد.')} className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-2 text-xs text-primary-foreground"><Plus className="h-4 w-4" />عملیات جدید</button></div>
-          {active === 'dashboard' && <div className="grid grid-cols-4 gap-3">{METRICS.map(item => <MetricCard key={item.label} item={item} />)}</div>}
           <WorkspaceContent group={activeGroup} onSelectModule={name => setNotice('بخش «' + name + '» در اسکلت فعلی فقط برای بررسی ساختار نمایش داده می‌شود.')} notice={notice} />
         </main>
       </div>}
@@ -142,6 +141,7 @@ function WorkspaceContent({ group, onSelectModule, notice }) {
         </button>;
       })}
     </div>
+    {group.id === 'dashboard' && <div className="grid grid-cols-2 xl:grid-cols-4 gap-2 sm:gap-3">{METRICS.map(item => <MetricCard key={item.label} item={item} />)}</div>}
     {group.id === 'dashboard' && <div className="overflow-x-auto rounded-lg border"><table className="w-full min-w-[600px] text-right text-xs"><thead className="bg-muted/60 text-muted-foreground"><tr><th className="p-3">شناسه نمونه</th><th className="p-3">نوع عملیات</th><th className="p-3">حساب مرتبط</th><th className="p-3">بدهکار</th><th className="p-3">بستانکار</th><th className="p-3">کنترل</th></tr></thead><tbody>{SAMPLE_ROWS.map(row => <tr key={row.ref} className="border-t"><td className="p-3 font-medium">{row.ref}</td><td className="p-3">{row.type}</td><td className="p-3">{row.account}</td><td className="p-3 tabular-nums">{row.debit}</td><td className="p-3 tabular-nums">{row.credit}</td><td className="p-3"><span className="rounded-full bg-emerald-100 px-2 py-1 text-[10px] text-emerald-800">{row.state}</span></td></tr>)}</tbody></table></div>}
     {notice && <div className="rounded-lg border border-primary/20 bg-primary/5 p-3 text-[10px] leading-5">{notice}</div>}
   </section>;
