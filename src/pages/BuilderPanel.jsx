@@ -38,6 +38,7 @@ import AccountRecoveryManager from '@/components/sarraaf/AccountRecoveryManager'
 import TrialManager from '@/components/sarraaf/TrialManager';
 import MobileLayoutPreview from '@/components/sarraaf/MobileLayoutPreview';
 import CreatorPreviewLab from '@/components/sarraaf/CreatorPreviewLab';
+import AccountingStructurePreview from '@/components/sarraaf/AccountingStructurePreview';
 import UCManager from '@/components/sarraaf/UCManager';
 import RechargeManager from '@/components/sarraaf/RechargeManager';
 import Afghan5Manager from '@/components/sarraaf/Afghan5Manager';
@@ -143,6 +144,12 @@ const TAB_GROUPS = [
     icon: Smartphone,
     value: 'layout_preview',
     description: 'پیش‌نمایش چیدمان موبایل',
+  },
+  {
+    label: 'ساختار حسابداری',
+    icon: Layers3,
+    value: 'accounting_structure',
+    description: 'چیدمان تخصصی دسکتاپ و موبایل پنل صراف',
   },
   {
     label: 'آزمایشگاه نسخه',
@@ -430,6 +437,13 @@ export default function BuilderPanel() {
         <TabsContent value="layout_preview">
           <MobileLayoutPreview />
         </TabsContent>
+
+        {/* اسکلت مستقل ساختار حسابداری؛ فقط رابط کاربری و داده نمونه */}
+        {isFullCreator && (
+          <TabsContent value="accounting_structure">
+            <AccountingStructurePreview />
+          </TabsContent>
+        )}
 
         {/* آزمایشگاه توسعه — فقط پنل سازنده اصلی و کاملاً جدا از دیتابیس زنده */}
         {isFullCreator && (
