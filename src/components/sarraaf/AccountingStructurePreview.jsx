@@ -112,6 +112,12 @@ export default function AccountingStructurePreview() {
   const [mobileMenu, setMobileMenu] = useState(false);
   const [selectedModule, setSelectedModule] = useState(null);
   const [notice, setNotice] = useState('');
+  const [demoRecords, setDemoRecords] = useState(() => { try { return JSON.parse(sessionStorage.getItem('a1-accounting-demo-records') || '[]'); } catch { return []; } });
+  const [activityLog, setActivityLog] = useState(() => { try { return JSON.parse(sessionStorage.getItem('a1-accounting-demo-log') || '[]'); } catch { return []; } });
+  const [formTarget, setFormTarget] = useState('');
+  const [draft, setDraft] = useState({ title: '', party: '', currency: 'USD', amount: '', rate: '', description: '' });
+  useEffect(() => { try { sessionStorage.setItem('a1-accounting-demo-records', JSON.stringify(demoRecords)); } catch {} }, [demoRecords]);
+  useEffect(() => { try { sessionStorage.setItem('a1-accounting-demo-log', JSON.stringify(activityLog)); } catch {} }, [activityLog]);
   const [records, setRecords] = useState(() => { try { return JSON.parse(localStorage.getItem('hisabsarraf_accounting_demo_v1') || '{}'); } catch { return {}; } });
   const [draft, setDraft] = useState({ title: '', party: '', currency: 'USD', amount: '', date: '', status: 'ثبت موقت', notes: '' });
   const [editingId, setEditingId] = useState(null);
@@ -134,7 +140,30 @@ export default function AccountingStructurePreview() {
     setNotice(''); 
   };
   const simulateAction = (label) => {
-    setNotice(label + ' فقط در همین اسکلت و به‌صورت محلی نمایش داده شد؛ هیچ سند یا اطلاعات واقعی ثبت نشد.');
+    const entry = { id: 'LOG-' + Date.now(), label, time: new Date().toLocaleString('fa-IR') };
+    setActivityLog(items => [entry, ...items].slice(0, 50));
+    setNotice(label + ' در گزارش فعالیت آزمایشی همین مرورگر ثبت شد؛ هیچ اطلاعاتی به سرور ارسال نشد.');
+  };
+  const openDemoForm = (label) => {
+    setFormTarget(label);
+    setDraft({ title: label, party: '', currency: 'USD', amount: '', rate: '', description: '' });
+    setNotice('');
+  };
+  const saveDemoForm = (event) => {
+    event.preventDefault();
+    if (!draft.title.trim() || !draft.amount.trim()) { setNotice('عنوان و مبلغ را وارد کنید.'); return; }
+    const record = { ...draft, id: 'TMP-' + Date.now(), module: formTarget, time: new Date().toLocaleString('fa-IR'), status: 'ذخیره موقت' };
+    setDemoRecords(items => [record, ...items]);
+    setActivityLog(items => [{ id: 'LOG-' + Date.now(), label: 'ذخیره موقت ' + formTarget, time: new Date().toLocaleString('fa-IR') }, ...items].slice(0, 50));
+    setFormTarget('');
+    setNotice('اطلاعات نمونه فقط در حافظه موقت همین زبانه مرورگر ذخیره شد.');
+  };
+  const deleteDemoRecord = (id) => setDemoRecords(items => items.filter(item => item.id !== id));
+  const clearDemoData = () => {
+    setDemoRecords([]);
+    setActivityLog([]);
+    try { sessionStorage.removeItem('a1-accounting-demo-records'); sessionStorage.removeItem('a1-accounting-demo-log'); } catch {}
+    setNotice('تمام داده‌های آزمایشی این زبانه پاک شد.');
   };
 
   const saveDraft = () => {
@@ -216,7 +245,7 @@ export default function AccountingStructurePreview() {
           <div className="mt-4 rounded-xl border bg-muted/30 p-3"><div className="flex items-center gap-2 text-xs font-semibold"><Scale className="h-4 w-4 text-emerald-600" />کنترل حسابداری</div><p className="mt-2 text-[10px] leading-5 text-muted-foreground">هر عملیات فقط یک‌بار ثبت می‌شود؛ سند متناظر باید بدهکار و بستانکار برابر داشته باشد.</p></div>
         </aside>
         <main className="min-w-0 flex-1 space-y-4">
-          <div className="flex flex-wrap items-center justify-between gap-2"><div><div className="text-[10px] text-muted-foreground">دفتر صرافی / ساختار کاری</div><h3 className="mt-1 text-lg font-bold">{activeGroup.title}</h3><p className="mt-1 text-xs text-muted-foreground">{activeGroup.subtitle}</p></div><button type="button" onClick={() => simulateAction('فرم ' + activeGroup.modules[0][0])} className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-2 text-xs text-primary-foreground"><Plus className="h-4 w-4" />عملیات جدید</button></div>
+          <div className="flex flex-wrap items-center justify-between gap-2"><div><div className="text-[10px] text-muted-foreground">دفتر صرافی / ساختار کاری</div><h3 className="mt-1 text-lg font-bold">{activeGroup.title}</h3><p className="mt-1 text-xs text-muted-foreground">{activeGroup.subtitle}</p></div><button type="button" onClick={() => openDemoForm(activeGroup.modules[0][0])} className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-2 text-xs text-primary-foreground"><Plus className="h-4 w-4" />عملیات جدید</button></div>
           <WorkspaceContent group={activeGroup} selectedModule={selectedModule} onSelectModule={chooseModule} onAction={simulateAction} notice={notice} records={records[active] || []} draft={draft} setDraft={setDraft} onSave={saveDraft} onEdit={editRecord} onDelete={deleteRecord} editingId={editingId} onExport={exportLocal} />
         </main>
       </div>}
@@ -266,9 +295,25 @@ function WorkspaceContent({ group, selectedModule, onSelectModule, onAction, not
     {records.length > 0 && <div className="overflow-x-auto rounded-xl border"><table className="w-full min-w-[620px] text-right text-xs"><thead className="bg-muted/60"><tr>{['عنوان','طرف حساب','ارز','مبلغ','وضعیت','عملیات'].map(x=><th key={x} className="p-3">{x}</th>)}</tr></thead><tbody>{records.map(row=><tr key={row.id} className="border-t"><td className="p-3 font-medium">{row.title}</td><td className="p-3">{row.party || '—'}</td><td className="p-3">{row.currency}</td><td className="p-3 tabular-nums">{row.amount || '—'}</td><td className="p-3">{row.status}</td><td className="p-3"><div className="flex gap-2"><button type="button" onClick={()=>onEdit(row)} className="rounded border px-2 py-1">ویرایش</button><button type="button" onClick={()=>onDelete(row.id)} className="rounded border px-2 py-1 text-red-600">حذف</button></div></td></tr>)}</tbody></table></div>}
     {group.id === 'operations' && <div className="grid gap-2 rounded-xl border bg-muted/20 p-3 sm:grid-cols-2">
       <div className="sm:col-span-2 flex items-center gap-2 text-xs font-semibold"><ArrowLeftRight className="h-4 w-4 text-primary" />الگوی فرم عملیات روزانه</div>
-      {['نوع عملیات', 'طرف حساب', 'ارز و مبلغ', 'نرخ تبدیل', 'صندوق / حساب مقصد', 'شرح و پیوست'].map(field => <label key={field} className="space-y-1 text-[10px] text-muted-foreground">{field}<input disabled placeholder="فیلد ساختاری — در این مرحله غیرفعال" className="h-9 w-full rounded-lg border bg-background px-3 text-xs" /></label>)}
+      {['نوع عملیات', 'طرف حساب', 'ارز و مبلغ', 'نرخ تبدیل', 'صندوق / حساب مقصد', 'شرح و پیوست'].map(field => <label key={field} className="space-y-1 text-[10px] text-muted-foreground">{field}<input onFocus={() => onOpenForm(field)} readOnly placeholder="برای بازکردن فرم آزمایشی کلیک کنید" className="h-9 w-full cursor-pointer rounded-lg border bg-background px-3 text-xs" /></label>)}
+      <button type="button" onClick={() => onOpenForm('عملیات روزانه')} className="sm:col-span-2 rounded-lg bg-primary px-3 py-2 text-xs text-primary-foreground">بازکردن فرم ثبت آزمایشی</button>
       <p className="sm:col-span-2 text-[10px] leading-5 text-muted-foreground">در معماری نهایی، ثبت این فرم یک عملیات واحد است و سند بدهکار/بستانکار متناظر از همان رویداد تولید می‌شود؛ ورود دوباره در دفترها لازم نیست.</p>
     </div>}
+    {formTarget && <form onSubmit={onSaveForm} className="space-y-3 rounded-xl border border-primary/30 bg-primary/5 p-3">
+      <div className="flex items-center justify-between gap-2"><h5 className="text-xs font-bold">فرم آزمایشی: {formTarget}</h5><button type="button" onClick={() => onOpenForm('')} className="rounded-md border px-2 py-1 text-[10px]">بستن</button></div>
+      <div className="grid gap-2 sm:grid-cols-2">
+        <label className="space-y-1 text-[10px]">عنوان / نوع عملیات<input required value={draft.title} onChange={e => setDraft(v => ({...v,title:e.target.value}))} className="h-9 w-full rounded-lg border bg-background px-3 text-xs" /></label>
+        <label className="space-y-1 text-[10px]">طرف حساب<input value={draft.party} onChange={e => setDraft(v => ({...v,party:e.target.value}))} placeholder="نام مشتری نمونه" className="h-9 w-full rounded-lg border bg-background px-3 text-xs" /></label>
+        <label className="space-y-1 text-[10px]">ارز<select value={draft.currency} onChange={e => setDraft(v => ({...v,currency:e.target.value}))} className="h-9 w-full rounded-lg border bg-background px-3 text-xs"><option>USD</option><option>EUR</option><option>AFN</option><option>IRR</option><option>TRY</option></select></label>
+        <label className="space-y-1 text-[10px]">مبلغ<input required inputMode="decimal" value={draft.amount} onChange={e => setDraft(v => ({...v,amount:e.target.value}))} className="h-9 w-full rounded-lg border bg-background px-3 text-xs" /></label>
+        <label className="space-y-1 text-[10px]">نرخ تبدیل<input inputMode="decimal" value={draft.rate} onChange={e => setDraft(v => ({...v,rate:e.target.value}))} className="h-9 w-full rounded-lg border bg-background px-3 text-xs" /></label>
+        <label className="space-y-1 text-[10px]">شرح<input value={draft.description} onChange={e => setDraft(v => ({...v,description:e.target.value}))} className="h-9 w-full rounded-lg border bg-background px-3 text-xs" /></label>
+      </div>
+      <div className="flex flex-wrap gap-2"><button type="submit" className="rounded-lg bg-primary px-4 py-2 text-xs text-primary-foreground">ذخیره موقت در مرورگر</button><button type="button" onClick={() => onAction('پیش‌نمایش چاپ ' + formTarget)} className="rounded-lg border bg-background px-3 py-2 text-xs">آزمایش چاپ / رسید</button></div>
+      <p className="text-[10px] text-muted-foreground">این فرم فقط داده آزمایشی می‌گیرد؛ ذخیره در session مرورگر است و با بستن زبانه پاک می‌شود. هیچ درخواست شبکه‌ای ارسال نمی‌شود.</p>
+    </form>}
+    {demoRecords?.length > 0 && <div className="space-y-2 rounded-xl border p-3"><div className="flex items-center justify-between"><h5 className="text-xs font-bold">ثبت‌های موقت این زبانه ({demoRecords.length})</h5><button type="button" onClick={onClearDemo} className="text-[10px] text-destructive">پاک‌کردن همه</button></div>{demoRecords.slice(0,8).map(item => <div key={item.id} className="flex items-center justify-between gap-2 border-t py-2 text-[10px]"><div><b>{item.title}</b><span className="mr-2 text-muted-foreground">{item.amount} {item.currency} · {item.party || 'بدون طرف حساب'}</span><div className="text-muted-foreground">{item.time}</div></div><button type="button" onClick={() => onDeleteRecord(item.id)} className="rounded border px-2 py-1">حذف</button></div>)}</div>}
+    {activityLog?.length > 0 && <details className="rounded-xl border p-3"><summary className="cursor-pointer text-xs font-semibold">گزارش کلیک‌ها و فعالیت‌های آزمایشی ({activityLog.length})</summary><div className="mt-2 space-y-1">{activityLog.slice(0,10).map(item => <div key={item.id} className="text-[10px] text-muted-foreground">{item.time} — {item.label}</div>)}</div></details>}
     {notice && <div className="rounded-lg border border-primary/20 bg-primary/5 p-3 text-[10px] leading-5">{notice}</div>}
   </section>;
 }
